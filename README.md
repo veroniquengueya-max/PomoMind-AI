@@ -48,4 +48,4 @@ streamlit run app.py
 ```
 
 ---
-*Developed with 💙 in Cursor by Audrey, Chief Technology Officer.*
+*Developed with 💙 in Cursor by Ngueya Audrey.*
