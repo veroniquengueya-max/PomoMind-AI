@@ -33,8 +33,8 @@ L'intelligence de notre système est divisée en **4 agents spécialisés** qui 
 ### Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com
-cd your-repository
+git clone https://github.com/veroniquengueya-max/PomoMind-AI.git
+cd veroniquengueya-max
 ```
 
 2. Install dependencies:
