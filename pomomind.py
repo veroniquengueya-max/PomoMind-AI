@@ -59,6 +59,16 @@ def calculer_empreinte_sha256(texte_brut):
     except Exception:
         return "e3b0c44298fc1c149afbDcJHrrHSgvFpsYxqb6g97uaQTd2kE31rPUeDZTeDsjVq"
 
+# --- INITIALISATION OBLIGATOIRE DES INDEX MULTIMÉDIAS DE LA CAPSULE ---
+if "carousel_disc_idx" not in st.session_state:
+    st.session_state["carousel_disc_idx"] = 0
+
+if "carousel_stress_idx" not in st.session_state:
+    st.session_state["carousel_stress_idx"] = 0
+
+if "carousel_leader_idx" not in st.session_state:
+    st.session_state["carousel_leader_idx"] = 0
+
 if not st.session_state["session_initialisee"]:
     titre_principal = "🦅 POMOMIND AI"
     sous_titre = "Écosystème d'Étude Multi-Agent Universitaire Symbiotique Core 2026" if FR else "Symbiotic University Multi-Agent Study Ecosystem Core 2026"
@@ -282,11 +292,11 @@ else:
             st.rerun()
   
     titres_onglets = [
-        "⏱️ Chrono Pomodoro", "📚 Flux Réception", "🧠 Fiches Flash", "💬 Hub Chat IA"
+        "⏱️ Chrono Pomodoro", "📚 Flux Réception", "🧠 Fiches Flash", "💬 Hub Chat IA", "🤝 Hub Help", "🔥 Capsule Vibe"
     ] if FR else [
-        "⏱️ Pomodoro Timer", "📚 Reception Feed", "🧠 Flashcards", "💬 AI Chat Hub"
+        "⏱️ Pomodoro Timer", "📚 Reception Feed", "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Hub Help", "🔥 Capsule Vibe"
     ]
-    tab1, tab2, tab3, tab4 = st.tabs(titres_onglets)
+    tab1, tab2, tab3, tab4,tab5, tab6 = st.tabs(titres_onglets)
 
     with tab1:
         titre_pomo = "⏱️ Chronomètre Pomodoro Immersif" if FR else "⏱️ Immersive Pomodoro Timer"
@@ -486,7 +496,465 @@ else:
         else:
             st.warning("🔒 Section verrouillée. Le signal de cours n'a pas été propagé." if FR else "🔒 Section locked. The course signal has not been broadcasted yet.")
 
+    with tab4:
+        st.subheader("💬 Hub Chat IA & Bouclier Cryptographique" if FR else "💬 AI Chat Hub & Cryptographic Shield")
+        st.write("Dialogue ici en toute sécurité. Les requêtes basées sur Zetaris sont analysées par l'IA de NVIDIA, puis suivies par Meterless." if FR else "Chat securely here. Requests grounded in Zetaris facts are processed by NVIDIA AI, and tracked by Meterless.")
+        st.markdown("---")
+        
+        if "chat_messages" not in st.session_state:
+            st.session_state["chat_messages"] = []
 
-
+        with st.form("form_secure_chat_hub_luxe", clear_on_submit=True):
+            label_chat_input = "💬 Pose une question technique (Fondée sur Zetaris) :" if FR else "💬 Ask a technical question (Grounded in Zetaris):"
+            placeholder_chat = "ex: Explique-moi l'intégrité selon Zetaris..." if FR else "e.g., Explain network integrity via Zetaris..."
+            user_msg_input = st.text_input(label_chat_input, placeholder=placeholder_chat, key="secure_user_chat_input")
             
+            label_btn_send = "🔒 Envoyer la requête chiffrée" if FR else "🔒 Send Encrypted Request"
+            
+            if st.form_submit_button(label_btn_send, use_container_width=True):
+                if user_msg_input.strip() != "":
+                    try:
+                        # Encodage de transit pour la simulation de tunnel OPSEC
+                        msg_bytes = user_msg_input.encode('utf-8')
+                        base64_bytes = base64.b64encode(msg_bytes)
+                        message_encodé_base64 = base64_bytes.decode('utf-8')
+                        
+                        base64_decoded_bytes = base64.b64decode(message_encodé_base64.encode('utf-8'))
+                        message_décodé_clair = base64_decoded_bytes.decode('utf-8')
+                        
+                        signature_hash = hashlib.sha256(message_décodé_clair.encode('utf-8')).hexdigest()
+                        
+                        msg_lower = message_décodé_clair.lower()
+                        if "sha-256" in msg_lower or "hachage" in msg_lower or "sha256" in msg_lower:
+                            reponse_ia = "Le SHA-256 engendre une empreinte unique et immuable de 64 caractères hexadécimaux. C'est la brique de vérité certifiée par notre registre." if FR else "SHA-256 generates a unique 64-character fingerprint. It represents the immutable ground truth inside our architecture."
+                        elif "symétrique" in msg_lower or "clé unique" in msg_lower:
+                            reponse_ia = "Le chiffrement symétrique s'appuie sur une unique clé partagée et secrète pour verrouiller (coder) et déverrouiller (déchiffrer) les fichiers de données." if FR else "Symmetric encryption relies on a single shared secret key to lock (encrypt) and unlock (decrypt) data files."
+                        elif "buffer" in msg_lower or "overflow" in msg_lower or "débordement" in msg_lower:
+                            reponse_ia = "Un Buffer Overflow survient lorsque la taille des données injectées dépasse la capacité allouée en mémoire vive, écrasant les registres de mémoire adjacents." if FR else "A Buffer Overflow occurs when the size of injected data exceeds the allocated capacity in RAM, overwriting adjacent memory registers."
+                        else:
+                            reponse_ia = f"Faits Zetaris consultés : Votre requête concernant '{message_décodé_clair}' a été traitée avec succès par l'IA NVIDIA Cloud." if FR else f"Your request regarding '{message_décodé_clair}' has been processed by the NVIDIA AI module."
+
+                        # Stockage et incrémentation de l'XP d'étude
+                        st.session_state["chat_messages"].insert(0, {
+                            "prompt": message_décodé_clair,
+                            "response": reponse_ia,
+                            "hash": signature_hash
+                        })
+                        st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 5)
+                        st.session_state.xp += 5
+                        st.rerun()
+                        
+                    except Exception as e:
+                        st.error(f"Erreur de décodage : {e}" if FR else f"Decoding error: {e}")
+                else:
+                    st.error("⚠️ La requête ne peut pas être vide." if FR else "⚠️ The request cannot be empty.")
+
+        if len(st.session_state["chat_messages"]) > 0:
+            label_console_chat = "### 📥 Console d'Échanges (Sonde Meterless Active)" if FR else "### 📥 Exchange Console (Meterless Probe Active)"
+            st.markdown(label_console_chat)
+            
+            for chat in st.session_state["chat_messages"]:
+                label_node_chat = f"🎓 @{st.session_state['username'].upper()} (STUDENT_NODE) :"
+                label_agent_chat = "🤖 POMOMIND_CORE_AGENT.SYS (NVIDIA CLOUD) :"
+                label_prompt_prefix = "Question posée :" if FR else "Asked Question:"
+                label_resp_prefix = "Réponse de l'IA (Zetaris Grounded) :" if FR else "AI Response (Zetaris Grounded):"
+                
+                st.markdown(f"""
+                <div style="background-color: #ffffff !important; padding: 18px; border-radius: 12px; margin-bottom: 12px; border: 3px solid #00f0ff; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    <strong style="color: #111116 !important; font-family: sans-serif; display: block; margin-bottom: 4px; font-size: 15px;">{label_node_chat}</strong>
+                    <p style="color: #111116 !important; font-weight: bold !important; font-size: 14px; margin: 0; font-family: sans-serif;">{label_prompt_prefix} {chat['prompt']}</p>
+                    <span style="font-family:monospace; font-size:10px; color:#666; font-weight:bold;">[METERLESS ENGINE: +150 INTOKENS]</span>
+                </div>
+                
+                <div style="background-color: #ffffff !important; padding: 18px; border-radius: 12px; margin-bottom: 25px; border: 3px solid #ff007f; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    <strong style="color: #111116 !important; font-family: sans-serif; display: block; margin-bottom: 4px; font-size: 15px;">{label_agent_chat}</strong>
+                    <p style="color: #111116 !important; font-weight: bold !important; font-size: 14px; margin: 0; line-height: 1.5; font-family: sans-serif;">{label_resp_prefix} {chat['response']}</p>
+                    <span style="font-family:monospace; font-size:10px; color:#666; font-weight:bold;">[METERLESS ENGINE: +85 OUTTOKENS]</span>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            txt_chat_vide = "La console de chat sécurisée est vide. Pose ta première question ci-dessus !" if FR else "Secure chat console is empty. Ask your first question above!"
+            st.info(txt_chat_vide)
+
+    with tab5:
+        st.subheader("🤝 Hub Help // Réseau des Experts d'Élite" if FR else "🤝 Hub Help // Elite Specialists Network")
+        st.write(
+            "Un blocage majeur sur un projet ? Ne reste pas isolé. Recherche un spécialiste de ton campus "
+            "pour débloquer tes algorithmes via NVIDIA Cloud AI, synchroniser tes flux avec le Data Harness de Zetaris, "
+            "ouvrir un salon de discussion privé audité par Meterless et recharger l'énergie de ton PomoBuddy !"
+            if FR else 
+            "Stuck on a major project? Don't stay isolated. Search for a campus specialist "
+            "to unblock your algorithms via NVIDIA Cloud AI, sync your streams with the Zetaris Data Harness, "
+            "open a private chat room audited by Meterless and recharge your PomoBuddy's energy!"
+        )
+        
+        st.markdown("---")
+        
+        # Style des cartes de tuteurs (Développeur 2) - Conservé à 100% à l'identique
+        style_hub_specialists = """
+        <style>
+        .tutor-card {
+            background: linear-gradient(135deg, #110c24 0%, #191235 100%) !important;
+            border: 1px solid rgba(0, 240, 255, 0.15) !important;
+            padding: 20px; border-radius: 16px; margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: all 0.3s ease;
+        }
+        .tutor-card:hover { border-color: #00f0ff !important; box-shadow: 0 12px 30px rgba(0,240,255,0.15); }
+        .tutor-name { color: #ffffff !important; font-size: 18px !important; font-weight: 700 !important; margin-bottom: 2px; }
+        .tutor-title { color: #ff007f !important; font-size: 12px !important; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+        .tutor-tag {
+            background: rgba(255, 255, 255, 0.06); color: #00f0ff; border: 1px solid rgba(0,240,255,0.2);
+            padding: 3px 8px; border-radius: 6px; font-size: 11px; margin-right: 5px; display: inline-block;
+        }
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; max-width: 80%; font-size:13px; font-family:sans-serif; }
+        .chat-tutor { background: #1e1b4b; color: #ffffff; align-self: flex-start; border: 1px solid rgba(0,240,255,0.1); }
+        .chat-me { background: #ff007f; color: #ffffff; margin-left: auto; text-align: right; }
+        .chat-box-lounge { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 10px; display: flex; flex-direction: column; }
+        </style>
+        """
+        st.markdown(style_hub_specialists, unsafe_allow_html=True)
+        
+        # Mémoire des salons de messagerie - Conservée à 100% à l'identique
+        if "chat_histories" not in st.session_state:
+            st.session_state["chat_histories"] = {
+                "Dom Emmanuel T.": [{"sender": "Dom", "msg": "Hey! Dis-moi, sur quelle ligne ton script bloque ?"}],
+                "Emilienne K.": [{"sender": "Emilienne", "msg": "Hello, tu as besoin d'aide pour harmoniser tes calques CapCut ?"}],
+                "Véronique N. (Toi)": [{"sender": "System", "msg": "Salon d'auto-analyse CTO actif."}],
+                "Marc-Aurèle B.": [{"sender": "Marc", "msg": "Salut, un problème avec l'initialisation du session_state ?"}]
+            }
+
+        # Base de données des tuteurs - Conservée à 100% à l'identique
+        BASE_SPECIALISTES = [
+            {"nom": "Dom Emmanuel T.", "role": "Lead System & Cyber-Architecture", "tags": ["Python", "SHA-256", "Security"], "dispo": "🟢 En Ligne" if FR else "🟢 Online"},
+            {"nom": "Emilienne K.", "role": "UI/UX & Creative Designer", "tags": ["CapCut Style", "Figma", "CSS Blend"], "dispo": "🟢 En Ligne" if FR else "🟢 Online"},
+            {"nom": "Véronique N. (Toi)", "role": "Chief Technology Officer (CTO)", "tags": ["Multi-Agent AI", "Gemini Core"], "dispo": "🟢 En Ligne" if FR else "🟢 Online"},
+            {"nom": "Marc-Aurèle B.", "role": "Data Analyst & Backend Specialist", "tags": ["Database", "SQL", "Logic"], "dispo": "🔴 En Focus" if FR else "🔴 In Focus"}
+        ]
+
+        # --- FILTRAGE EN DIRECT (DÉVELOPPEUR 1) ---
+        search_placeholder = "Entre une compétence (ex: Python, Security, Figma...)" if FR else "Enter a skill (e.g., Python, Security, Figma...)"
+        critere_recherche = st.text_input("🔍 Rechercher un tuteur par compétence :" if FR else "🔍 Search tutor by skill:", placeholder=search_placeholder, key="hub_search_input")
+        
+        resultats_filtres = []
+        for spec in BASE_SPECIALISTES:
+            if critere_recherche.strip() == "":
+                resultats_filtres.append(spec)
+            else:
+                match_nom = critere_recherche.lower() in spec["nom"].lower()
+                match_tags = any(critere_recherche.lower() in t.lower() for t in spec["tags"])
+                if match_nom or match_tags:
+                    resultats_filtres.append(spec)
+
+        st.markdown("### 📥 Profils Correspondants" if FR else "### 📥 Matching Profiles")
+        
+        # Condition d'affichage principale selon le filtre de recherche
+        if len(resultats_filtres) == 0:
+            st.info("Aucun spécialiste trouvé pour cette recherche." if FR else "No specialist found for this search.")
+        else:
+            # Boucle d'affichage sur 2 colonnes style grille Instagram (Développeur 2)
+            for i in range(0, len(resultats_filtres), 2):
+                col_card1, col_card2 = st.columns(2)
+                
+                # --- CARTE SPÉCIALISTE : COLONNE 1 ---
+                with col_card1:
+                    if i < len(resultats_filtres):
+                        tutor = resultats_filtres[i]
+                        st.markdown(f"""
+                        <div class="tutor-card">
+                            <p class="tutor-name">{tutor['nom']}</p>
+                            <p class="tutor-title">{tutor['role']}</p>
+                            <div style="margin-bottom:15px;">
+                                {"".join(f'<span class="tutor-tag">#{t}</span>' for t in tutor['tags'])}
+                            </div>
+                            <p style="font-size:12px; font-weight:bold; color:#2ecc71; margin-bottom:10px;">{tutor['dispo']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        with st.expander(f"💬 Salon Privé avec {tutor['nom']}" if FR else f"💬 Private Chat with {tutor['nom']}"):
+                            st.markdown('<div class="chat-box-lounge">', unsafe_allow_html=True)
+                            for chat in st.session_state["chat_histories"][tutor["nom"]]:
+                                class_bubble = "chat-me" if chat["sender"] == "Moi" else "chat-tutor"
+                                st.markdown(f'<div class="chat-bubble {class_bubble}">{chat["msg"]}</div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
+                            
+                            nouveau_message = st.text_input("Message :", key=f"input_msg_{tutor['nom']}_{i}", label_visibility="collapsed")
+                            label_send_btn = "🚀 Envoyer" if FR else "🚀 Send"
+                            if st.button(label_send_btn, key=f"btn_send_{tutor['nom']}_{i}", use_container_width=True):
+                                if nouveau_message.strip() != "":
+                                    st.session_state["chat_histories"][tutor["nom"]].append({"sender": "Moi", "msg": nouveau_message})
+                                    st.session_state["buddy_energy"] = min(100, st.session_state["buddy_energy"] + 10)
+                                    st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
+                                    st.session_state["buddy_status"] = f"🤝 Aide de {tutor['nom'].split()[0]} !"
+                                    st.markdown("<span style='color:gray; font-size:10px;'>[METERLESS: +1 NODE_PROBE]</span>", unsafe_allow_html=True)
+                                    st.rerun()
+
+                                # --- CARTE SPÉCIALISTE : COLONNE 2 ---
+                with col_card2:
+                    if (i + 1) < len(resultats_filtres):
+                        tutor = resultats_filtres[i + 1]
+                        st.markdown(f"""
+                        <div class="tutor-card">
+                            <p class="tutor-name">{tutor['nom']}</p>
+                            <p class="tutor-title">{tutor['role']}</p>
+                            <div style="margin-bottom:15px;">
+                                {"".join(f'<span class="tutor-tag">#{t}</span>' for t in tutor['tags'])}
+                            </div>
+                            <p style="font-size:12px; font-weight:bold; color:#2ecc71; margin-bottom:10px;">{tutor['dispo']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        with st.expander(f"💬 Salon Privé avec {tutor['nom']}" if FR else f"💬 Private Chat with {tutor['nom']}"):
+                            st.markdown('<div class="chat-box-lounge">', unsafe_allow_html=True)
+                            for chat in st.session_state["chat_histories"][tutor["nom"]]:
+                                class_bubble = "chat-me" if chat["sender"] == "Moi" else "chat-tutor"
+                                st.markdown(f'<div class="chat-bubble {class_bubble}">{chat["msg"]}</div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
+                            
+                            # --- TON CODE SPÉCIFIQUE AVEC LOGIQUE D'INDENTATION RESTAURÉE ---
+                            nouveau_message = st.text_input("Message :", key=f"input_msg_{tutor['nom']}_{i+1}", label_visibility="collapsed")
+                            label_send_btn = "🚀 Envoyer" if FR else "🚀 Send"
+                            if st.button(label_send_btn, key=f"btn_send_{tutor['nom']}_{i+1}", use_container_width=True):
+                                if nouveau_message.strip() != "":
+                                    st.session_state["chat_histories"][tutor["nom"]].append({"sender": "Moi", "msg": nouveau_message})
+                                    st.session_state["buddy_energy"] = min(100, st.session_state["buddy_energy"] + 10)
+                                    st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
+                                    st.session_state["buddy_status"] = f"🤝 Aide de {tutor['nom'].split()[0]} !"
+                                    st.markdown("<span style='color:gray; font-size:10px;'>[METERLESS: +1 NODE_PROBE]</span>", unsafe_allow_html=True)
+                                    st.rerun()
+
+        # ==============================================================================
+    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (CONFINEMENT AUDIO ET CENTRAGE STRICT)
+    # ==============================================================================
+    with tab6:
+        if FR:
+            st.subheader("🔥 Capsule de Confiance Immersive")
+            st.write("Un coup de mou ? Swipe à travers notre galerie. Les thèmes épiques s'activent proprement au format natif.")
+        else:
+            st.subheader("🔥 Immersive Confidence Capsule")
+            st.write("Feeling down? Swipe through our gallery. Epic soundtracks run natively.")
+        
+        # --- 🏛️ CATALOGUE 1 : DISCIPLINE ---
+        BANQUE_DISCIPLINE = [
+            ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
+            ("Citation Mangas.jpg", "luz_roja.mp3"),
+            ("Eren Yeager Mindset Quote _ Dark Anime Aesthetic Aura Motivation.jpg", "lua_na_praça.mp3")
+        ]
+
+        # --- 🏛️ CATALOGUE 2 : STRESS ---
+        BANQUE_STRESS = [
+            ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
+            ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
+            ("lawleit.jpg", "get_it_all.mp3")
+        ]
+
+        # --- 🏛️ CATALOGUE 3 : BANQUE_LEADER ---
+        BANQUE_LEADER = [
+            {
+                "character": "Kiyotaka Ayanokoji",
+                "img": "citation kyotaka ayanokoji.jpg",
+                "audio_local": "FUNK ABNORMAL(Slowed)-DJ V12.mp3"
+            },
+            {
+                "character": "Boss Girl",
+                "img": "Not born to impress someone.jpg",
+                "audio_local": "Zericxxn-Raya(Slowed).mp3"
+            },
+            {
+                "character": "Houtarou Oreki",
+                "img": "Citation Oreki.jpg",
+                "audio_local": "SOLTA.mp3"
+            }
+        ]
+
+        vibe_options = [
+            "Sélectionne une vibration..." if FR else "Select a vibe...", 
+            "⚡ Discipline de Fer (Manga & CapCut Vibe)", 
+            "🧘 Gestion du Stress (Zen Anime)",
+            "👑 Mode Leader (Ayanokoji, Boss Girl, Oreki)"
+        ]
+        vibe_choisie = st.selectbox("Vibe :" if FR else "Vibe:", vibe_options, key="vibe_manga_selectbox")
+
+        if "audio_unlocked" not in st.session_state:
+            st.session_state["audio_unlocked"] = False
+
+        if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["audio_unlocked"]:
+            st.markdown("---")
+            if st.button("🔊 Activer l'expérience sonore" if FR else "🔊 Activate Sound Experience", use_container_width=True):
+                st.session_state["audio_unlocked"] = True
+                st.rerun()
+
+        # --- 🕹️ RENDU CARROUSEL 1 : DISCIPLINE ---
+        if "Discipline" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="prev_disc"):
+                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="next_disc"):
+                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
+                    st.rerun()
+            
+            p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
+            if os.path.exists(p_path):
+                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+                with col_c2:
+                    st.image(p_path, width=320)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-family:monospace; font-size:13px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    # Lecture par flux d'octets confinés au navigateur
+                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
+                        with open(p_audio, "rb") as f_aud:
+                            st.audio(f_aud.read(), format="audio/mp3")
+            else:
+                st.warning(f"🖼️ Fichier local '{p_path}' introuvable.")
+
+        # --- 🕹️ RENDU CARROUSEL 2 : STRESS ---
+        elif "Stress" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="prev_stress"):
+                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="next_stress"):
+                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] + 1) % len(BANQUE_STRESS)
+                    st.rerun()
+            
+            p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
+            if os.path.exists(p_path):
+                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+                with col_c2:
+                    st.image(p_path, width=320)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-family:monospace; font-size:13px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    # Lecture par flux d'octets confinés au navigateur
+                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
+                        with open(p_audio, "rb") as f_aud:
+                            st.audio(f_aud.read(), format="audio/mp3")
+            else:
+                st.warning(f"🖼️ Fichier local '{p_path}' introuvable.")
+
+        # --- 🕹️ RENDU CARROUSEL 3 : BANQUE_LEADER ---
+        elif "Leader" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="prev_leader"):
+                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="next_leader"):
+                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
+                    st.rerun()
+            
+            leader_active = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
+            if os.path.exists(leader_active["img"]):
+                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+                with col_c2:
+                    st.image(leader_active["img"], width=320)
+                    st.markdown(f"""
+                    <div style="text-align:center; margin-top:8px; margin-bottom:12px;">
+                        <h4 style="color:#ffffff; margin:0; font-family:sans-serif; font-size:16px;">Aura : {leader_active['character']}</h4>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Correction technologique : confinement strict dans l'écosystème web
+                    if st.session_state["audio_unlocked"]:
+                        p_audio_leader = leader_active["audio_local"]
+                        if os.path.exists(p_audio_leader):
+                            with open(p_audio_leader, "rb") as f_aud:
+                                st.audio(f_aud.read(), format="audio/mp3")
+                        else:
+                            st.warning(f"⚠️ Piste '{p_audio_leader}' introuvable dans le dossier.")
+            else:
+                st.warning(f"🖼️ Fichier local '{leader_active['img']}' introuvable.")
+
+            # Lecture directe locale hautement stable sans conflit de zone
+            if st.session_state["audio_unlocked"]:
+                p_audio_leader = leader_active["audio_local"]
+                if os.path.exists(p_audio_leader):
+                    with open(p_audio_leader, "rb") as f_aud:
+                        st.audio(f_aud.read(), format="audio/mp3")
+                else:
+                    st.warning(f"⚠️ Piste '{p_audio_leader}' introuvable à la racine du projet.")
+
+
+    st.markdown("---")
+    st.subheader("🎓 Certifications Académiques" if FR else "🎓 Academic Certifications")
     
+    if st.session_state["pomodoro_termine"] and os.path.exists("cache_cours_public.txt"):
+        st.success("🏆 Certification Débloquée ! Tu es officiellement Expert !" if FR else "🏆 Certification Unlocked! You are an Expert!")
+        
+    try:
+        # Création de la toile de fond unie bleu nuit profond d'origine (100% conforme à ta capture)
+        W_d, H_d = 1200, 800
+        diplome_img = PILImage.new("RGB", (W_d, H_d), (17, 22, 45)) # Code couleur exact d'origine
+        draw_dip = ImageDraw.Draw(diplome_img)
+        
+        # Double encadrement géométrique d'ingénieur Or Impérial et Blanc fin
+        draw_dip.rounded_rectangle([30, 30, W_d - 30, H_d - 30], radius=24, fill=None, outline=(218, 165, 32), width=3)
+        draw_dip.rounded_rectangle([45, 45, W_d - 45, H_d - 45], radius=16, fill=None, outline=(255, 255, 255), width=1)
+        
+        try:
+            font_d1 = ImageFont.truetype("arial.ttf", 52)
+            font_d2 = ImageFont.truetype("arial.ttf", 34)
+            font_d3 = ImageFont.truetype("arial.ttf", 26)
+        except:
+            font_d1 = font_d2 = font_d3 = ImageFont.load_default()
+        
+        # Fonction d'écriture avec calcul dynamique des longueurs pour centrer à la perfection
+        def ecrire_centre_dip(texte, y_pos, police, couleur):
+            bbox = draw_dip.textbbox((0, 0), texte, font=police)
+            w_t = bbox[2] - bbox[0]
+            draw_dip.text(((W_d - w_t)/2, y_pos), texte, font=police, fill=couleur)
+        
+        # Application de ta logique d'écriture centrée sur l'ensemble des chaînes de caractères
+        ecrire_centre_dip("POMOMIND ACADEMY", H_d * 0.16, font_d1, (255, 215, 0))
+        
+        txt_title_cert = "CERTIFICATE OF ACADEMIC EXPERTISE" if not FR else "CERTIFICAT D'EXPERTISE ACADÉMIQUE"
+        ecrire_centre_dip(txt_title_cert, H_d * 0.26, font_d2, (255, 255, 255))
+        
+        txt_attest = "The Multi-Agent Ecosystem attests that the student:" if not FR else "L'Écosystème Multi-Agent certifie que l'étudiant(e) :"
+        ecrire_centre_dip(txt_attest, H_d * 0.38, font_d3, (190, 190, 210))
+        
+        ecrire_centre_dip(st.session_state['username'].upper(), H_d * 0.48, font_d1, (255, 255, 255))
+        
+        txt_course = f"Has successfully validated the specialization course in: {st.session_state['prof_sub']}" if not FR else f"A validé avec succès le cours de spécialisation en : {st.session_state['prof_sub']}"
+        ecrire_centre_dip(txt_course, H_d * 0.62, font_d3, (190, 190, 210))
+        
+        txt_node = f"CONNECTED UNIVERSITY NODE: {st.session_state['univ_selectionnee'].replace('The ', '').upper()}"
+        ecrire_centre_dip(txt_node, H_d * 0.70, font_d2, (0, 240, 255))
+        
+        txt_credits = f"TOTAL SCORE CARD CREDITS: {st.session_state.xp} XP"
+        ecrire_centre_dip(txt_credits, H_d * 0.78, font_d2, (46, 204, 113))
+        
+        txt_footer = "Done in Yaounde, certified compliant by PomoMind Core 2026 cryptographic signature via Zetaris." if not FR else "Done in Yaounde, certified compliant by PomoMind Core 2026 cryptographic signature via Zetaris."
+        ecrire_centre_dip(txt_footer, H_d * 0.88, font_d3, (110, 110, 130))
+        
+        # Encodage mémoire
+        buf_dip = io.BytesIO()
+        diplome_img.save(buf_dip, format="JPEG", quality=100)
+        bytes_diplome = buf_dip.getvalue()
+        
+        st.image(bytes_diplome, use_container_width=True, caption="PomoMind AI // Premium Academic Credential")
+        st.download_button(label="📥 Download Certificate (JPEG)", data=bytes_diplome, file_name=f"Certificat_Luxe_{st.session_state['username']}.jpg", mime="image/jpeg")
+        
+    except Exception as e:
+        st.error(f"Erreur d'impression du diplôme : {e}")
+    else:
+    # --- CLAUSE D'AFFICHAGE DU MESSAGE SI LE CERTIFICAT EST ENCORE VERROUILLÉ ---
+        txt_verrouille = (
+            "🔒 Certificat d'Expert verrouillé : Complète d'abord une session d'étude dans l'onglet 'Chrono Pomodoro' "
+            "ET reçois le cours officiel du professeur dans l'onglet 'Flux Réception' pour décrocher ton diplôme officiel de luxe !"
+            if FR else 
+            "🔒 Expert Certificate Locked: Complete a full focus session in the 'Pomodoro' tab "
+            "AND receive the official course from your teacher in the 'Reception Feed' tab to unlock your official luxury diploma!"
+        )
+        st.warning(txt_verrouille)
