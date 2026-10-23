@@ -1,2 +1,3 @@
+Python 3.10+
 Streamlit
 Pillow(PIL)
