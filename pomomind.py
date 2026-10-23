@@ -723,168 +723,206 @@ else:
                                     st.rerun()
 
         # ==============================================================================
-    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (CONFINEMENT AUDIO ET CENTRAGE STRICT)
+    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (PARTIE A - HARMONISATION TOTALE DES TUPLES)
     # ==============================================================================
     with tab6:
         if FR:
             st.subheader("🔥 Capsule de Confiance Immersive")
-            st.write("Un coup de mou ? Swipe à travers notre galerie. Les thèmes épiques s'activent proprement au format natif.")
+            st.write("Un coup de mou ? Swipe à travers notre galerie.")
         else:
             st.subheader("🔥 Immersive Confidence Capsule")
-            st.write("Feeling down? Swipe through our gallery. Epic soundtracks run natively.")
+            st.write("Feeling down? Swipe through our gallery.")
         
-        # --- 🏛️ CATALOGUE 1 : DISCIPLINE ---
+        # --- 🏛️ CATALOGUE 1 : DISCIPLINE (FORMAT TUPLE) ---
         BANQUE_DISCIPLINE = [
             ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
             ("Citation Mangas.jpg", "luz_roja.mp3"),
             ("Eren Yeager Mindset Quote _ Dark Anime Aesthetic Aura Motivation.jpg", "lua_na_praça.mp3")
         ]
 
-        # --- 🏛️ CATALOGUE 2 : STRESS ---
+        # --- 🏛️ CATALOGUE 2 : STRESS (FORMAT TUPLE) ---
         BANQUE_STRESS = [
             ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
             ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
             ("lawleit.jpg", "get_it_all.mp3")
         ]
 
-        # --- 🏛️ CATALOGUE 3 : BANQUE_LEADER ---
+        # --- 🏛️ CATALOGUE 3 : LEADER (ALIGNÉ AU FORMAT STRICT DE TUPLE COMME LES AUTRES) ---
         BANQUE_LEADER = [
-            {
-                "character": "Kiyotaka Ayanokoji",
-                "img": "citation kyotaka ayanokoji.jpg",
-                "audio_local": "FUNK ABNORMAL(Slowed)-DJ V12.mp3"
-            },
-            {
-                "character": "Boss Girl",
-                "img": "Not born to impress someone.jpg",
-                "audio_local": "Zericxxn-Raya(Slowed).mp3"
-            },
-            {
-                "character": "Houtarou Oreki",
-                "img": "Citation Oreki.jpg",
-                "audio_local": "SOLTA.mp3"
-            }
+            ("citation kyotaka ayanokoji.jpg", "baila_lento.mp3"),
+            ("Not born to impress someone.jpg", "raya.mp3"),
+            ("Citation Oreki.jpg", "solta.mp3")
         ]
 
         vibe_options = [
             "Sélectionne une vibration..." if FR else "Select a vibe...", 
-            "⚡ Discipline de Fer (Manga & CapCut Vibe)", 
-            "🧘 Gestion du Stress (Zen Anime)",
-            "👑 Mode Leader (Ayanokoji, Boss Girl, Oreki)"
+            "⚡ Discipline", 
+            "🧘 Stress", 
+            "👑 Leader"
         ]
-        vibe_choisie = st.selectbox("Vibe :" if FR else "Vibe:", vibe_options, key="vibe_manga_selectbox")
+        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox")
+        zone_audio_dynamique = st.empty()
+
+                # --- SÉCURITÉ DE CHANGEMENT DE VIBE & NETTOYAGE MÉMOIRE AUDIO ---
+        if "ancienne_vibe" not in st.session_state:
+            st.session_state["ancienne_vibe"] = vibe_choisie
+
+        if vibe_choisie != st.session_state["ancienne_vibe"]:
+            st.markdown("<script>var audios = document.querySelectorAll('audio'); audios.forEach(a => { a.pause(); a.src=''; a.load(); });</script>", unsafe_allow_html=True)
+            st.session_state["ancienne_vibe"] = vibe_choisie
 
         if "audio_unlocked" not in st.session_state:
             st.session_state["audio_unlocked"] = False
 
         if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["audio_unlocked"]:
             st.markdown("---")
-            if st.button("🔊 Activer l'expérience sonore" if FR else "🔊 Activate Sound Experience", use_container_width=True):
+            label_unlock = "🔊 Activer l'expérience sonore immersive" if FR else "🔊 Activate Immersive Sound Experience"
+            if st.button(label_unlock, key="unlock_audio_manga_btn", use_container_width=True):
                 st.session_state["audio_unlocked"] = True
                 st.rerun()
 
-        # --- 🕹️ RENDU CARROUSEL 1 : DISCIPLINE ---
-        if "Discipline" in vibe_choisie:
+                # --- 🕹️ RENDU CARROUSEL 1 : DISCIPLINE ---
+        if "Discipline" in vibe_choisie or "Iron" in vibe_choisie:
             st.markdown("---")
+            if "carousel_disc_idx" not in st.session_state: 
+                st.session_state["carousel_disc_idx"] = 0
+            
             col_p, col_txt, col_n = st.columns(3)
             with col_p:
                 if st.button("⬅️ Swipe", key="prev_disc"):
                     st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
                     st.rerun()
             with col_txt:
-                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:rgba(255,255,255,0.4); margin-top:8px;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
             with col_n:
                 if st.button("Swipe ➡️", key="next_disc"):
                     st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
                     st.rerun()
             
-            p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
+            curr_idx = st.session_state["carousel_disc_idx"]
+            p_path, p_audio = BANQUE_DISCIPLINE[curr_idx]
+            
             if os.path.exists(p_path):
-                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-                with col_c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-family:monospace; font-size:13px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
-                    # Lecture par flux d'octets confinés au navigateur
-                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
-                        with open(p_audio, "rb") as f_aud:
-                            st.audio(f_aud.read(), format="audio/mp3")
+                with open(p_path, "rb") as img_file: 
+                    b64_img = base64.b64encode(img_file.read()).decode()
+                st.markdown(f"""
+                <div style="width:100%; text-align:center; margin-top:10px;">
+                    <img src="data:image/jpeg;base64,{b64_img}" style="width:100%; max-width:380px; border-radius:16px; border:none !important; box-shadow:none !important;">
+                </div>
+                """, unsafe_allow_html=True)
             else:
                 st.warning(f"🖼️ Fichier local '{p_path}' introuvable.")
 
-        # --- 🕹️ RENDU CARROUSEL 2 : STRESS ---
-        elif "Stress" in vibe_choisie:
+            if st.session_state["audio_unlocked"]:
+                player_id = f"audio_node_disc_{curr_idx}_{int(time.time())}"
+                audio_src = f"data:audio/mp3;base64,{base64.b64encode(open(p_audio, 'rb').read()).decode()}" if os.path.exists(p_audio) else "https://soundhelix.com"
+                
+                zone_audio_dynamique.markdown(f"""
+                <audio id="{player_id}" autoplay><source src="{audio_src}" type="audio/mp3"></audio>
+                <script>
+                var pInst = document.getElementById("{player_id}");
+                if(pInst) {{
+                    pInst.volume = 0.50;
+                    setTimeout(function() {{ pInst.pause(); pInst.src=''; }}, 30000);
+                }}
+                </script>
+                """, unsafe_allow_html=True)
+
+                # --- 🕹️ RENDU CARROUSEL 2 : STRESS ---
+        elif "Stress" in vibe_choisie or "Management" in vibe_choisie:
             st.markdown("---")
+            if "carousel_stress_idx" not in st.session_state: 
+                st.session_state["carousel_stress_idx"] = 0
+            
             col_p, col_txt, col_n = st.columns(3)
             with col_p:
-                if st.button("⬅️ Swipe", key="prev_stress"):
+                if st.button("⬅️ Swipe", key="prev_stress"): 
                     st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
                     st.rerun()
             with col_txt:
-                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:rgba(255,255,255,0.4); margin-top:8px;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
             with col_n:
                 if st.button("Swipe ➡️", key="next_stress"):
                     st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] + 1) % len(BANQUE_STRESS)
                     st.rerun()
             
-            p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
+            curr_idx = st.session_state["carousel_stress_idx"]
+            p_path, p_audio = BANQUE_STRESS[curr_idx]
+            
             if os.path.exists(p_path):
-                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-                with col_c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-family:monospace; font-size:13px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
-                    # Lecture par flux d'octets confinés au navigateur
-                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
-                        with open(p_audio, "rb") as f_aud:
-                            st.audio(f_aud.read(), format="audio/mp3")
+                with open(p_path, "rb") as img_file: 
+                    b64_img = base64.b64encode(img_file.read()).decode()
+                st.markdown(f"""
+                <div style="width:100%; text-align:center; margin-top:10px;">
+                    <img src="data:image/jpeg;base64,{b64_img}" style="width:100%; max-width:380px; border-radius:16px; border:none !important; box-shadow:none !important;">
+                </div>
+                """, unsafe_allow_html=True)
             else:
                 st.warning(f"🖼️ Fichier local '{p_path}' introuvable.")
 
-        # --- 🕹️ RENDU CARROUSEL 3 : BANQUE_LEADER ---
-        elif "Leader" in vibe_choisie:
+            if st.session_state["audio_unlocked"]:
+                player_id = f"audio_node_stress_{curr_idx}_{int(time.time())}"
+                audio_src = f"data:audio/mp3;base64,{base64.b64encode(open(p_audio, 'rb').read()).decode()}" if os.path.exists(p_audio) else "https://soundhelix.com"
+                
+                zone_audio_dynamique.markdown(f"""
+                <audio id="{player_id}" autoplay><source src="{audio_src}" type="audio/mp3"></audio>
+                <script>
+                var pInst = document.getElementById("{player_id}");
+                if(pInst) {{
+                    pInst.volume = 0.50;
+                    setTimeout(function() {{ pInst.pause(); pInst.src=''; }}, 30000);
+                }}
+                </script>
+                """, unsafe_allow_html=True)
+
+                # --- 🕹️ RENDU CARROUSEL 3 : BANQUE_LEADER ---
+        elif "Leader" in vibe_choisie or "👑" in vibe_choisie:
             st.markdown("---")
+            if "carousel_leader_idx" not in st.session_state: 
+                st.session_state["carousel_leader_idx"] = 0
+            
             col_p, col_txt, col_n = st.columns(3)
             with col_p:
                 if st.button("⬅️ Swipe", key="prev_leader"):
                     st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
                     st.rerun()
             with col_txt:
-                st.markdown(f"<p style='text-align:center; font-family:monospace; color:gray;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:center; font-family:monospace; color:rgba(255,255,255,0.4); margin-top:8px;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
             with col_n:
                 if st.button("Swipe ➡️", key="next_leader"):
                     st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
                     st.rerun()
             
-            leader_active = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
+            curr_idx = st.session_state["carousel_leader_idx"]
+            leader_active = BANQUE_LEADER[curr_idx]
+            
             if os.path.exists(leader_active["img"]):
-                col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-                with col_c2:
-                    st.image(leader_active["img"], width=320)
-                    st.markdown(f"""
-                    <div style="text-align:center; margin-top:8px; margin-bottom:12px;">
-                        <h4 style="color:#ffffff; margin:0; font-family:sans-serif; font-size:16px;">Aura : {leader_active['character']}</h4>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Correction technologique : confinement strict dans l'écosystème web
-                    if st.session_state["audio_unlocked"]:
-                        p_audio_leader = leader_active["audio_local"]
-                        if os.path.exists(p_audio_leader):
-                            with open(p_audio_leader, "rb") as f_aud:
-                                st.audio(f_aud.read(), format="audio/mp3")
-                        else:
-                            st.warning(f"⚠️ Piste '{p_audio_leader}' introuvable dans le dossier.")
+                with open(leader_active["img"], "rb") as img_file: 
+                    b64_img = base64.b64encode(img_file.read()).decode()
+                st.markdown(f"""
+                <div style="width:100%; text-align:center; margin-top:10px;">
+                    <img src="data:image/jpeg;base64,{b64_img}" style="width:100%; max-width:340px; border-radius:12px;">
+                    <h4 style="color:{leader_active['color']}; margin-top:12px; font-family:sans-serif;">Aura : {leader_active['character']}</h4>
+                </div>
+                """, unsafe_allow_html=True)
             else:
-                st.warning(f"🖼️ Fichier local '{leader_active['img']}' introuvable.")
-
-            # Lecture directe locale hautement stable sans conflit de zone
+                st.warning(f"🖼| Fichier local '{leader_active['img']}' introuvable.")
+        
             if st.session_state["audio_unlocked"]:
-                p_audio_leader = leader_active["audio_local"]
-                if os.path.exists(p_audio_leader):
-                    with open(p_audio_leader, "rb") as f_aud:
-                        st.audio(f_aud.read(), format="audio/mp3")
-                else:
-                    st.warning(f"⚠️ Piste '{p_audio_leader}' introuvable à la racine du projet.")
-
+                player_id = f"audio_node_leader_{curr_idx}_{int(time.time())}"
+                p_audio = leader_active["audio_local"]
+                audio_src = f"data:audio/mp3;base64,{base64.b64encode(open(p_audio, 'rb').read()).decode()}" if os.path.exists(p_audio) else "https://soundhelix.com"
+                
+                zone_audio_dynamique.markdown(f"""
+                <audio id="{player_id}" autoplay><source src="{audio_src}" type="audio/mp3"></audio>
+                <script>
+                var pInst = document.getElementById("{player_id}");
+                if(pInst) {{
+                    pInst.volume = 0.50;
+                    setTimeout(function() {{ pInst.pause(); pInst.src=''; }}, 30000);
+                }}
+                </script>
+                """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.subheader("🎓 Certifications Académiques" if FR else "🎓 Academic Certifications")
