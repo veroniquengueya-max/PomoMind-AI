@@ -1,0 +1,2 @@
+Streamlit
+Pillow(PIL)
