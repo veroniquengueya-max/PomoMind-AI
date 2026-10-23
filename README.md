@@ -8,7 +8,7 @@
 
 ---
 
-## 🤖 3. Architecture Multi-Agents / Multi-Agent Framework (Rule 6.3)
+## 🤖 3. Architecture Multi-Agents / Multi-Agent Framework 
 L'intelligence de notre système est divisée en **4 agents spécialisés** qui collaborent en temps réel :
 1. **The Feynman Agent (Simplificateur) :** Ingests dense technical course materials and outputs simple, modular concepts using real-world analogies.
 2. **The Translation Agent (Traducteur) :** Manages strict bilingual compliance (FR/EN) across the interface and outputs with a single click.
@@ -17,7 +17,7 @@ L'intelligence de notre système est divisée en **4 agents spécialisés** qui 
 
 ---
 
-## 📡 4. Technologies & Sponsors Integration (Rule 6.3 & 6.4)
+## 📡 4. Technologies & Sponsors Integration 
 - **NVIDIA Cloud AI (Nemotron Logic):** Serves as the core cognitive reasoning engine for our multi-agent text processing and layout definitions.
 - **Zetaris (Data Harness Philosophy):** Implemented to simulate secure data virtualization, enabling real-time course streaming from the professor's hub to the student node without local file replication.
 - **Meterless Token Probe:** Embedded logical probe tracking real-time input/output token metrics to enforce strict financial infrastructure cost control.
