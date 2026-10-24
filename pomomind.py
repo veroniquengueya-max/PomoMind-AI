@@ -79,6 +79,59 @@ if "pomodoro_current_phase" not in st.session_state:
 if "pomodoro_lock_active" not in st.session_state:
     st.session_state["pomodoro_lock_active"] = False
 
+# --- BASE DE DONNÉES SÉCURISÉE EN MÉMOIRE (SIMULATION EN TRANSIT) ---
+if "comptes_utilisateurs" not in st.session_state:
+    st.session_state["comptes_utilisateurs"] = {}  # Stockage : {username: hash_password}
+
+if "user_role_actif" not in st.session_state:
+    st.session_state["user_role_actif"] = None
+
+# ==============================================================================
+# 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE (PARTIE A)
+# ==============================================================================
+if not st.session_state["session_initialisee"]:
+    st.markdown(f"""
+    <div style="text-align:center; margin-bottom:30px;">
+        <h1 style="color:#00f0ff; font-family:sans-serif; font-size:42px; margin-bottom:10px;">🦅 POMOMIND AI</h1>
+        <p style="color:rgba(255,255,255,0.6); font-size:16px;">
+            {"Écosystème d'Étude Multi-Agent Universitaire Sécurisé Core 2026" if FR else "Secure University Multi-Agent Study Ecosystem Core 2026"}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Onglets d'accès : Connexion ou Création de compte
+    auth_tabs = st.tabs(["🔐 Connexion / Login", "📝 Inscription / Register"])
+    
+    # --- SOUS-ONGLET 1 : CRÉATION DE COMPTE (SÉCURISATION SHA-256) ---
+    with auth_tabs[1]:
+        st.markdown("### 📝 Créer un compte unique" if FR else "### 📝 Create a Unique Account")
+        with st.form("form_registration_core"):
+            reg_user = st.text_input("🎯 Identifiant unique (Username) :", placeholder="ex: veronique_cto", key="reg_username_input").strip()
+            reg_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="reg_password_input")
+            
+            # Le sélecteur intelligent de rôle
+            reg_role = st.selectbox("🎭 Type de profil / Profile Type :", ["Student (Étudiant / Adulte)", "Professor (Enseignant)"])
+            
+            # Clé de vérification administrative pour bloquer les étudiants tricheurs
+            prof_secret_key = st.text_input("🔑 Code Secret Enseignant (Laisser vide si étudiant) :", type="password", help="Code officiel requis pour valider le privilège Professeur.")
+            
+            if st.form_submit_button("💾 Enregistrer mon identité" if FR else "💾 Register My Identity", use_container_width=True):
+                if reg_user == "" or reg_pass == "":
+                    st.error("⚠️ Tous les champs sont obligatoires pour initialiser la clé d'état." if FR else "⚠️ All fields are required to initialize state key.")
+                elif reg_user in st.session_state["comptes_utilisateurs"]:
+                    st.error("🚨 Cet identifiant existe déjà sur le nœud universitaire." if FR else "🚨 This username already exists on the university node.")
+                elif "Professor" in reg_role and prof_secret_key != "PROF2026":
+                    st.error("🚨 Code Secret Enseignant invalide ! Accès refusé." if FR else "🚨 Invalid Professor Secret Code! Access denied.")
+                else:
+                    # Cryptage immédiat du mot de passe avant stockage
+                    hash_secure = calculer_empreinte_sha256(reg_pass)
+                    st.session_state["comptes_utilisateurs"][reg_user] = {
+                        "password_hash": hash_secure,
+                        "role": "prof" if "Professor" in reg_role else "eleve"
+                    }
+                    st.success("✅ Compte enregistré avec succès ! Bascule sur l'onglet Connexion." if FR else "✅ Account successfully registered! Switch to the Login tab.")
+
+
 if not st.session_state["session_initialisee"]:
     titre_principal = "🦅 POMOMIND AI"
     sous_titre = "Écosystème d'Étude Multi-Agent Universitaire Symbiotique Core 2026" if FR else "Symbiotic University Multi-Agent Study Ecosystem Core 2026"
@@ -448,7 +501,8 @@ else:
 
         # Affichage du protocole d'hygiène de vie d'origine si une session vient d'aboutir
         if st.session_state["pomodoro_termine"] and phase_actuelle == "pause":
-            st.markdown("""
+            if FR:
+                st.markdown("""
             <div style="background-color: #ffffff; border-left: 6px solid #2ecc71; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
                 <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 PROTOCOLE DE REPOS DU DR. POMOBUDDY</h4>
                 <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
@@ -516,6 +570,52 @@ else:
                 <span style="font-size:13px; color:rgba(255,255,255,0.7);">{label_chap_txt} {exam['chapitres']}</span>
             </div>
             """, unsafe_allow_html=True)
+            st.markdown("---")
+        st.markdown("### 🧠 Conseiller de Révision Stratégique Dr. PomoBuddy" if FR else "### 🧠 Dr. PomoBuddy Strategic Revision Advisor")
+        
+        # Sélection interactive de la matière pour déclencher le guidage de l'IA
+        options_matieres = [
+            "Architecture Système & Cybersécurité", 
+            "Réseaux Mobiles et Protocoles"
+        ] if FR else [
+            "System Architecture & Cybersecurity", 
+            "Mobile Networks & Protocols"
+        ]
+        
+        label_select = "🎯 Choisis la matière à réviser immédiatement :" if FR else "🎯 Select the subject to review right now:"
+        choix_matiere = st.selectbox(label_select, options_matieres, key="sb_planning_advisor_subject")
+        
+        # --- BLOC DE LOGIQUE DE CONFIGURATION DU GUIDAGE BILINGUE (IF-ELSE) ---
+        if "Architecture" in choix_matiere or "Cybersecurity" in choix_matiere:
+            guide_titre = "🎯 Feuille de Route : Architecture Système & Cybersécurité" if FR else "🎯 Roadmap: System Architecture & Cybersecurity"
+            guide_etapes = [
+                "**Étape 1 (Focus Pomodoro) :** Bloque 25 min sur le Chiffrement Symétrique. Comprends pourquoi une clé unique doit rester secrète." if FR else "**Step 1 (Pomodoro Focus):** Spend 25 mins on Symmetric Encryption. Understand why a single key must remain secret.",
+                "**Étape 2 (Assimilation Feynman) :** Explique le concept du Buffer Overflow comme un verre d'eau qui déborde pour ancrer ta mémoire sémantique." if FR else "**Step 2 (Feynman Assimilation):** Explain the Buffer Overflow concept like an overflowing glass of water to anchor your semantic memory.",
+                "**Étape 3 (Intégrité Réseau) :** Valide ta signature cryptographique SHA-256 dans l'onglet des Flashcards pour tester ton recall actif." if FR else "**Step 3 (Network Integrity):** Validate your SHA-256 cryptographic signature in the Flashcards tab to test your active recall."
+            ]
+            conseil_coach = "💡 *Le conseil du Dr. PomoBuddy :* Cet examen est critique. Ne te contente pas d'apprendre par cœur, comprends le 'Pourquoi' technique de chaque faille." if FR else "💡 *Dr. PomoBuddy's Advice:* This exam is critical. Do not just memorize, understand the technical 'Why' behind every vulnerability."
+        else:
+            guide_titre = "🎯 Feuille de Route : Réseaux Mobiles et Protocoles" if FR else "🎯 Roadmap: Mobile Networks & Protocols"
+            guide_etapes = [
+                "**Étape 1 (Focus Pomodoro) :** Consacre une session de 25 min à l'analyse de l'en-tête des paquets IP et du mécanisme de routage." if FR else "**Step 1 (Pomodoro Focus):** Dedicate a 25-min session to analyzing IP packet headers and the routing mechanism.",
+                "**Étape 2 (Vulgarisation) :** Dessine le cheminement des données à travers un commutateur réseau pour simplifier la topologie." if FR else "**Step 2 (Simplification):** Draw the data path through a network switch to simplify the topology structure.",
+                "**Étape 3 (Entraide Hub) :** Si tu bloques sur les masques de sous-réseau, ouvre un salon privé avec Marc-Aurèle dans l'onglet Hub Help." if FR else "**Step 3 (Hub Collaboration):** If you are stuck on subnet masks, open a private chat room with Marc-Aurèle in the Hub Help tab."
+            ]
+            conseil_coach = "💡 *Le conseil du Dr. PomoBuddy :* La topologie réseau est visuelle. Utilise la Capsule de Motivation pour stimuler ton attention avant de tracer tes schémas." if FR else "💡 *Dr. PomoBuddy's Advice:* Network topology is visual. Use the Motivation Capsule to boost your focus before drawing your diagrams."
+
+        # Rendu graphique propre de la feuille de route générée
+        st.markdown(f"""
+        <div style="background:rgba(0, 240, 255, 0.03); border:1px solid rgba(0, 240, 255, 0.2); padding:20px; border-radius:12px; margin-top:15px;">
+            <h4 style="color:#00f0ff; margin-top:0; font-family:sans-serif;">{guide_titre}</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        for etape in guide_etapes:
+            st.markdown(f"- {etape}")
+            
+        st.markdown("---")
+        st.info(conseil_coach)
 
 
     with tab2:
