@@ -69,15 +69,12 @@ if "carousel_stress_idx" not in st.session_state:
 if "carousel_leader_idx" not in st.session_state:
     st.session_state["carousel_leader_idx"] = 0
 
-# --- INITIALISATION DU TRAQUEUR DE TEMPS ANTI-ADDICKTION CAPSULE ---
-if "capsule_temps_consomme" not in st.session_state:
-    st.session_state["capsule_temps_consomme"] = 0.0  # En secondes pour la précision du calcul
+# --- TRACKER DE SESSIONS QUOTIDIENNES ANTI-INSTAGRAM ---
+if "capsule_sessions_aujourdhui" not in st.session_state:
+    st.session_state["capsule_sessions_aujourdhui"] = 0
 
-if "capsule_derniere_activation" not in st.session_state:
-    st.session_state["capsule_derniere_activation"] = time.time()
-
-if "capsule_bloquee_definitivement" not in st.session_state:
-    st.session_state["capsule_bloquee_definitivement"] = False
+if "capsule_chrono_actif" not in st.session_state:
+    st.session_state["capsule_chrono_actif"] = False
 
 # --- INITIALISATION DE LA SÉCURITÉ ET DES CYCLES DU CHRONO POMODORO ---
 if "pomodoro_cycles_completed" not in st.session_state:
@@ -101,10 +98,7 @@ if "planning_personnalise" not in st.session_state:
     st.session_state["planning_personnalise"] = []
 
 # ==============================================================================
-# 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE (PARTIE A)
-# ==============================================================================
-# ==============================================================================
-# 🦅 COEUR DE SÉCURITÉ : CRÉATION DE COMPTE AVEC CONNEXION AUTOMATIQUE (PARTIE A)
+# 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE DOUBLE ONGLÈTE
 # ==============================================================================
 if not st.session_state["session_initialisee"]:
     st.markdown(f"""
@@ -116,15 +110,54 @@ if not st.session_state["session_initialisee"]:
     </div>
     """, unsafe_allow_html=True)
     
-    auth_tabs = st.tabs(["🔐 Connexion / Login", "📝 Inscription / Register"])
+    # Création des deux onglets distincts sur une même ligne d'état
+    tab_se_connecter, tab_s_inscrire = st.tabs(["🔐 Connexion / Login", "📝 Inscription / Register"])
     
-    # --- SOUS-ONGLET : CRÉATION DE COMPTE AVEC BRIS DE DOUBLE ÉTAPE ---
-    with auth_tabs[1]:
+    # --- ONGLÈTE 1 : FORMULAIRE DE CONNEXION ÉTANCHE ---
+    with tab_se_connecter:
+        st.markdown("### 🔐 Accéder à mon Espace Privé" if FR else "### 🔐 Access My Private Space")
+        with st.form("form_login_core"):
+            login_user = st.text_input("🎯 Identifiant (Username) :", placeholder="ex: veronique_cto", key="login_username_input").strip()
+            login_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="login_password_input")
+            univ_node = st.selectbox("🏫 Connected Campus Node :", ["The ICT University (Yaoundé)"])
+            
+            if st.form_submit_button("🚀 Connexion sécurisée" if FR else "🚀 Secure Login", use_container_width=True):
+                if login_user == "" or login_pass == "":
+                    st.error("⚠️ Saisis ton identifiant et ton mot de passe." if FR else "⚠️ Enter your username and password.")
+                elif login_user not in st.session_state["comptes_utilisateurs"]:
+                    st.error("❌ Identifiant inconnu sur ce nœud universitaire." if FR else "❌ Unknown username on this university node.")
+                else:
+                    hash_tentative = calculer_empreinte_sha256(login_pass)
+                    compte_valide = st.session_state["comptes_utilisateurs"][login_user]
+                    
+                    if hash_tentative == compte_valide["password_hash"]:
+                        st.session_state["username"] = login_user
+                        st.session_state["univ_selectionnee"] = univ_node
+                        st.session_state["user_role_actif"] = compte_valide["role"]
+                        
+                        sub_decouvert = "Informatique Générale"
+                        name_decouvert = "Professeur Titulaire"
+                        if os.path.exists("cache_cours_public.txt"):
+                            with open("cache_cours_public.txt", "r", encoding="utf-8") as f_in:
+                                for l in f_in.readlines():
+                                    if "METADATA_SUB:" in l: sub_decouvert = l.replace("METADATA_SUB:", "").strip()
+                                    if "METADATA_NAME:" in l: name_decouvert = l.replace("METADATA_NAME:", "").strip()
+                        
+                        st.session_state["prof_sub"] = sub_decouvert
+                        st.session_state["prof_name"] = name_decouvert
+                        st.session_state["session_initialisee"] = True
+                        st.success("✅ Authentification cryptographique validée. Redirection..." if FR else "✅ Cryptographic authentication validated. Redirecting...")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
+
+    # --- ONGLÈTE 2 : FORMULAIRE D'INSCRIPTION AVEC AUTO-LOGIN COMPRIS ---
+    with tab_s_inscrire:
         st.markdown("### 📝 Créer un compte unique" if FR else "### 📝 Create a Unique Account")
         with st.form("form_registration_core"):
             reg_user = st.text_input("🎯 Identifiant unique (Username) :", placeholder="ex: veronique_cto", key="reg_username_input").strip()
             reg_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="reg_password_input")
-            
             reg_role = st.selectbox("🎭 Type de profil / Profile Type :", ["Student (Étudiant / Adulte)", "Professor (Enseignant)"])
             prof_secret_key = st.text_input("🔑 Code Secret Enseignant (Laisser vide si étudiant) :", type="password")
             
@@ -136,7 +169,6 @@ if not st.session_state["session_initialisee"]:
                 elif "Professor" in reg_role and prof_secret_key != "PROF2026":
                     st.error("🚨 Code Secret Enseignant invalide !" if FR else "🚨 Invalid Professor Secret Code!")
                 else:
-                    # 1. Cryptage et stockage immédiat
                     hash_secure = calculer_empreinte_sha256(reg_pass)
                     role_defini = "prof" if "Professor" in reg_role else "eleve"
                     
@@ -145,21 +177,15 @@ if not st.session_state["session_initialisee"]:
                         "role": role_defini
                     }
                     
-                    # 2. PROTOCOLE AUTO-LOGIN : Injection directe des variables de session
                     st.session_state["username"] = reg_user
                     st.session_state["univ_selectionnee"] = "The ICT University (Yaoundé)"
                     st.session_state["user_role_actif"] = role_defini
-                    
-                    # Configuration par défaut du dictionnaire de cours
                     st.session_state["prof_sub"] = "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity"
                     st.session_state["prof_name"] = "Dr. Dom Emmanuel T."
-                    
-                    # 3. Validation de session immédiate sans repasser par le Login
                     st.session_state["session_initialisee"] = True
                     st.success("🎯 Compte créé et connecté automatiquement ! Redirection..." if FR else "🎯 Account created and auto-logged in! Redirecting...")
                     time.sleep(1)
                     st.rerun()
-
             else:
                     st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
             # ==============================================================================
@@ -1023,102 +1049,111 @@ else:
                                     st.rerun()
 
         # ==============================================================================
-    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (PARTIE A - HARMONISATION TOTALE DES TUPLES)
+    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (PARTIE A CORRIGÉE - ORDRE DE COMPILATION OK)
     # ==============================================================================
         # ==============================================================================
-    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (VERROU CHIRURGICAL ANTI-INSTAGRAM)
+    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (PARTIE A - HORLOGE & SÉLECTEUR UNIQUE)
     # ==============================================================================
     with tab6:
-        # Seuil de blocage : 20 minutes (1200 secondes). Mets 30 pour ton test rapide !
-        LIMITE_TEMPS_CAPSULE = 1200 
+        # Durée réglementaire d'une recharge d'Aura : 20 minutes
+        DUREE_CAPSULE_MINUTES = 20
+        MAX_SESSIONS_PAR_JOUR = 2
 
-        # Traque le temps uniquement si l'étudiant est actif sur une catégorie
-        if "Sélectionne" not in st.session_state.get("vibe_manga_selectbox", "Sélectionne") and "Select" not in st.session_state.get("vibe_manga_selectbox", "Select"):
-            temps_actuel = time.time()
-            duree_ecoulee = temps_actuel - st.session_state["capsule_derniere_activation"]
-            if duree_ecoulee < 10:  # Évite les sauts brutaux lors des chargements
-                st.session_state["capsule_temps_consomme"] += duree_ecoulee
-            st.session_state["capsule_derniere_activation"] = temps_actuel
-
-        # --- CONDITION 1 : LE QUOTA EST ÉPUISÉ ➔ BLOCAGE STRICT ---
-        if st.session_state["capsule_temps_consomme"] >= LIMITE_TEMPS_CAPSULE:
-            txt_lock_title = "🚨 [AI GUARDRAIL] QUOTA DE RECHARGE ÉPUISÉ !" if FR else "🚨 [AI GUARDRAIL] MOTIVATION QUOTA EXHAUSTED!"
-            txt_lock_desc = (
-                "La Capsule de Motivation est verrouillée pour préserver ton focus (Limite max : 20 min). "
-                "L'effet 'Instagram Junior' est bloqué. Retourne étudier dans l'onglet Chrono !"
-                if FR else
-                "The Motivation Capsule is locked to protect your focus (Max limit: 20 min). "
-                "The 'Instagram Junior' effect is blocked. Go back to study in the Chrono tab!"
-            )
-            st.error(txt_lock_title)
-            st.warning(txt_lock_desc)
-            
-            if st.button("⏱️ Retourner au Focus Réglementaire" if FR else "⏱️ Return to Enforced Focus", use_container_width=True):
-                st.rerun()
-
-        # --- CONDITION 2 : IL RESTE DU TEMPS ➔ ON LAISSE TOUT TON CODE TOURNER ---
-        else:
-            # Calcul et affichage du crédit restant
-            temps_restant = max(0, int(LIMITE_TEMPS_CAPSULE - st.session_state["capsule_temps_consomme"]))
-            mins_r, secs_r = divmod(temps_restant, 60)
-            txt_credit = f"⏳ Crédit d'Aura Restant : **{mins_r:02d}:{secs_r:02d}**" if FR else f"⏳ Remaining Aura Credit: **{mins_r:02d}:{secs_r:02d}**"
-            st.markdown(f"<p style='text-align:right; font-family:monospace; color:#ff007f;'>{txt_credit}</p>", unsafe_allow_html=True)
-
-            if FR:
-                st.subheader("🔥 Capsule de Confiance Immersive")
-                st.write("Un coup de mou ? Swipe à travers notre galerie. Les thèmes épiques s'activent proprement.")
-            else:
-                st.subheader("🔥 Immersive Confidence Capsule")
-                st.write("Feeling down? Swipe through our gallery. Epic soundtracks run natively.")
-
-        # --- 🏛️ CATALOGUE 1 : DISCIPLINE (FORMAT TUPLE) ---
+        # --- 🏛️ LES DICTIONNAIRES DE PRODUCTION FORMAT TUPLE ---
         BANQUE_DISCIPLINE = [
             ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
             ("Citation Mangas.jpg", "luz_roja.mp3"),
             ("Eren Yeager Mindset Quote _ Dark Anime Aesthetic Aura Motivation.jpg", "lua_na_praça.mp3")
         ]
 
-        # --- 🏛️ CATALOGUE 2 : STRESS (FORMAT TUPLE) ---
+        # S'assure que la banque de stress contient bien tes 3 éléments d'origine
         BANQUE_STRESS = [
             ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
             ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
             ("lawleit.jpg", "get_it_all.mp3")
         ]
 
-        # --- 🏛️ CATALOGUE 3 : LEADER (ALIGNÉ AU FORMAT STRICT DE TUPLE COMME LES AUTRES) ---
+        # Format Tuple unifié pour la banque Leader comme demandé
         BANQUE_LEADER = [
             ("citation kyotaka ayanokoji.jpg", "baila_lento.mp3"),
             ("Not born to impress someone.jpg", "raya.mp3"),
             ("Citation Oreki.jpg", "solta.mp3")
         ]
 
+        # --- 🎯 LE SÉLECTEUR DE VIBE UNIQUE AVEC CLÉ PROPRE ---
         vibe_options = [
             "Sélectionne une vibration..." if FR else "Select a vibe...", 
             "⚡ Discipline", 
             "🧘 Stress", 
             "👑 Leader"
         ]
-        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox")
+        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_unique")
         zone_audio_dynamique = st.empty()
 
-                # --- SÉCURITÉ DE CHANGEMENT DE VIBE & NETTOYAGE MÉMOIRE AUDIO ---
-        if "ancienne_vibe" not in st.session_state:
-            st.session_state["ancienne_vibe"] = vibe_choisie
+        # --- ⏳ PROTECTION ET REFRESH DE L'ONGLET ---
+        if "ancienne_vibe_check" not in st.session_state:
+            st.session_state["ancienne_vibe_check"] = vibe_choisie
 
-        if vibe_choisie != st.session_state["ancienne_vibe"]:
-            st.markdown("<script>var audios = document.querySelectorAll('audio'); audios.forEach(a => { a.pause(); a.src=''; a.load(); });</script>", unsafe_allow_html=True)
-            st.session_state["ancienne_vibe"] = vibe_choisie
+        if vibe_choisie != st.session_state["ancienne_vibe_check"]:
+            st.session_state["capsule_chrono_actif"] = False
+            st.session_state["ancienne_vibe_check"] = vibe_choisie
 
-        if "audio_unlocked" not in st.session_state:
-            st.session_state["audio_unlocked"] = False
-
-        if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["audio_unlocked"]:
-            st.markdown("---")
-            label_unlock = "🔊 Activer l'expérience sonore immersive" if FR else "🔊 Activate Immersive Sound Experience"
-            if st.button(label_unlock, key="unlock_audio_manga_btn", use_container_width=True):
-                st.session_state["audio_unlocked"] = True
+        # --- CONDITION 1 : LE QUOTA QUOTIDIEN EST ATTEINT ---
+        if st.session_state["capsule_sessions_aujourdhui"] >= MAX_SESSIONS_PAR_JOUR:
+            st.error("🚨 [AI GUARDRAIL] ACCÈS LIMITÉ ! QUOTA QUOTIDIEN ÉPUISÉ" if FR else "🚨 [AI GUARDRAIL] ACCESS DENIED! DAILY QUOTA EXHAUSTED")
+            st.warning(
+                "Tu as atteint la limite maximale de 2 sessions de motivation par jour. L'effet 'Instagram Junior' est bloqué "
+                "pour préserver tes neurones. Retourne étudier dans l'onglet Chrono !"
+                if FR else
+                "You have reached the maximum limit of 2 motivation sessions per day. The 'Instagram Junior' effect is blocked "
+                "to protect your focus. Go back to study in the Chrono tab!"
+            )
+            if st.button("⏱️ Reprendre l'Étude Réglementaire" if FR else "⏱️ Resume Enforced Study", use_container_width=True):
                 st.rerun()
 
+        # --- CONDITION 2 : ACCÈS AUTORISÉ ➔ COMPTEUR & RECHARGE ---
+        else:
+            col_cap_info1, col_cap_info2 = st.columns(2)
+            with col_cap_info1:
+                st.markdown(f"🎟️ Sessions consommées : **{st.session_state['capsule_sessions_aujourdhui']} / {MAX_SESSIONS_PAR_JOUR}**" if FR else f"🎟️ Daily Sessions used: **{st.session_state['capsule_sessions_aujourdhui']} / {MAX_SESSIONS_PAR_JOUR}**")
+            with col_cap_info2:
+                st.markdown(f"<p style='text-align:right; color:#ff007f;'>⏱️ Temps par recharge : 20:00</p>", unsafe_allow_html=True)
+
+            zone_horloge_capsule = st.empty()
+            
+            if not st.session_state["capsule_chrono_actif"]:
+                zone_horloge_capsule.markdown(f"""
+                <div style="text-align:center; margin:15px 0;">
+                    <h1 style="font-family:monospace; font-size:52px; color:#ff007f; margin:0;">20:00</h1>
+                </div>
+                """, unsafe_allow_html=True)
+
+                label_start_cap = "🔊 Allumer le Moteur d'Aura" if FR else "🔊 Ignite Aura Engine"
+                if st.button(label_start_cap, use_container_width=True, key="btn_declencher_timer_capsule"):
+                    st.session_state["capsule_chrono_actif"] = True
+                    st.session_state["capsule_sessions_aujourdhui"] += 1
+                    
+                    total_sec_capsule = DUREE_CAPSULE_MINUTES * 60
+                    
+                    while total_sec_capsule > 0 and st.session_state["capsule_chrono_actif"]:
+                        c_mins, c_secs = divmod(total_sec_capsule, 60)
+                        zone_horloge_capsule.markdown(f"""
+                        <div style="text-align:center; margin:15px 0;">
+                            <h1 style="font-family:monospace; font-size:52px; color:#00f0ff; margin:0;">{c_mins:02d}:{c_secs:02d}</h1>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        time.sleep(1)
+                        total_sec_capsule -= 1
+                    
+                    st.session_state["capsule_chrono_actif"] = False
+                    st.rerun()
+
+            if FR:
+                st.subheader("🔥 Capsule de Confiance Immersive")
+            else:
+                st.subheader("🔥 Immersive Confidence Capsule")
+
+       
                 # --- 🕹️ RENDU CARROUSEL 1 : DISCIPLINE ---
         if "Discipline" in vibe_choisie or "Iron" in vibe_choisie:
             st.markdown("---")
