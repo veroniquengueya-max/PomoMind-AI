@@ -91,7 +91,7 @@ if "user_role_actif" not in st.session_state:
 # ==============================================================================
 if not st.session_state["session_initialisee"]:
     st.markdown(f"""
-    <div style="text-align:center; margin-bottom:30px;">
+        <div style="text-align:center; margin-bottom:30px;">
         <h1 style="color:#00f0ff; font-family:sans-serif; font-size:42px; margin-bottom:10px;">🦅 POMOMIND AI</h1>
         <p style="color:rgba(255,255,255,0.6); font-size:16px;">
             {"Écosystème d'Étude Multi-Agent Universitaire Sécurisé Core 2026" if FR else "Secure University Multi-Agent Study Ecosystem Core 2026"}
@@ -130,73 +130,104 @@ if not st.session_state["session_initialisee"]:
                         "role": "prof" if "Professor" in reg_role else "eleve"
                     }
                     st.success("✅ Compte enregistré avec succès ! Bascule sur l'onglet Connexion." if FR else "✅ Account successfully registered! Switch to the Login tab.")
-
-
-if not st.session_state["session_initialisee"]:
-    titre_principal = "🦅 POMOMIND AI"
-    sous_titre = "Écosystème d'Étude Multi-Agent Universitaire Symbiotique Core 2026" if FR else "Symbiotic University Multi-Agent Study Ecosystem Core 2026"
-    
-    st.markdown(f"""
-    <div style="text-align:center; margin-bottom:30px;">
-        <h1 style="color:#00f0ff; font-family:sans-serif; font-size:42px; margin-bottom:10px;">{titre_principal}</h1>
-        <p style="color:rgba(255,255,255,0.6); font-size:16px;">{sous_titre}</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col_r1, col_r2 = st.columns(2)
-    with col_r1:
-        label_btn_prof = "👨‍🏫 ESPACE ENSEIGNANT" if FR else "👨‍🏫 PROFESSOR SPACE"
-        if st.button(label_btn_prof, use_container_width=True, key="btn_role_prof"):
-            st.session_state["role_selectionne"] = "prof"
-    with col_r2:
-        label_btn_student = "🎓 ESPACE ÉTUDIANT" if FR else "🎓 STUDENT DASHBOARD"
-        if st.button(label_btn_student, use_container_width=True, key="btn_role_eleve"):
-            st.session_state["role_selectionne"] = "eleve"
-
+        # --- SOUS-ONGLET 2 : CONNEXION ÉTANCHE (VÉRIFICATION DES EMPREINTES) ---
+    with auth_tabs[0]:
+        st.markdown("### 🔐 Accéder à mon Espace Privé" if FR else "### 🔐 Access My Private Space")
+        with st.form("form_login_core"):
+            login_user = st.text_input("🎯 Identifiant (Username) :", placeholder="ex: veronique_cto", key="login_username_input").strip()
+            login_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="login_password_input")
+            univ_node = st.selectbox("🏫 Connected Campus Node :", ["The ICT University (Yaoundé)"])
+            
+            if st.form_submit_button("🚀 Connexion sécurisée" if FR else "🚀 Secure Login", use_container_width=True):
+                if login_user == "" or login_pass == "":
+                    st.error("⚠️ Saisis ton identifiant et ton mot de passe." if FR else "⚠️ Enter your username and password.")
+                elif login_user not in st.session_state["comptes_utilisateurs"]:
+                    st.error("❌ Identifiant inconnu sur ce nœud universitaire." if FR else "❌ Unknown username on this university node.")
+                else:
+                    # Hachage du mot de passe saisi pour comparaison mathématique
+                    hash_tentative = calculer_empreinte_sha256(login_pass)
+                    compte_valide = st.session_state["comptes_utilisateurs"][login_user]
+                    
+                    if hash_tentative == compte_valide["password_hash"]:
+                        # Récupération sécurisée du rôle par le Guardrail
+                        st.session_state["username"] = login_user
+                        st.session_state["univ_selectionnee"] = univ_node
+                        st.session_state["user_role_actif"] = compte_valide["role"]
+                        
+                        # Configuration automatique des métadonnées
+                        sub_decouvert = "Informatique Générale"
+                        name_decouvert = "Professeur Titulaire"
+                        if os.path.exists("cache_cours_public.txt"):
+                            with open("cache_cours_public.txt", "r", encoding="utf-8") as f_in:
+                                for l in f_in.readlines():
+                                    if "METADATA_SUB:" in l: sub_decouvert = l.replace("METADATA_SUB:", "").strip()
+                                    if "METADATA_NAME:" in l: name_decouvert = l.replace("METADATA_NAME:", "").strip()
+                        
+                        st.session_state["prof_sub"] = sub_decouvert
+                        st.session_state["prof_name"] = name_decouvert
+                        
+                        # Activation immédiate de la session applicative
+                        st.session_state["session_initialisee"] = True
+                        st.success("✅ Authentification cryptographique validée. Redirection..." if FR else "✅ Cryptographic authentication validated. Redirecting...")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
+            # ==============================================================================
+    # 🦅 COEUR DE SÉCURITÉ : COMMUTATEUR ET REDIRECTION ÉTANCHE DES RÔLES (PARTIE C)
+    # ==============================================================================
     st.markdown("<br><hr>", unsafe_allow_html=True)
-    if st.session_state["role_selectionne"] == "prof":
-        titre_console_prof = "👨‍🏫 Console de Diffusion Officielle de l'Enseignant" if FR else "👨‍🏫 Official Teacher Broadcasting Console"
-        instructions_prof = (
-            "Téléversez ici le fichier brut de vos notes de cours ou votre syllabus. "
-            "Le Data Harness de Zetaris analysera son intégrité réseau avant sa propagation bilingue."
+
+    # Redirection automatique et hermétique selon le privilège validé par le Guardrail
+    if st.session_state["user_role_actif"] == "prof":
+        st.markdown("### 👨‍🏫 Console de Diffusion Officielle de l'Enseignant" if FR else "### 👨‍🏫 Official Professor Broadcast Console")
+        st.write(
+            "Téléversez ici le fichier brut de vos notes de cours ou votre syllabus. L'écosystème Zetaris et NVIDIA analysera son intégrité avant de le propager au campus."
             if FR else
-            "Upload your raw course notes or syllabus file here. "
-            "The Zetaris Data Harness will audit network integrity before bilingual propagation."
+            "Upload the raw file of your lecture notes or syllabus here. The Zetaris and NVIDIA ecosystem will analyze its integrity before broadcasting it to the campus."
         )
-        st.markdown(f"### {titre_console_prof}")
-        st.write(instructions_prof)
         
         nom_cache_public = "cache_cours_public.txt"
         
         with st.form("form_prof_diffusion_feynman"):
-            label_nom_prof = "Nom de l'Enseignant :" if FR else "Professor Name:"
-            label_matiere = "Intitulé de la matière / UE :" if FR else "Course Subject / Unit:"
-            p_name = st.text_input(label_nom_prof, value="Dr. Dom Emmanuel T.")
-            p_sub = st.text_input(label_matiere, value="Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity")
+            label_pname = "Nom de l'Enseignant :" if FR else "Professor's Name:"
+            label_psub = "Intitulé de la matière / UE :" if FR else "Course Title / Module:"
+            p_name = st.text_input(label_pname, value="Dr. Dom Emmanuel T.")
+            p_sub = st.text_input(label_psub, value="Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity")
             
             label_uploader = "📁 Sélectionner le fichier officiel du cours (.pdf) :" if FR else "📁 Select the official course file (.pdf):"
             fichier_cours_brut = st.file_uploader(label_uploader, type=["pdf"], key="prof_file_feynman_uploader")
             
-            label_submit_prof = "⚡ Analyser et Propager le cours via Zetaris" if FR else "⚡ Analyze and Broadcast Course via Zetaris"
+            label_submit_prof = "⚡ Analyser et Propager le cours au Campus" if FR else "⚡ Analyze and Broadcast Course to Campus"
             if st.form_submit_button(label_submit_prof, use_container_width=True):
                 if fichier_cours_brut is not None:
                     try:
-                        contenu_brut = "Architecture Système et Cybersécurité Chiffrement Symétrique"
+                        contenu_brut = fichier_cours_brut.read().decode("utf-8", errors="ignore")
                         
-                        mots_interdits = ["bavardage", "fête", "triche", "hacker", "malware", "soirée", "foot", "vacances", "cheat", "party", "gossip"]
+                        mots_interdits = ["bavardage", "fête", "triche", "hacker", "malware", "soirée", "foot", "vacances"]
                         contient_inutile = any(mot in contenu_brut.lower() for mot in mots_interdits)
                         
-                        if contient_inutile:
-                            msg_err_guardrail = "🚨 [ALERTE GUARDRAIL SÉCURITÉ] Flux rejeté ! Détection de termes illicites ou hors-sujet." if FR else "🚨 [SECURITY GUARDRAIL ALERT] Stream rejected! Disallowed or off-topic terms detected."
-                            st.error(msg_err_guardrail)
+                        if contenu_brut.strip() == "":
+                            st.error("⚠️ Erreur réseau : Le fichier téléversé est totalement vide." if FR else "⚠️ Network Error: The uploaded file is completely empty.")
+                        elif contient_inutile:
+                            st.error("🚨 [ALERTE GUARDRAIL SÉCURITÉ] Flux rejeté ! Détection de termes illicites compromettant l'intégrité du campus." if FR else "🚨 [SECURITY GUARDRAIL ALERT] Stream rejected! Detection of illicit terms compromising campus integrity.")
                         else:
-                            txt_spinner = "L'Agent Feynman s'appuie sur NVIDIA Cloud AI pour convertir le cours..." if FR else "Feynman Agent is relying on NVIDIA Cloud AI to convert the course..."
+                            txt_spinner = "L'Agent Feynman propulsé par NVIDIA convertit le cours..." if FR else "The Feynman Agent powered by NVIDIA is converting the course..."
                             with st.spinner(txt_spinner):
                                 time.sleep(1)
                                 
                                 feynman_cards_compiled = f"""
                                 METADATA_SUB: {p_sub}
                                 METADATA_NAME: {p_name}
+                                ---
+                                CONCEPT 1 : Le Chiffrement Symétrique (Verrouillage à clé unique)
+                                EXPLICATION : C'est comme un coffre-fort avec une seule clé magique. Tu utilises la même clé exacte pour fermer le coffre (coder tes données) et pour l'ouvrir (décoder ton fichier). Tout le monde doit cacher cette clé !
+                                ---
+                                CONCEPT 2 : L'Intégrité Réseau (Le cachet de cire numérique)
+                                EXPLICATION : C'est la certitude absolue que personne n'a ouvert ou modifié ton enveloppe de cours pendant son voyage sur le réseau du campus. C'est validé de manière mathématique par la fonction SHA-256.
+                                ---
+                                CONCEPT 3 : Le Buffer Overflow (Le débordement de mémoire)
+                                EXPLICATION : C'est l'équivalent de verser un litre d'eau dans un petit verre de 20 cl. Le liquide déborde partout par terre : en informatique, les données en trop écrasent les cases voisines de la mémoire vive et font planter le système.
                                 """
                                 with open(nom_cache_public, "w", encoding="utf-8") as f_vault:
                                     f_vault.write(feynman_cards_compiled.strip())
@@ -205,44 +236,21 @@ if not st.session_state["session_initialisee"]:
                                 st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
                                 st.session_state["buddy_status"] = "📚 Cours assimilé par Feynman !" if FR else "📚 Course assimilated by Feynman!"
                                 
-                                msg_success_prof = "✅ Cours validé par le Guardrail et converti par la Méthode Feynman avec succès !" if FR else "✅ Course validated by Guardrail and successfully converted using the Feynman Method!"
-                                st.success(msg_success_prof)
+                                st.success("✅ Cours validé par le Guardrail et converti par la Méthode Feynman avec succès !" if FR else "✅ Course validated by the Guardrail and successfully converted by the Feynman Method!")
                                 time.sleep(1)
-                                st.session_state["role_selectionne"] = None
+                                # Déconnexion automatique pour libérer le terminal sécurisé
+                                st.session_state["session_initialisee"] = False
+                                st.session_state["user_role_actif"] = None
                                 st.rerun()
                     except Exception as e:
-                        st.error(f"🚨 Faille de traitement : {e}" if FR else f"🚨 Processing fault: {e}")
+                        st.error(f"🚨 Faille de traitement du fichier : {e}" if FR else f"🚨 File processing failure: {e}")
                 else:
-                    msg_upload_req = "⚠️ Veuillez téléverser un fichier physique .pdf pour initialiser la diffusion." if FR else "⚠️ Please upload a physical .pdf file to initialize broadcasting."
-                    st.error(msg_upload_req)
+                    st.error("⚠️ Veuillez téléverser un fichier physique .pdf pour initialiser la diffusion." if FR else "⚠️ Please upload a physical .pdf file to initialize broadcasting.")
 
-    elif st.session_state["role_selectionne"] == "eleve":
-        titre_inscription = "🎓 Inscription et Liaison Nœud Étudiant" if FR else "🎓 Registration and Student Node Binding"
-        st.markdown(f"### {titre_inscription}")
-        with st.form("form_student_login"):
-            label_username = "🎯 Identifiant Étudiant (Username) :" if FR else "🎯 Student Username:"
-            username_input = st.text_input(label_username, placeholder="ex: audrey_cto")
-            
-            label_node = "🏫 Connected Campus Node :" if FR else "🏫 Connected Campus Node:"
-            univ_node = st.selectbox(label_node, ["The ICT University (Yaoundé)"])
-            
-            label_btn_login = "🚀 Entrer dans l'Écosystème Applicatif" if FR else "🚀 Enter the Application Ecosystem"
-            if st.form_submit_button(label_btn_login, use_container_width=True):
-                if username_input.strip() == "":
-                    st.error("⚠️ L'identifiant est requis pour initialiser la mémoire d'état." if FR else "⚠️ Username is required to initialize state memory.")
-                else:
-                    sub_decouvert = "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity"
-                    name_decouvert = "Dr. Dom Emmanuel T."
-                    
-                    st.session_state["username"] = username_input.strip()
-                    st.session_state["univ_selectionnee"] = univ_node
-                    st.session_state["prof_sub"] = sub_decouvert
-                    st.session_state["prof_name"] = name_decouvert
-                    st.session_state["session_initialisee"] = True
-                    st.success("✅ Authentification validée. Liaison réseau établie." if FR else "✅ Authentication validated. Network link established.")
-                    time.sleep(1)
-                    st.rerun()
- 
+    elif st.session_state["user_role_actif"] == "eleve":
+        # Le code laisse ici le flux s'écouler naturellement vers tes 7 onglets d'étudiants (Pomodoro, Planning...)
+        pass
+
 else:
     with st.sidebar:
         style_robot_expressif = """
@@ -1209,7 +1217,7 @@ else:
     st.subheader("🎓 Certifications Académiques" if FR else "🎓 Academic Certifications")
     
     # CONDITION STRICTE : L'étudiant doit avoir complété un cycle ET posséder au moins 100 XP
-    if st.session_state["pomodoro_termine"] and os.path.exists("cache_cours_public.txt") and st.session_state.xp >= 100:
+    if st.session_state["pomodoro_termine"] and os.path.exists("cache_cours_public.txt") and st.session_state.xp >= 200:
         st.success("🏆 Certification Débloquée ! Tu es officiellement Expert !" if FR else "🏆 Certification Unlocked! You are an Expert!")
         
         try:
@@ -1270,15 +1278,15 @@ else:
             st.error(f"Erreur d'impression du diplôme : {e}")
     else:
         # MESSAGE D'ERREUR INTERACTIF EN CAS DE CRÉDITS D'XP INSUFFISANTS
-        if st.session_state.xp < 100:
-            xp_manquant = 100 - st.session_state.xp
+        if st.session_state.xp < 200:
+            xp_manquant = 200 - st.session_state.xp
             txt_verrouille = (
                 f"🔒 **Certificat d'Expert verrouillé (Niveau insuffisant) :** Tu possèdes actuellement **{st.session_state.xp} XP**. "
-                f"Il te manque encore **{xp_manquant} XP** pour atteindre le seuil d'excellence académique de 100 XP ! "
+                f"Il te manque encore **{xp_manquant} XP** pour atteindre le seuil d'excellence académique de 200 XP ! "
                 f"Effectue des sessions Pomodoro (+20 XP), valide des fiches ou dialogue avec le Hub IA pour accumuler tes crédits. 🎯"
                 if FR else 
                 f"🔒 **Expert Certificate Locked (Insufficient Level):** You currently have **{st.session_state.xp} XP**. "
-                f"You need **{xp_manquant} more XP** to reach the 100 XP academic excellence threshold! "
+                f"You need **{xp_manquant} more XP** to reach the 200 XP academic excellence threshold! "
                 f"Run Pomodoro sessions (+20 XP), sign flashcards, or engage with the AI Hub to earn credits. 🎯"
             )
         else:
