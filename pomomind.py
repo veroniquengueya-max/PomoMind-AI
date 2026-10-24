@@ -301,16 +301,16 @@ else:
             st.session_state["chrono_en_cours"] = False
             st.rerun()
   
-    titres_onglets = [
-        "⏱️ Chrono Pomodoro", "📚 Flux Réception", "🧠 Fiches Flash", "💬 Hub Chat IA", "🤝 Hub Help", "🔥 Capsule Vibe"
+        titres_onglets = [
+        "⏱️ Chrono Pomodoro", "📅 Planning & Examens", "📚 Flux Réception", 
+        "🧠 Fiches Flash", "💬 Hub Chat IA", "🤝 Hub Help", "🔥 Capsule Motivation"
     ] if FR else [
-        "⏱️ Pomodoro Timer", "📚 Reception Feed", "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Hub Help", "🔥 Capsule Vibe"
+        "⏱️ Pomodoro Timer", "📅 Schedule & Exams", "📚 Reception Feed", 
+        "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Hub Help", "🔥 Motivation Capsule"
     ]
-    tab1, tab2, tab3, tab4,tab5, tab6 = st.tabs(titres_onglets)
+    tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
 
-        # ==============================================================================
-    # ⏱️ TAB 1 : CHRONOMÈTRE POMODORO OFFICIEL (PARTIE A - CADRAGE DU TIMER)
-    # ==============================================================================
+
     with tab1:
         st.markdown("""
         <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
@@ -467,6 +467,56 @@ else:
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
+        # ==============================================================================
+    # 📅 TAB_PLANNING : EMPLOI DU TEMPS & GUIDAGE D'EXAMEN DYNAMIQUE (PARTIE A - BILINGUE)
+    # ==============================================================================
+    with tab_planning:
+        title_plan = "📅 Calendrier Universitaire & Guide d'Examen" if FR else "📅 University Schedule & Exam Guide"
+        desc_plan = (
+            "Organise ton calendrier d'évaluation et reçois les directives d'étude chirurgicales du Dr. PomoBuddy."
+            if FR else
+            "Organize your evaluation calendar and receive surgical study guidelines from Dr. PomoBuddy."
+        )
+        st.markdown(f"""
+        <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
+            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">{title_plan}</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{desc_plan}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Base de données bilingue adaptative des examens de l'étudiant
+        DATA_EXAMENS = [
+            {
+                "matiere": "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity",
+                "date": "Lundi 02 Novembre 2026" if FR else "Monday, November 02, 2026",
+                "type": "Examen Final" if FR else "Final Exam",
+                "priorite": "🚨 Critique" if FR else "🚨 Critical",
+                "chapitres": "Chiffrement Symétrique, SHA-256, Buffer Overflow" if FR else "Symmetric Encryption, SHA-256, Buffer Overflow"
+            },
+            {
+                "matiere": "Réseaux Mobiles et Protocoles" if FR else "Mobile Networks & Protocols",
+                "date": "Mercredi 04 Novembre 2026" if FR else "Wednesday, November 04, 2026",
+                "type": "Contrôle Continu" if FR else "Continuous Assessment",
+                "priorite": "⚠️ Moyenne" if FR else "⚠️ Medium",
+                "chapitres": "Routage IP, Architecture Commutateurs" if FR else "IP Routing, Switch Architecture"
+            }
+        ]
+
+        st.markdown("### 📥 Mes Évaluations Programmées" if FR else "### 📥 My Scheduled Exams")
+        
+        for exam in DATA_EXAMENS:
+            label_date_txt = "Date :" if FR else "Date:"
+            label_prio_txt = "Priorité :" if FR else "Priority:"
+            label_chap_txt = "📚 Chapitres clés :" if FR else "📚 Core Chapters:"
+            
+            st.markdown(f"""
+            <div style="background-color:rgba(255,255,255,0.02); padding:15px; border-radius:10px; margin-bottom:12px; border-left:4px solid #00f0ff;">
+                <strong style="font-size:16px; color:#ffffff;">{exam['matiere']}</strong> — <span style="color:#ff007f;">{exam['type']}</span><br>
+                <span style="font-size:13px; color:gray;">📅 {label_date_txt} {exam['date']} | {label_prio_txt} {exam['priorite']}</span><br>
+                <span style="font-size:13px; color:rgba(255,255,255,0.7);">{label_chap_txt} {exam['chapitres']}</span>
+            </div>
+            """, unsafe_allow_html=True)
+
 
     with tab2:
         titre_tab2 = "📚 Flux de Réception de la Méthode Feynman" if FR else "📚 Feynman Method Reception Feed"
