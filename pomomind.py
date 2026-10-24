@@ -69,6 +69,16 @@ if "carousel_stress_idx" not in st.session_state:
 if "carousel_leader_idx" not in st.session_state:
     st.session_state["carousel_leader_idx"] = 0
 
+# --- INITIALISATION DE LA SÉCURITÉ ET DES CYCLES DU CHRONO POMODORO ---
+if "pomodoro_cycles_completed" not in st.session_state:
+    st.session_state["pomodoro_cycles_completed"] = 0
+
+if "pomodoro_current_phase" not in st.session_state:
+    st.session_state["pomodoro_current_phase"] = "focus"  # Options : "focus" ou "pause"
+
+if "pomodoro_lock_active" not in st.session_state:
+    st.session_state["pomodoro_lock_active"] = False
+
 if not st.session_state["session_initialisee"]:
     titre_principal = "🦅 POMOMIND AI"
     sous_titre = "Écosystème d'Étude Multi-Agent Universitaire Symbiotique Core 2026" if FR else "Symbiotic University Multi-Agent Study Ecosystem Core 2026"
@@ -298,71 +308,165 @@ else:
     ]
     tab1, tab2, tab3, tab4,tab5, tab6 = st.tabs(titres_onglets)
 
+        # ==============================================================================
+    # ⏱️ TAB 1 : CHRONOMÈTRE POMODORO OFFICIEL (PARTIE A - CADRAGE DU TIMER)
+    # ==============================================================================
     with tab1:
-        titre_pomo = "⏱️ Chronomètre Pomodoro Immersif" if FR else "⏱️ Immersive Pomodoro Timer"
-        desc_pomo = (
-            "Configure ton atmosphère et ton cycle de focus. Utilisez le lecteur multimédia ci-dessous pour activer l'immersion sonore."
-            if FR else
-            "Configure your atmosphere and focus cycle. Use the multimedia player below to activate sound immersion."
-        )
-        st.markdown(f"""
+        st.markdown("""
         <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
-            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">{titre_pomo}</h3>
-            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{desc_pomo}</p>
+            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">⏱️ Chronomètre Pomodoro Officiel (Anti-Spam)</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude.</p>
         </div>
         """, unsafe_allow_html=True)
         
+        # Affichage graphique de l'état actuel des 4 cycles
+        cycles_faits = st.session_state["pomodoro_cycles_completed"]
+        phase_actuelle = st.session_state["pomodoro_current_phase"]
+        
+        if cycles_faits >= 4:
+            st.success("🎯 Félicitations ! Tu as complété la session maximale de 4 cycles d'étude avec succès !" if FR else "🎯 Congratulations! You have successfully completed the maximum session of 4 study cycles!")
+        else:
+            col_status1, col_status2 = st.columns(2)
+            with col_status1:
+                label_cycle_txt = f"📈 Progression : Cycle **{cycles_faits + 1} / 4**" if FR else f"📈 Progress: Cycle **{cycles_faits + 1} / 4**"
+                st.markdown(label_cycle_txt)
+            with col_status2:
+                label_phase_txt = f"🎭 Phase active : **{phase_actuelle.upper()}**"
+                st.markdown(f"<p style='text-align:right;'>{label_phase_txt}</p>", unsafe_allow_html=True)
+
         col_p1, col_p2 = st.columns(2)
         with col_p1: 
-            label_slider_duree = "Durée de la Session (Minutes) :" if FR else "Session Duration (Minutes):"
-            duree_session = st.slider(label_slider_duree, 1, 60, 25)
+            # Fixation stricte de la durée selon la phase réglementaire (Pas de slider tricheur)
+            if phase_actuelle == "focus":
+                duree_minutes = 25
+                label_duree_active = "⏱️ Temps de Focus Imposé : 25 Minutes" if FR else "⏱️ Enforced Focus Time: 25 Minutes"
+            else:
+                duree_minutes = 5
+                label_duree_active = "🧘 Temps de Pause Imposé : 5 Minutes" if FR else "🧘 Enforced Break Time: 5 Minutes"
+            st.info(label_duree_active)
+            
         with col_p2: 
-            label_audio_sel = "Atmosphère Sonore Active :" if FR else "Sound Atmosphere Active:"
-            options_audio = ["Silence", "🎵 Lo-Fi Focus Study", "🎵 Synthwave Cyber Synth"]
-            ambiance_sonore = st.selectbox(label_audio_sel, options_audio, key="select_audio_pomo")
+            options_audio = ["Silence", "🎵 no_friends", "🎵 mockingbird"]
+            ambiance_sonore = st.selectbox("Atmosphère Sonore Active :" if FR else "Sound Atmosphere:", options_audio, key="select_audio_pomo")
 
         st.markdown("<br>", unsafe_allow_html=True)
         if ambiance_sonore != "Silence":
-            label_audio_sys = "🎧 Système Audio Interactif" if FR else "🎧 Interactive Audio System"
-            st.markdown(f"#### {label_audio_sys}")
-            st.audio("https://soundhelix.com", format="audio/mp3", loop=True)
+            track_file = "no_friends.mp3" if "no_friends" in ambiance_sonore else "mockingbird.mp3"
+            if os.path.exists(track_file):
+                with open(track_file, "rb") as f_audio:
+                    st.audio(f_audio.read(), format="audio/mp3", loop=True)
+            else:
+                st.audio("https://soundhelix.com", format="audio/mp3", loop=True)
 
         st.markdown("---")
-        label_btn_launch = "🚀 Initialiser et Lancer le Cycle de Focus" if FR else "🚀 Initialize and Launch Focus Cycle"
-        if st.button(label_btn_launch, use_container_width=True, key="start_pomo_luxe"):
+                # --- ⏳ ZONE D'AFFICHAGE DU COMPTE À REBOURS NUMÉRIQUE ---
+        zone_temps_horloge = st.empty()
+        status_action_text = st.empty()
+        
+        # Formatage initial de l'horloge au repos
+        zone_temps_horloge.markdown(f"""
+        <div style="text-align:center; margin:20px 0;">
+            <h1 style="font-family:monospace; font-size:68px; color:#00f0ff; margin:0;">{duree_minutes:02d}:00</h1>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Désactivation du bouton si les 4 cycles sont terminés ou si le chrono tourne déjà
+        bouton_desactive = st.session_state["pomodoro_lock_active"] or st.session_state["pomodoro_cycles_completed"] >= 4
+        
+        label_action_btn = (
+            "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
+        ) if FR else (
+            "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
+        )
+        
+        if st.button(label_action_btn, use_container_width=True, key="action_pomo_cycle_core", disabled=bouton_desactive):
             st.session_state["chrono_en_cours"] = True
+            st.session_state["pomodoro_lock_active"] = True
             st.session_state["buddy_animation"] = "mode-sprint"
             
-            progress_bar = st.progress(0)
-            status_text = st.empty()
+            # Conversion stricte de la durée réelle en secondes pour le décrément
+            # (Pour ta démo de soutenance rapide, tu peux diviser par 60 si tu veux accélérer le test)
+            total_secondes = duree_minutes * 60
             
-            for percent in range(100):
-                time.sleep(0.02)
-                progress_bar.progress(percent + 1)
-                txt_status = f"⏳ Focus en cours... Progression : {percent + 1}%" if FR else f"⏳ Focus running... Progress: {percent + 1}%"
-                status_text.text(txt_status)
-            
-            st.session_state["pomodoro_termine"] = True
-            st.session_state.xp += 20
+            # --- BOUCLE TECHNIQUE DU COMPTE À REBOURS STRICT ---
+            while total_secondes > 0:
+                mins, secs = divmod(total_secondes, 60)
+                zone_temps_horloge.markdown(f"""
+                <div style="text-align:center; margin:20px 0;">
+                    <h1 style="font-family:monospace; font-size:68px; color:#ff007f; margin:0;">{mins:02d}:{secs:02d}</h1>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                txt_animation_status = (
+                    f"⏳ Focus en cours (Cycle {cycles_faits + 1}/4)... Ne quitte pas l'onglet !" 
+                    if phase_actuelle == "focus" else 
+                    f"🧘 Pause active... Respire profondément et relâche la tension."
+                ) if FR else (
+                    f"⏳ Focus active (Cycle {cycles_faits + 1}/4)... Stay on this tab!" 
+                    if phase_actuelle == "focus" else 
+                    f"🧘 Break active... Breathe deeply and relax."
+                )
+                status_action_text.text(txt_animation_status)
+                
+                time.sleep(1)
+                total_secondes -= 1
+                        # --- 🏁 ACTIONS ET DISTRIBUTION DES CRÉDITS EN FIN DE CYCLE STREAK ---
             st.session_state["chrono_en_cours"] = False
-            st.session_state["buddy_energy"] = 100
-            st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 20)
-            st.balloons()
+            st.session_state["pomodoro_lock_active"] = False
+            
+            if phase_actuelle == "focus":
+                # Fin des 25 minutes de travail : attribution des points
+                st.session_state.xp += 20
+                st.session_state["buddy_energy"] = max(0, st.session_state["buddy_energy"] - 25)
+                st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
+                st.session_state["buddy_status"] = "🧠 Session de 25 min validée ! (+20 XP)" if FR else "🧠 25 min Session validated! (+20 XP)"
+                
+                # Bascule automatique vers la phase de repos réglementaire
+                st.session_state["pomodoro_current_phase"] = "pause"
+                st.session_state["pomodoro_termine"] = True
+                
+                st.balloons()
+            else:
+                # Fin des 5 minutes de pause : régénération du Tamagotchi
+                st.session_state["buddy_energy"] = 100
+                st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 20)
+                st.session_state["buddy_status"] = "🧘 Pause terminée ! Prêt pour le focus." if FR else "🧘 Break over! Ready for focus."
+                
+                # Validation officielle du cycle complet et retour au focus
+                st.session_state["pomodoro_cycles_completed"] += 1
+                st.session_state["pomodoro_current_phase"] = "focus"
+                
+                # Message vocal ou sonore de fin de pause
+                st.markdown("#### 🔊 Message Vocal de ton Coach (Fin de session) :")
+                if os.path.exists("coach_break.mp3"):
+                    with open("coach_break.mp3", "rb") as f_break:
+                        st.audio(f_break.read(), format="audio/mp3", autoplay=True)
+                else:
+                    st.audio("https://soundhelix.com", format="audio/mp3", autoplay=True)
+            
             st.rerun()
 
-        if st.session_state["pomodoro_termine"]:
-            titre_protocol = "🟢 PROTOCOLE DE REPOS DU DR. POMOBUDDY" if FR else "🟢 DR. POMOBUDDY REST PROTOCOL"
-            desc_protocol = (
-                "• 🧘 <b>Déconnexion Visuelle (5 min) :</b> Éloignez vos yeux de l'écran.<br>• 💧 <b>Hydratation Cinétique :</b> Lève-toi, marche et bois de l'eau."
-                if FR else
-                "• 🧘 <b>Visual Disconnect (5 min):</b> Move your eyes away from the screen.<br>• 💧 <b>Kinetic Hydration:</b> Stand up, walk, and drink water."
-            )
-            st.markdown(f"""
+        # Affichage du protocole d'hygiène de vie d'origine si une session vient d'aboutir
+        if st.session_state["pomodoro_termine"] and phase_actuelle == "pause":
+            st.markdown("""
             <div style="background-color: #ffffff; border-left: 6px solid #2ecc71; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
-                <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">{titre_protocol}</h4>
-                <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">{desc_protocol}</p>
+                <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 PROTOCOLE DE REPOS DU DR. POMOBUDDY</h4>
+                <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
+                    • 🧘 <b>Déconnexion Visuelle (5 min) :</b> Éloignez vos yeux de l'écran pour détendre vos muscles oculaires.<br>
+                    • 💧 <b>Hydratation Cinétique :</b> Lève-toi, marche et bois de l'eau. Ton cerveau consomme 20% de ton énergie primaire.
+                </p>
             </div>
             """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <div style="background-color: #ffffff !important; border-left: 6px solid #2ecc71 !important; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
+                    <h4 style="color:#111116 !important; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 DR. POMOBUDDY'S REST PROTOCOL</h4>
+                    <p style="color:#2b2b36 !important; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
+                        • 🧘 <b>Visual Disconnection (5 min):</b> Move your eyes away from the screen to relax your ocular muscles.<br>
+                        • 💧 <b>Kinetic Hydration:</b> Stand up, walk around, and drink water. Your brain consumes 20% of your primary energy.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
 
     with tab2:
         titre_tab2 = "📚 Flux de Réception de la Méthode Feynman" if FR else "📚 Feynman Method Reception Feed"
@@ -948,76 +1052,91 @@ else:
                 }}
                 </script>
                 """, unsafe_allow_html=True)
-
+        # ==============================================================================
+    # 🎓 CERTIFICATION FINALE : VALIDE LE DIPLÔME DE LUXE À PARTIR DE 100 XP
+    # ==============================================================================
     st.markdown("---")
     st.subheader("🎓 Certifications Académiques" if FR else "🎓 Academic Certifications")
     
-    if st.session_state["pomodoro_termine"] and os.path.exists("cache_cours_public.txt"):
+    # CONDITION STRICTE : L'étudiant doit avoir complété un cycle ET posséder au moins 100 XP
+    if st.session_state["pomodoro_termine"] and os.path.exists("cache_cours_public.txt") and st.session_state.xp >= 100:
         st.success("🏆 Certification Débloquée ! Tu es officiellement Expert !" if FR else "🏆 Certification Unlocked! You are an Expert!")
         
-    try:
-        # Création de la toile de fond unie bleu nuit profond d'origine (100% conforme à ta capture)
-        W_d, H_d = 1200, 800
-        diplome_img = PILImage.new("RGB", (W_d, H_d), (17, 22, 45)) # Code couleur exact d'origine
-        draw_dip = ImageDraw.Draw(diplome_img)
-        
-        # Double encadrement géométrique d'ingénieur Or Impérial et Blanc fin
-        draw_dip.rounded_rectangle([30, 30, W_d - 30, H_d - 30], radius=24, fill=None, outline=(218, 165, 32), width=3)
-        draw_dip.rounded_rectangle([45, 45, W_d - 45, H_d - 45], radius=16, fill=None, outline=(255, 255, 255), width=1)
-        
         try:
-            font_d1 = ImageFont.truetype("arial.ttf", 52)
-            font_d2 = ImageFont.truetype("arial.ttf", 34)
-            font_d3 = ImageFont.truetype("arial.ttf", 26)
-        except:
-            font_d1 = font_d2 = font_d3 = ImageFont.load_default()
-        
-        # Fonction d'écriture avec calcul dynamique des longueurs pour centrer à la perfection
-        def ecrire_centre_dip(texte, y_pos, police, couleur):
-            bbox = draw_dip.textbbox((0, 0), texte, font=police)
-            w_t = bbox[2] - bbox[0]
-            draw_dip.text(((W_d - w_t)/2, y_pos), texte, font=police, fill=couleur)
-        
-        # Application de ta logique d'écriture centrée sur l'ensemble des chaînes de caractères
-        ecrire_centre_dip("POMOMIND ACADEMY", H_d * 0.16, font_d1, (255, 215, 0))
-        
-        txt_title_cert = "CERTIFICATE OF ACADEMIC EXPERTISE" if not FR else "CERTIFICAT D'EXPERTISE ACADÉMIQUE"
-        ecrire_centre_dip(txt_title_cert, H_d * 0.26, font_d2, (255, 255, 255))
-        
-        txt_attest = "The Multi-Agent Ecosystem attests that the student:" if not FR else "L'Écosystème Multi-Agent certifie que l'étudiant(e) :"
-        ecrire_centre_dip(txt_attest, H_d * 0.38, font_d3, (190, 190, 210))
-        
-        ecrire_centre_dip(st.session_state['username'].upper(), H_d * 0.48, font_d1, (255, 255, 255))
-        
-        txt_course = f"Has successfully validated the specialization course in: {st.session_state['prof_sub']}" if not FR else f"A validé avec succès le cours de spécialisation en : {st.session_state['prof_sub']}"
-        ecrire_centre_dip(txt_course, H_d * 0.62, font_d3, (190, 190, 210))
-        
-        txt_node = f"CONNECTED UNIVERSITY NODE: {st.session_state['univ_selectionnee'].replace('The ', '').upper()}"
-        ecrire_centre_dip(txt_node, H_d * 0.70, font_d2, (0, 240, 255))
-        
-        txt_credits = f"TOTAL SCORE CARD CREDITS: {st.session_state.xp} XP"
-        ecrire_centre_dip(txt_credits, H_d * 0.78, font_d2, (46, 204, 113))
-        
-        txt_footer = "Done in Yaounde, certified compliant by PomoMind Core 2026 cryptographic signature via Zetaris." if not FR else "Done in Yaounde, certified compliant by PomoMind Core 2026 cryptographic signature via Zetaris."
-        ecrire_centre_dip(txt_footer, H_d * 0.88, font_d3, (110, 110, 130))
-        
-        # Encodage mémoire
-        buf_dip = io.BytesIO()
-        diplome_img.save(buf_dip, format="JPEG", quality=100)
-        bytes_diplome = buf_dip.getvalue()
-        
-        st.image(bytes_diplome, use_container_width=True, caption="PomoMind AI // Premium Academic Credential")
-        st.download_button(label="📥 Download Certificate (JPEG)", data=bytes_diplome, file_name=f"Certificat_Luxe_{st.session_state['username']}.jpg", mime="image/jpeg")
-        
-    except Exception as e:
-        st.error(f"Erreur d'impression du diplôme : {e}")
+            # Création de la toile de fond unie bleu nuit profond d'origine
+            W_d, H_d = 1200, 800
+            diplome_img = PILImage.new("RGB", (W_d, H_d), (17, 22, 45)) 
+            draw_dip = ImageDraw.Draw(diplome_img)
+            
+            # Double encadrement géométrique d'ingénieur Or Impérial et Blanc fin
+            draw_dip.rounded_rectangle([30, 30, W_d - 30, H_d - 30], radius=24, fill=None, outline=(218, 165, 32), width=3)
+            draw_dip.rounded_rectangle([45, 45, W_d - 45, H_d - 45], radius=16, fill=None, outline=(255, 255, 255), width=1)
+            
+            try:
+                font_d1 = ImageFont.truetype("arial.ttf", 52)
+                font_d2 = ImageFont.truetype("arial.ttf", 34)
+                font_d3 = ImageFont.truetype("arial.ttf", 26)
+            except:
+                font_d1 = font_d2 = font_d3 = ImageFont.load_default()
+            
+            # Fonction d'écriture avec calcul dynamique des longueurs pour centrer à la perfection
+            def ecrire_centre_dip(texte, y_pos, police, couleur):
+                bbox = draw_dip.textbbox((0, 0), texte, font=police)
+                w_t = bbox[2] - bbox[0]
+                draw_dip.text(((W_d - w_t)/2, y_pos), texte, font=police, fill=couleur)
+            
+            # Application des chaînes de texte exactes de ton design d'origine
+            ecrire_centre_dip("POMOMIND ACADEMY", H_d * 0.16, font_d1, (255, 215, 0))
+            
+            txt_title_cert = "CERTIFICATE OF ACADEMIC EXPERTISE" if not FR else "CERTIFICAT D'EXPERTISE ACADÉMIQUE"
+            ecrire_centre_dip(txt_title_cert, H_d * 0.26, font_d2, (255, 255, 255))
+            
+            txt_attest = "The Multi-Agent Ecosystem attests that the student:" if not FR else "L'Écosystème Multi-Agent certifie que l'étudiant(e) :"
+            ecrire_centre_dip(txt_attest, H_d * 0.38, font_d3, (190, 190, 210))
+            
+            ecrire_centre_dip(st.session_state['username'].upper(), H_d * 0.48, font_d1, (255, 255, 255))
+            
+            txt_course = f"Has successfully validated the specialization course in: {st.session_state['prof_sub']}" if not FR else f"A validé avec succès le cours de spécialisation en : {st.session_state['prof_sub']}"
+            ecrire_centre_dip(txt_course, H_d * 0.62, font_d3, (190, 190, 210))
+            
+            txt_node = f"CONNECTED UNIVERSITY NODE: {st.session_state['univ_selectionnee'].replace('The ', '').upper()}"
+            ecrire_centre_dip(txt_node, H_d * 0.70, font_d2, (0, 240, 255))
+            
+            txt_credits = f"TOTAL SCORE CARD CREDITS: {st.session_state.xp} XP"
+            ecrire_centre_dip(txt_credits, H_d * 0.78, font_d2, (46, 204, 113))
+            
+            txt_footer = "Done in Yaounde, certified compliant by PomoMind Core 2026 cryptographic signature via Zetaris."
+            ecrire_centre_dip(txt_footer, H_d * 0.88, font_d3, (110, 110, 130))
+            
+            # Encodage mémoire
+            buf_dip = io.BytesIO()
+            diplome_img.save(buf_dip, format="JPEG", quality=100)
+            bytes_diplome = buf_dip.getvalue()
+            
+            st.image(bytes_diplome, use_container_width=True, caption="PomoMind AI // Premium Academic Credential")
+            st.download_button(label="📥 Download Certificate (JPEG)", data=bytes_diplome, file_name=f"Certificat_Luxe_{st.session_state['username']}.jpg", mime="image/jpeg")
+            
+        except Exception as e:
+            st.error(f"Erreur d'impression du diplôme : {e}")
     else:
-    # --- CLAUSE D'AFFICHAGE DU MESSAGE SI LE CERTIFICAT EST ENCORE VERROUILLÉ ---
-        txt_verrouille = (
-            "🔒 Certificat d'Expert verrouillé : Complète d'abord une session d'étude dans l'onglet 'Chrono Pomodoro' "
-            "ET reçois le cours officiel du professeur dans l'onglet 'Flux Réception' pour décrocher ton diplôme officiel de luxe !"
-            if FR else 
-            "🔒 Expert Certificate Locked: Complete a full focus session in the 'Pomodoro' tab "
-            "AND receive the official course from your teacher in the 'Reception Feed' tab to unlock your official luxury diploma!"
-        )
+        # MESSAGE D'ERREUR INTERACTIF EN CAS DE CRÉDITS D'XP INSUFFISANTS
+        if st.session_state.xp < 100:
+            xp_manquant = 100 - st.session_state.xp
+            txt_verrouille = (
+                f"🔒 **Certificat d'Expert verrouillé (Niveau insuffisant) :** Tu possèdes actuellement **{st.session_state.xp} XP**. "
+                f"Il te manque encore **{xp_manquant} XP** pour atteindre le seuil d'excellence académique de 100 XP ! "
+                f"Effectue des sessions Pomodoro (+20 XP), valide des fiches ou dialogue avec le Hub IA pour accumuler tes crédits. 🎯"
+                if FR else 
+                f"🔒 **Expert Certificate Locked (Insufficient Level):** You currently have **{st.session_state.xp} XP**. "
+                f"You need **{xp_manquant} more XP** to reach the 100 XP academic excellence threshold! "
+                f"Run Pomodoro sessions (+20 XP), sign flashcards, or engage with the AI Hub to earn credits. 🎯"
+            )
+        else:
+            txt_verrouille = (
+                "🔒 **Certificat d'Expert verrouillé :** Complète d'abord une session d'étude dans l'onglet 'Chrono Pomodoro' "
+                "ET reçois le cours officiel du professeur dans l'onglet 'Flux Réception' pour valider ton parcours !"
+                if FR else 
+                "🔒 **Expert Certificate Locked:** Complete a full focus session in the 'Pomodoro' tab "
+                "AND receive the official course from your teacher in the 'Reception Feed' tab to validate your path!"
+            )
         st.warning(txt_verrouille)
