@@ -1,3 +1,3 @@
 Python 3.10+
-Streamlit
-Pillow(PIL)
+streamlit>=1.35.0
+Pillow>=10.0.0
