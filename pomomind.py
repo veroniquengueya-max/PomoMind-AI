@@ -463,7 +463,6 @@ else:
     ]
     tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
 
-
     with tab1:
         st.markdown("""
         <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
@@ -1094,23 +1093,21 @@ else:
                                     st.markdown("<span style='color:gray; font-size:10px;'>[METERLESS: +1 NODE_PROBE]</span>", unsafe_allow_html=True)
                                     st.rerun()
         # ==============================================================================
-    # 🔥 TAB 6 : CAPSULE DE MOTIVATION PURIFIÉE (PARTIE B-1 — ACCÈS MULTIMÉDIA)
-    # ==============================================================================
-        # ==============================================================================
     # 🔥 TAB 6 : CAPSULE DE MOTIVATION (SÉCURITÉ ET RESET SUR SORTIE D'ONGLET)
     # ==============================================================================
     with tab6:
-        # --- 🚨 DÉTECTEUR DE SORTIE D'ONGLET JAVASCRIPT CORRIGÉ ---
-        # Si l'utilisateur clique sur un autre onglet, le script coupe l'audio et réinitialise le timer
+        # --- 🚨 INJECTION DU BOUCLIER AUDIO ET CHRONO NAVIGATEUR JAVASCRIPT ---
+        # Détecte le clic sur un autre onglet pour couper le son et rafraîchir le timer
         st.markdown("""
         <script>
-        const tabs = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
-        tabs.forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                // Si l'onglet cliqué n'est pas l'onglet 6 (index 5)
-                if (index !== 5) {
-                    const audios = window.parent.document.querySelectorAll('audio');
-                    audios.forEach(a => { a.pause(); a.src = ''; });
+        const boutonsOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
+        boutonsOnglets.forEach((onglet, index) => {
+            onglet.addEventListener('click', () => {
+                // L'onglet de la capsule correspond au 6ème onglet (index 5 ou 6 selon ton organisation)
+                // Si l'étudiant clique ailleurs, on éteint l'audio du navigateur proprement
+                if (onglet.innerText.indexOf("Capsule") === -1 && onglet.innerText.indexOf("Motivation") === -1) {
+                    const tousLesAudios = window.parent.document.querySelectorAll('audio');
+                    tousLesAudios.forEach(audio => { audio.pause(); audio.src = ''; });
                 }
             });
         });
@@ -1118,6 +1115,7 @@ else:
         """, unsafe_allow_html=True)
 
         MAX_SESSIONS_PAR_JOUR = 2
+
         # --- 🏛️ LE CATALOGUE D'ANIME AU FORMAT TUPLE HARMONISÉ ---
         BANQUE_DISCIPLINE = [
             ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
@@ -1363,3 +1361,5 @@ else:
                 "AND receive the official course from your teacher in the 'Reception Feed' tab to validate your path!"
             )
         st.warning(txt_verrouille)
+
+   
