@@ -95,9 +95,9 @@ if "carousel_stress_idx" not in st.session_state:
 if "carousel_leader_idx" not in st.session_state:
     st.session_state["carousel_leader_idx"] = 0
 
-# --- TRACKER DE LA CAPSULE DANS LA SIDEBAR DU COACH ---
+# --- INITIALISATION VERROUILLÉE DE LA CAPSULE DANS LA SIDEBAR ---
 if "capsule_countdown_seconds" not in st.session_state:
-    st.session_state["capsule_countdown_seconds"] = 20 * 60  # 20 minutes réglementaires
+    st.session_state["capsule_countdown_seconds"] = 1200  # 20 minutes strictes
 
 if "capsule_timer_running" not in st.session_state:
     st.session_state["capsule_timer_running"] = False
@@ -125,6 +125,16 @@ if "user_role_actif" not in st.session_state:
 # --- MÉMOIRE DE L'EMPLOI DU TEMPS INTÉLLIGENT NVIDIA ---
 if "planning_personnalise" not in st.session_state:
     st.session_state["planning_personnalise"] = []
+
+# Initialisation immédiate avant les bascules de langues et l'affichage de la Sidebar
+st.session_state["comptes_utilisateurs"] = charger_base_donnees_locales()
+
+# --- SÉCURITÉ CRUCIALE : INITIALISATION PAR DÉFAUT DE L'IDENTIFIANT ---
+if "username" not in st.session_state:
+    st.session_state["username"] = ""
+
+if "user_role_actif" not in st.session_state: st.session_state["user_role_actif"] = None
+if "capsule_sessions_aujourdhui" not in st.session_state: st.session_state["capsule_sessions_aujourdhui"] = 0
 
 # ==============================================================================
 # 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE DOUBLE ONGLÈTE
@@ -315,9 +325,9 @@ if not st.session_state["session_initialisee"]:
         # Le code laisse ici le flux s'écouler naturellement vers tes 7 onglets d'étudiants (Pomodoro, Planning...)
         pass
 
-else:
-    with st.sidebar:
-        style_robot_expressif = """
+    else:
+        with st.sidebar:
+            style_robot_expressif = """
         <style>
         @keyframes robotHover {
             0% { transform: translateY(0px); filter: drop-shadow(0 0 5px #00f0ff); }
@@ -380,12 +390,14 @@ else:
         PHRASES_VEILLE_FR = [
             "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
             "Méthode Feynman armée. Simplifions ces lignes complexes de cybersécurité !",
-            "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux."
+            "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux.",
+            "Besoin d'un boost ? Va swiper un Edit de motivation dans l'onglet Capsule !"
         ]
         PHRASES_VEILLE_EN = [
             "Scanning network nodes... Your development speed is highly optimized today!",
             "Feynman core armed. Let's simplify those dense cybersecurity data structures!",
-            "Campus link stable. Your active recall session is generating great XP credits."
+            "Campus link stable. Your active recall session is generating great XP credits.",
+            "Need a mental reboot? Go swipe a Manga Edit inside the Capsule tab!"
         ]
 
         if st.session_state["chrono_en_cours"]:
@@ -407,47 +419,63 @@ else:
         </div>
         """, unsafe_allow_html=True)
         st.markdown(f'<div class="readable-buddy-bubble"><p>"{bulle_texte}"</p></div>', unsafe_allow_html=True)
+
         label_eng = "🔋 Énergie" if FR else "🔋 Energy"
         label_joy = "❤️ Joie" if FR else "❤️ Joy"
         col_s1, col_s2 = st.columns(2)
         with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
         with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
             
-        # ==============================================================================
-        # 🤖 MONITEUR TEMPOREL DE LA CAPSULE GÉRÉ PAR DR. POMOBUDDY (SIDEBAR)
-        # ==============================================================================
-        if st.session_state["capsule_timer_running"]:
+        # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH AVEC DOUBLE SÉCURITÉ ---
+        if st.session_state.get("capsule_timer_running", False):
             st.markdown("---")
             st.markdown("<p style='text-align:center; font-weight:bold; color:#00f0ff; margin-bottom:2px;'>⚡ RECHARGE D'AURA ACTIVE</p>", unsafe_allow_html=True)
             
-            # Utilisation du composant asynchrone non bloquant pour le navigateur
             st.components.v1.html(f"""
             <div style="text-align:center; background:transparent;">
-                <h1 id="sidebar_js_clock" style="font-family:monospace; font-size:38px; color:#ff007f; margin:0;">20:00</h1>
+                <h1 id="sidebar_clock_display" style="font-family:monospace; font-size:36px; color:#ff007f; margin:0; font-weight:bold;">20:00</h1>
             </div>
             <script>
-            var totalSec = {st.session_state["capsule_countdown_seconds"]};
-            var display = document.getElementById('sidebar_js_clock');
-            var interval = setInterval(function() {{
-                var mins = Math.floor(totalSec / 60);
-                var secs = totalSec % 60;
-                display.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
-                if (totalSec <= 0) {{
-                    clearInterval(interval);
-                    display.innerText = "00:00";
+                let timeRemaining = localStorage.getItem('pomo_capsule_time');
+                if (timeRemaining === null) {{
+                    timeRemaining = {st.session_state["capsule_countdown_seconds"]};
+                }} else {{
+                    timeRemaining = parseInt(timeRemaining, 10);
                 }}
-                totalSec--;
-            }}, 1000);
+                let display = document.getElementById('sidebar_clock_display');
+                function updateClock() {{
+                    let mins = Math.floor(timeRemaining / 60);
+                    let secs = timeRemaining % 60;
+                    display.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                    if (timeRemaining <= 0) {{
+                        clearInterval(countdownInterval);
+                        display.innerText = "00:00";
+                        localStorage.removeItem('pomo_capsule_time');
+                    }} else {{
+                        timeRemaining--;
+                        localStorage.setItem('pomo_capsule_time', timeRemaining);
+                    }}
+                }}
+                updateClock();
+                let countdownInterval = setInterval(updateClock, 1000);
             </script>
-            """, height=55)
-            
-            # Mise à jour des secondes en tâche de fond pour l'état Python
-            if st.session_state["capsule_countdown_seconds"] > 0:
-                st.session_state["capsule_countdown_seconds"] -= 1
-            else:
-                st.session_state["capsule_timer_running"] = False
-                st.session_state["capsule_audio_unlocked"] = False
-                st.rerun()
+            """, height=60)
+
+        st.markdown("---")
+        label_score = "🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:"
+        st.metric(label=label_score, value=f"{st.session_state.xp} XP")
+        
+        # --- RESTAURATION DE TON BOUTON SÉCURISÉ D'ORIGINE POUR QUITTER ---
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        label_exit = "🔴 Quitter la session" if FR else "🔴 Terminate Session"
+        if st.button(label_exit, use_container_width=True, key="logout_btn_sidebar_restored"):
+            st.session_state["session_initialisee"] = False
+            st.session_state["pomodoro_termine"] = False
+            st.session_state["chrono_en_cours"] = False
+            st.session_state["capsule_timer_running"] = False
+            st.session_state["capsule_audio_unlocked"] = False
+            st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
+            st.rerun()
         # ==============================================================================
 
         st.markdown("---")
@@ -461,7 +489,7 @@ else:
         "⏱️ Pomodoro Timer", "📅 Schedule & Exams", "📚 Reception Feed", 
         "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Hub Help", "🔥 Motivation Capsule"
     ]
-    tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
+        tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
 
     with tab1:
         st.markdown("""
@@ -1096,25 +1124,31 @@ else:
     # 🔥 TAB 6 : CAPSULE DE MOTIVATION (SÉCURITÉ ET RESET SUR SORTIE D'ONGLET)
     # ==============================================================================
     with tab6:
-        # --- 🚨 INJECTION DU BOUCLIER AUDIO ET CHRONO NAVIGATEUR JAVASCRIPT ---
-        # Détecte le clic sur un autre onglet pour couper le son et rafraîchir le timer
+                # --- 🚨 SÉCURITÉ ABSOLUE : SCRIPT DE COUPURE SUR CHANGEMENT D'ONGLET ---
         st.markdown("""
         <script>
-        const boutonsOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
-        boutonsOnglets.forEach((onglet, index) => {
+        const tousLesOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
+        tousLesOnglets.forEach((onglet, index) => {
             onglet.addEventListener('click', () => {
-                // L'onglet de la capsule correspond au 6ème onglet (index 5 ou 6 selon ton organisation)
-                // Si l'étudiant clique ailleurs, on éteint l'audio du navigateur proprement
+                // L'index 6 correspond à l'onglet de la capsule (le 7ème onglet avec le planning)
+                // Si l'étudiant clique sur n'était quel autre onglet, on purge tout
                 if (onglet.innerText.indexOf("Capsule") === -1 && onglet.innerText.indexOf("Motivation") === -1) {
-                    const tousLesAudios = window.parent.document.querySelectorAll('audio');
-                    tousLesAudios.forEach(audio => { audio.pause(); audio.src = ''; });
+                    // 1. Extinction immédiate de toutes les balises audio du navigateur
+                    const audios = window.parent.document.querySelectorAll('audio');
+                    audios.forEach(a => { a.pause(); a.src = ''; });
+                    
+                    // 2. Destruction du chronomètre dans le cache local
+                    window.parent.localStorage.removeItem('pomo_capsule_time');
                 }
             });
         });
         </script>
         """, unsafe_allow_html=True)
-
-        MAX_SESSIONS_PAR_JOUR = 2
+        
+        # Traque de sortie Python pour forcer la Sidebar à masquer l'horloge au rechargement
+        if st.session_state.get("capsule_timer_running", False) and "vibe_manga_selectbox_final_sidebar" not in st.session_state:
+            st.session_state["capsule_timer_running"] = False
+            st.session_state["capsule_audio_unlocked"] = False
 
         # --- 🏛️ LE CATALOGUE D'ANIME AU FORMAT TUPLE HARMONISÉ ---
         BANQUE_DISCIPLINE = [
@@ -1339,11 +1373,11 @@ else:
             
         except Exception as e:
             st.error(f"Erreur d'impression du diplôme : {e}")
-    else:
+        else:
         # MESSAGE D'ERREUR INTERACTIF EN CAS DE CRÉDITS D'XP INSUFFISANTS
-        if st.session_state.xp < 200:
-            xp_manquant = 200 - st.session_state.xp
-            txt_verrouille = (
+            if st.session_state.xp < 200:
+                xp_manquant = 200 - st.session_state.xp
+                txt_verrouille = (
                 f"🔒 **Certificat d'Expert verrouillé (Niveau insuffisant) :** Tu possèdes actuellement **{st.session_state.xp} XP**. "
                 f"Il te manque encore **{xp_manquant} XP** pour atteindre le seuil d'excellence académique de 200 XP ! "
                 f"Effectue des sessions Pomodoro (+20 XP), valide des fiches ou dialogue avec le Hub IA pour accumuler tes crédits. 🎯"
@@ -1352,8 +1386,8 @@ else:
                 f"You need **{xp_manquant} more XP** to reach the 200 XP academic excellence threshold! "
                 f"Run Pomodoro sessions (+20 XP), sign flashcards, or engage with the AI Hub to earn credits. 🎯"
             )
-        else:
-            txt_verrouille = (
+            else:
+                txt_verrouille = (
                 "🔒 **Certificat d'Expert verrouillé :** Complète d'abord une session d'étude dans l'onglet 'Chrono Pomodoro' "
                 "ET reçois le cours officiel du professeur dans l'onglet 'Flux Réception' pour valider ton parcours !"
                 if FR else 
