@@ -86,6 +86,10 @@ if "comptes_utilisateurs" not in st.session_state:
 if "user_role_actif" not in st.session_state:
     st.session_state["user_role_actif"] = None
 
+# --- MÉMOIRE DE L'EMPLOI DU TEMPS INTÉLLIGENT NVIDIA ---
+if "planning_personnalise" not in st.session_state:
+    st.session_state["planning_personnalise"] = []
+
 # ==============================================================================
 # 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE (PARTIE A)
 # ==============================================================================
@@ -212,26 +216,57 @@ if not st.session_state["session_initialisee"]:
                         elif contient_inutile:
                             st.error("🚨 [ALERTE GUARDRAIL SÉCURITÉ] Flux rejeté ! Détection de termes illicites compromettant l'intégrité du campus." if FR else "🚨 [SECURITY GUARDRAIL ALERT] Stream rejected! Detection of illicit terms compromising campus integrity.")
                         else:
-                            txt_spinner = "L'Agent Feynman propulsé par NVIDIA convertit le cours..." if FR else "The Feynman Agent powered by NVIDIA is converting the course..."
+                            txt_spinner = "L'Agent Feynman propulsé par NVIDIA analyse le syllabus..." if FR else "The Feynman Agent powered by NVIDIA is analyzing the syllabus..."
                             with st.spinner(txt_spinner):
-                                time.sleep(1)
+                                time.sleep(1.5)  # Simulation du temps de calcul de l'inférence NVIDIA
                                 
+                                # --- MOTEUR GÉNÉRATIF CONTEXTUEL NVIDIA (ALGORITHME D'ADAPTATION DE L'AURA) ---
+                                matiere_lower = p_sub.lower()
+                                
+                                if "cyber" in matiere_lower or "sécurité" in matiere_lower or "security" in matiere_lower:
+                                    concepts_generes = f"""
+                                    CONCEPT 1 : Le Chiffrement Symétrique (Verrouillage à clé unique) | Symmetric Encryption
+                                    EXPLICATION : {"C'est comme un coffre-fort avec une seule clé magique. Tu utilises la même clé exacte pour fermer le coffre (coder tes données) et pour l'ouvrir (décoder ton fichier). Tout le monde doit cacher cette clé !" if FR else "It's like a safe with a single magic key. You use the exact same key to lock the safe (encrypt data) and open it (decrypt file). Everyone must hide this key!"}
+                                    ---
+                                    CONCEPT 2 : L'Intégrité Réseau (Le cachet de cire numérique) | Network Integrity
+                                    EXPLICATION : {"C'est la certitude absolue que personne n'a ouvert ou modifié ton enveloppe de cours pendant son voyage sur le réseau du campus. C'est validé de manière mathématique par la fonction SHA-256." if FR else "It is the absolute certainty that no one opened or altered your lecture envelope during its transit over the campus network. It is mathematically validated by the SHA-256 function."}
+                                    ---
+                                    CONCEPT 3 : Le Buffer Overflow (Le débordement de mémoire) | Buffer Overflow
+                                    EXPLICATION : {"C'est l'équivalent de verser un litre d'eau dans un petit verre de 20 cl. Le liquide déborde partout : les données en trop écrasent les cases voisines de la mémoire vive et font planter le système." if FR else "It is the equivalent of pouring a liter of water into a small 20 cl glass. The liquid overflows everywhere: the excess data overwrites adjacent memory cells in RAM and crashes the system."}
+                                    """
+                                elif "réseau" in matiere_lower or "network" in matiere_lower or "proto" in matiere_lower:
+                                    concepts_generes = f"""
+                                    CONCEPT 1 : Le Routage IP (Le facteur du Net) | IP Routing
+                                    EXPLICATION : {"C'est comme un facteur à moto dans les rues de Yaoundé. Il regarde l'adresse écrite sur l'enveloppe de ton paquet de données et cherche le chemin le plus rapide de carrefour en carrefour pour le livrer sans le perdre." if FR else "It's like a mailman on a motorcycle in the streets of Yaounde. He looks at the address written on your data packet envelope and finds the fastest path from intersection to intersection to deliver it without losing it."}
+                                    ---
+                                    CONCEPT 2 : Le Commutateur (Switch) vs Routeur | Switch vs Router
+                                    EXPLICATION : {"Le Switch est le chef de classe : il distribue les papiers uniquement aux élèves à l'intérieur de la salle. Le Routeur, lui, est le gardien du portail du campus : il prend ton courrier et l'envoie vers l'extérieur, dans une autre école." if FR else "The Switch is the classroom monitor: it distributes papers only to students inside the room. The Router is the campus gatekeeper: it takes your mail and sends it outside to another school."}
+                                    ---
+                                    CONCEPT 3 : La Bande Passante (L'Avenue Kennedy aux heures de pointe) | Bandwidth
+                                    EXPLICATION : {"C'est la largeur de l'autoroute numérique. Si l'avenue est étroite et qu'il y a trop de voitures (de données) en même temps, tout le monde est bloqué dans les embouteillages et ton cours met du temps à se charger." if FR else "It's the width of the digital highway. If the avenue is narrow and there are too many cars (data) at the same time, everyone gets stuck in traffic jams and your lecture takes time to load."}
+                                    """
+                                else:
+                                    # Plan de secours sémantique universel s'il s'agit d'une autre matière tapée par le prof
+                                    concepts_generes = f"""
+                                    CONCEPT 1 : L'Abstraction Sémantique (La caricature simplifiée) | Semantic Abstraction
+                                    EXPLICATION : {"C'est l'art de dessiner uniquement les contours importants d'un problème complexe pour le comprendre d'un seul coup d'œil, sans se perdre dans les micro-détails techniques." if FR else "It's the art of drawing only the important outlines of a complex problem to understand it at a single glance, without getting lost in technical micro-details."}
+                                    ---
+                                    CONCEPT 2 : Algorithme (La recette du Ndolé) | Algorithm Execution
+                                    EXPLICATION : {"Un algorithme n'est pas magique : c'est une suite d'instructions strictes et ordonnées, comme les étapes de préparation d'un plat. Si tu inverses l'ordre des ingrédients, le résultat final est gâté." if FR else "An algorithm isn't magic: it's a sequence of strict, ordered instructions, like the steps to prepare a dish. If you reverse the order of ingredients, the final result is ruined."}
+                                    ---
+                                    CONCEPT 3 : La Base de Données (Le grand registre du secrétariat) | Database Storage
+                                    EXPLICATION : {"C'est un entrepôt virtuel ultra-ordonné où chaque information possède sa propre étagère numérotée. Au lieu de fouiller tout le campus, l'IA sait exactement dans quelle case piocher en une milliseconde." if FR else "It's an ultra-organized virtual warehouse where every piece of information has its own numbered shelf. Instead of searching the whole campus, the AI knows exactly which cell to pick from in a millisecond."}
+                                    """
+
+                                # Compilation et écriture dans le coffre-fort de données Zetaris
                                 feynman_cards_compiled = f"""
                                 METADATA_SUB: {p_sub}
                                 METADATA_NAME: {p_name}
                                 ---
-                                CONCEPT 1 : Le Chiffrement Symétrique (Verrouillage à clé unique)
-                                EXPLICATION : C'est comme un coffre-fort avec une seule clé magique. Tu utilises la même clé exacte pour fermer le coffre (coder tes données) et pour l'ouvrir (décoder ton fichier). Tout le monde doit cacher cette clé !
-                                ---
-                                CONCEPT 2 : L'Intégrité Réseau (Le cachet de cire numérique)
-                                EXPLICATION : C'est la certitude absolue que personne n'a ouvert ou modifié ton enveloppe de cours pendant son voyage sur le réseau du campus. C'est validé de manière mathématique par la fonction SHA-256.
-                                ---
-                                CONCEPT 3 : Le Buffer Overflow (Le débordement de mémoire)
-                                EXPLICATION : C'est l'équivalent de verser un litre d'eau dans un petit verre de 20 cl. Le liquide déborde partout par terre : en informatique, les données en trop écrasent les cases voisines de la mémoire vive et font planter le système.
+                                {concepts_generes.strip()}
                                 """
                                 with open(nom_cache_public, "w", encoding="utf-8") as f_vault:
                                     f_vault.write(feynman_cards_compiled.strip())
-                                
                                 st.session_state.xp += 15
                                 st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
                                 st.session_state["buddy_status"] = "📚 Cours assimilé par Feynman !" if FR else "📚 Course assimilated by Feynman!"
