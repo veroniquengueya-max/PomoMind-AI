@@ -875,12 +875,35 @@ else:
                 </script>
                 """, unsafe_allow_html=True)
 
-                # --- 🕹️ RENDU CARROUSEL 3 : BANQUE_LEADER ---
+                # --- 🕹️ RENDU CARROUSEL 3 : BANQUE_LEADER (TAILLE COMPACTE & VRAI FADE-IN CAPCUT) ---
         elif "Leader" in vibe_choisie or "👑" in vibe_choisie:
             st.markdown("---")
             if "carousel_leader_idx" not in st.session_state: 
                 st.session_state["carousel_leader_idx"] = 0
             
+            # Injection de l'animation CapCut Style : transition fluide, zoom léger et fondu entrant
+            style_fade_entrant = """
+            <style>
+            @keyframes phonkFadeIn {
+                0% { opacity: 0; transform: translateY(15px) scale(0.96); filter: brightness(1.3); }
+                100% { opacity: 1; transform: translateY(0px) scale(1); filter: brightness(1); }
+            }
+            .phonk-image-container {
+                text-align: center;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .phonk-image-animated {
+                animation: phonkFadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+                width: 320px !important; /* Taille compacte stricte d'origine demandée */
+                height: auto;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+            </style>
+            """
+            st.markdown(style_fade_entrant, unsafe_allow_html=True)
+
             col_p, col_txt, col_n = st.columns(3)
             with col_p:
                 if st.button("⬅️ Swipe", key="prev_leader"):
@@ -894,23 +917,25 @@ else:
                     st.rerun()
             
             curr_idx = st.session_state["carousel_leader_idx"]
-            leader_active = BANQUE_LEADER[curr_idx]
+            p_path, p_audio = BANQUE_LEADER[curr_idx]
             
-            if os.path.exists(leader_active["img"]):
-                with open(leader_active["img"], "rb") as img_file: 
+            if os.path.exists(p_path):
+                with open(p_path, "rb") as img_file: 
                     b64_img = base64.b64encode(img_file.read()).decode()
+                
+                # Rendu HTML pur : force le navigateur à exécuter l'effet sans blocage de Streamlit
                 st.markdown(f"""
-                <div style="width:100%; text-align:center; margin-top:10px;">
-                    <img src="data:image/jpeg;base64,{b64_img}" style="width:100%; max-width:340px; border-radius:12px;">
-                    <h4 style="color:{leader_active['color']}; margin-top:12px; font-family:sans-serif;">Aura : {leader_active['character']}</h4>
+                <div class="phonk-image-container">
+                    <img src="data:image/jpeg;base64,{b64_img}" class="phonk-image-animated">
+                    <h4 style="color:#00f0ff; margin-top:15px; font-family:sans-serif; font-weight:bold; font-size:16px;">
+                        Aura : {p_path.split('.')[0]}
+                    </h4>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                st.warning(f"🖼| Fichier local '{leader_active['img']}' introuvable.")
-        
+                st.warning(f"🖼️ Fichier local '{p_path}' introuvable.")
             if st.session_state["audio_unlocked"]:
                 player_id = f"audio_node_leader_{curr_idx}_{int(time.time())}"
-                p_audio = leader_active["audio_local"]
                 audio_src = f"data:audio/mp3;base64,{base64.b64encode(open(p_audio, 'rb').read()).decode()}" if os.path.exists(p_audio) else "https://soundhelix.com"
                 
                 zone_audio_dynamique.markdown(f"""
