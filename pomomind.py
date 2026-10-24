@@ -19,6 +19,32 @@ st.set_page_config(
 
 FR = st.sidebar.toggle("🇫🇷 Mode Français / English Mode", value=True, key="global_language_toggle")
 
+# ==============================================================================
+# 🛡️ INFRASTRUCTURE DB SECURISEE & PERSISTANTE DE LA CTO (SHA-256 LOCAL STORAGE)
+# ==============================================================================
+DB_FILE = "utilisateurs_db.txt"
+
+def charger_base_donnees_locales():
+    """ Charge de manière immuable les comptes depuis le disque dur local """
+    comptes = {}
+    if os.path.exists(DB_FILE):
+        with open(DB_FILE, "r", encoding="utf-8") as f:
+            for ligne in f:
+                if "::" in ligne:
+                    u, h_p, r = ligne.strip().split("::")
+                    comptes[u] = {"password_hash": h_p, "role": r}
+    return comptes
+
+def sauvegarder_compte_local(username, password_hash, role):
+    """ Écrit physiquement le nouveau profil dans le coffre-fort persistant """
+    with open(DB_FILE, "a", encoding="utf-8") as f:
+        f.write(f"{username}::{password_hash}::{role}\n")
+
+# Initialisation de la mémoire d'état persistante
+st.session_state["comptes_utilisateurs"] = charger_base_donnees_locales()
+
+if "user_role_actif" not in st.session_state: st.session_state["user_role_actif"] = None
+if "capsule_sessions_aujourdhui" not in st.session_state: st.session_state["capsule_sessions_aujourdhui"] = 0
 
 if "session_initialisee" not in st.session_state:
     st.session_state["session_initialisee"] = False
@@ -110,10 +136,8 @@ if not st.session_state["session_initialisee"]:
     </div>
     """, unsafe_allow_html=True)
     
-    # Création des deux onglets distincts sur une même ligne d'état
     tab_se_connecter, tab_s_inscrire = st.tabs(["🔐 Connexion / Login", "📝 Inscription / Register"])
     
-    # --- ONGLÈTE 1 : FORMULAIRE DE CONNEXION ÉTANCHE ---
     with tab_se_connecter:
         st.markdown("### 🔐 Accéder à mon Espace Privé" if FR else "### 🔐 Access My Private Space")
         with st.form("form_login_core"):
@@ -122,10 +146,13 @@ if not st.session_state["session_initialisee"]:
             univ_node = st.selectbox("🏫 Connected Campus Node :", ["The ICT University (Yaoundé)"])
             
             if st.form_submit_button("🚀 Connexion sécurisée" if FR else "🚀 Secure Login", use_container_width=True):
+                # Rechargement à la volée de la DB pour être synchro
+                st.session_state["comptes_utilisateurs"] = charger_base_donnees_locales()
+                
                 if login_user == "" or login_pass == "":
                     st.error("⚠️ Saisis ton identifiant et ton mot de passe." if FR else "⚠️ Enter your username and password.")
                 elif login_user not in st.session_state["comptes_utilisateurs"]:
-                    st.error("❌ Identifiant inconnu sur ce nœud universitaire." if FR else "❌ Unknown username on this university node.")
+                    st.error("❌ Identifiant inconnu dans la base de données." if FR else "❌ Unknown username in local storage.")
                 else:
                     hash_tentative = calculer_empreinte_sha256(login_pass)
                     compte_valide = st.session_state["comptes_utilisateurs"][login_user]
@@ -135,24 +162,15 @@ if not st.session_state["session_initialisee"]:
                         st.session_state["univ_selectionnee"] = univ_node
                         st.session_state["user_role_actif"] = compte_valide["role"]
                         
-                        sub_decouvert = "Informatique Générale"
-                        name_decouvert = "Professeur Titulaire"
-                        if os.path.exists("cache_cours_public.txt"):
-                            with open("cache_cours_public.txt", "r", encoding="utf-8") as f_in:
-                                for l in f_in.readlines():
-                                    if "METADATA_SUB:" in l: sub_decouvert = l.replace("METADATA_SUB:", "").strip()
-                                    if "METADATA_NAME:" in l: name_decouvert = l.replace("METADATA_NAME:", "").strip()
-                        
-                        st.session_state["prof_sub"] = sub_decouvert
-                        st.session_state["prof_name"] = name_decouvert
+                        st.session_state["prof_sub"] = "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity"
+                        st.session_state["prof_name"] = "Dr. Dom Emmanuel T."
                         st.session_state["session_initialisee"] = True
-                        st.success("✅ Authentification cryptographique validée. Redirection..." if FR else "✅ Cryptographic authentication validated. Redirecting...")
-                        time.sleep(1)
+                        st.success("✅ Authentification validée cryptographiquement. Liaison DB OK." if FR else "✅ Cryptographic authentication validated. DB Link OK.")
+                        time.sleep(0.5)
                         st.rerun()
                     else:
                         st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
 
-    # --- ONGLÈTE 2 : FORMULAIRE D'INSCRIPTION AVEC AUTO-LOGIN COMPRIS ---
     with tab_s_inscrire:
         st.markdown("### 📝 Créer un compte unique" if FR else "### 📝 Create a Unique Account")
         with st.form("form_registration_core"):
@@ -162,35 +180,32 @@ if not st.session_state["session_initialisee"]:
             prof_secret_key = st.text_input("🔑 Code Secret Enseignant (Laisser vide si étudiant) :", type="password")
             
             if st.form_submit_button("💾 Enregistrer et Entrer" if FR else "💾 Register and Enter", use_container_width=True):
+                st.session_state["comptes_utilisateurs"] = charger_base_donnees_locales()
+                
                 if reg_user == "" or reg_pass == "":
                     st.error("⚠️ Tous les champs sont obligatoires." if FR else "⚠️ All fields are required.")
                 elif reg_user in st.session_state["comptes_utilisateurs"]:
-                    st.error("🚨 Cet identifiant existe déjà." if FR else "🚨 This username already exists.")
+                    st.error("🚨 Cet identifiant existe déjà dans la base de données." if FR else "🚨 This username already exists in local DB.")
                 elif "Professor" in reg_role and prof_secret_key != "PROF2026":
                     st.error("🚨 Code Secret Enseignant invalide !" if FR else "🚨 Invalid Professor Secret Code!")
                 else:
                     hash_secure = calculer_empreinte_sha256(reg_pass)
                     role_defini = "prof" if "Professor" in reg_role else "eleve"
                     
-                    st.session_state["comptes_utilisateurs"][reg_user] = {
-                        "password_hash": hash_secure,
-                        "role": role_defini
-                    }
+                    # Sauvegarde permanente et physique immédiate sur le PC
+                    sauvegarder_compte_local(reg_user, hash_secure, role_defini)
                     
                     st.session_state["username"] = reg_user
                     st.session_state["univ_selectionnee"] = "The ICT University (Yaoundé)"
                     st.session_state["user_role_actif"] = role_defini
-                    st.session_state["prof_sub"] = "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity"
-                    st.session_state["prof_name"] = "Dr. Dom Emmanuel T."
                     st.session_state["session_initialisee"] = True
-                    st.success("🎯 Compte créé et connecté automatiquement ! Redirection..." if FR else "🎯 Account created and auto-logged in! Redirecting...")
-                    time.sleep(1)
+                    st.success("🎯 Inscription physique réussie et Auto-Login validé !" if FR else "🎯 Physical registration successful & Auto-Login validated!")
+                    time.sleep(0.5)
                     st.rerun()
+
             else:
-                    st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
-            # ==============================================================================
-    # 🦅 COEUR DE SÉCURITÉ : COMMUTATEUR ET REDIRECTION ÉTANCHE DES RÔLES (PARTIE C)
-    # ==============================================================================
+                st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
+      
     st.markdown("<br><hr>", unsafe_allow_html=True)
 
     # Redirection automatique et hermétique selon le privilège validé par le Guardrail
