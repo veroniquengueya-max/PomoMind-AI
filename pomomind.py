@@ -69,6 +69,16 @@ if "carousel_stress_idx" not in st.session_state:
 if "carousel_leader_idx" not in st.session_state:
     st.session_state["carousel_leader_idx"] = 0
 
+# --- INITIALISATION DU TRAQUEUR DE TEMPS ANTI-ADDICKTION CAPSULE ---
+if "capsule_temps_consomme" not in st.session_state:
+    st.session_state["capsule_temps_consomme"] = 0.0  # En secondes pour la précision du calcul
+
+if "capsule_derniere_activation" not in st.session_state:
+    st.session_state["capsule_derniere_activation"] = time.time()
+
+if "capsule_bloquee_definitivement" not in st.session_state:
+    st.session_state["capsule_bloquee_definitivement"] = False
+
 # --- INITIALISATION DE LA SÉCURITÉ ET DES CYCLES DU CHRONO POMODORO ---
 if "pomodoro_cycles_completed" not in st.session_state:
     st.session_state["pomodoro_cycles_completed"] = 0
@@ -93,9 +103,12 @@ if "planning_personnalise" not in st.session_state:
 # ==============================================================================
 # 🦅 COEUR DE SÉCURITÉ : SYSTÈME D'AUTHENTIFICATION CRYPTOGRAPHIQUE (PARTIE A)
 # ==============================================================================
+# ==============================================================================
+# 🦅 COEUR DE SÉCURITÉ : CRÉATION DE COMPTE AVEC CONNEXION AUTOMATIQUE (PARTIE A)
+# ==============================================================================
 if not st.session_state["session_initialisee"]:
     st.markdown(f"""
-        <div style="text-align:center; margin-bottom:30px;">
+    <div style="text-align:center; margin-bottom:30px;">
         <h1 style="color:#00f0ff; font-family:sans-serif; font-size:42px; margin-bottom:10px;">🦅 POMOMIND AI</h1>
         <p style="color:rgba(255,255,255,0.6); font-size:16px;">
             {"Écosystème d'Étude Multi-Agent Universitaire Sécurisé Core 2026" if FR else "Secure University Multi-Agent Study Ecosystem Core 2026"}
@@ -103,80 +116,52 @@ if not st.session_state["session_initialisee"]:
     </div>
     """, unsafe_allow_html=True)
     
-    # Onglets d'accès : Connexion ou Création de compte
     auth_tabs = st.tabs(["🔐 Connexion / Login", "📝 Inscription / Register"])
     
-    # --- SOUS-ONGLET 1 : CRÉATION DE COMPTE (SÉCURISATION SHA-256) ---
+    # --- SOUS-ONGLET : CRÉATION DE COMPTE AVEC BRIS DE DOUBLE ÉTAPE ---
     with auth_tabs[1]:
         st.markdown("### 📝 Créer un compte unique" if FR else "### 📝 Create a Unique Account")
         with st.form("form_registration_core"):
             reg_user = st.text_input("🎯 Identifiant unique (Username) :", placeholder="ex: veronique_cto", key="reg_username_input").strip()
             reg_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="reg_password_input")
             
-            # Le sélecteur intelligent de rôle
             reg_role = st.selectbox("🎭 Type de profil / Profile Type :", ["Student (Étudiant / Adulte)", "Professor (Enseignant)"])
+            prof_secret_key = st.text_input("🔑 Code Secret Enseignant (Laisser vide si étudiant) :", type="password")
             
-            # Clé de vérification administrative pour bloquer les étudiants tricheurs
-            prof_secret_key = st.text_input("🔑 Code Secret Enseignant (Laisser vide si étudiant) :", type="password", help="Code officiel requis pour valider le privilège Professeur.")
-            
-            if st.form_submit_button("💾 Enregistrer mon identité" if FR else "💾 Register My Identity", use_container_width=True):
+            if st.form_submit_button("💾 Enregistrer et Entrer" if FR else "💾 Register and Enter", use_container_width=True):
                 if reg_user == "" or reg_pass == "":
-                    st.error("⚠️ Tous les champs sont obligatoires pour initialiser la clé d'état." if FR else "⚠️ All fields are required to initialize state key.")
+                    st.error("⚠️ Tous les champs sont obligatoires." if FR else "⚠️ All fields are required.")
                 elif reg_user in st.session_state["comptes_utilisateurs"]:
-                    st.error("🚨 Cet identifiant existe déjà sur le nœud universitaire." if FR else "🚨 This username already exists on the university node.")
+                    st.error("🚨 Cet identifiant existe déjà." if FR else "🚨 This username already exists.")
                 elif "Professor" in reg_role and prof_secret_key != "PROF2026":
-                    st.error("🚨 Code Secret Enseignant invalide ! Accès refusé." if FR else "🚨 Invalid Professor Secret Code! Access denied.")
+                    st.error("🚨 Code Secret Enseignant invalide !" if FR else "🚨 Invalid Professor Secret Code!")
                 else:
-                    # Cryptage immédiat du mot de passe avant stockage
+                    # 1. Cryptage et stockage immédiat
                     hash_secure = calculer_empreinte_sha256(reg_pass)
+                    role_defini = "prof" if "Professor" in reg_role else "eleve"
+                    
                     st.session_state["comptes_utilisateurs"][reg_user] = {
                         "password_hash": hash_secure,
-                        "role": "prof" if "Professor" in reg_role else "eleve"
+                        "role": role_defini
                     }
-                    st.success("✅ Compte enregistré avec succès ! Bascule sur l'onglet Connexion." if FR else "✅ Account successfully registered! Switch to the Login tab.")
-        # --- SOUS-ONGLET 2 : CONNEXION ÉTANCHE (VÉRIFICATION DES EMPREINTES) ---
-    with auth_tabs[0]:
-        st.markdown("### 🔐 Accéder à mon Espace Privé" if FR else "### 🔐 Access My Private Space")
-        with st.form("form_login_core"):
-            login_user = st.text_input("🎯 Identifiant (Username) :", placeholder="ex: veronique_cto", key="login_username_input").strip()
-            login_pass = st.text_input("🔒 Mot de passe / Password :", type="password", key="login_password_input")
-            univ_node = st.selectbox("🏫 Connected Campus Node :", ["The ICT University (Yaoundé)"])
-            
-            if st.form_submit_button("🚀 Connexion sécurisée" if FR else "🚀 Secure Login", use_container_width=True):
-                if login_user == "" or login_pass == "":
-                    st.error("⚠️ Saisis ton identifiant et ton mot de passe." if FR else "⚠️ Enter your username and password.")
-                elif login_user not in st.session_state["comptes_utilisateurs"]:
-                    st.error("❌ Identifiant inconnu sur ce nœud universitaire." if FR else "❌ Unknown username on this university node.")
-                else:
-                    # Hachage du mot de passe saisi pour comparaison mathématique
-                    hash_tentative = calculer_empreinte_sha256(login_pass)
-                    compte_valide = st.session_state["comptes_utilisateurs"][login_user]
                     
-                    if hash_tentative == compte_valide["password_hash"]:
-                        # Récupération sécurisée du rôle par le Guardrail
-                        st.session_state["username"] = login_user
-                        st.session_state["univ_selectionnee"] = univ_node
-                        st.session_state["user_role_actif"] = compte_valide["role"]
-                        
-                        # Configuration automatique des métadonnées
-                        sub_decouvert = "Informatique Générale"
-                        name_decouvert = "Professeur Titulaire"
-                        if os.path.exists("cache_cours_public.txt"):
-                            with open("cache_cours_public.txt", "r", encoding="utf-8") as f_in:
-                                for l in f_in.readlines():
-                                    if "METADATA_SUB:" in l: sub_decouvert = l.replace("METADATA_SUB:", "").strip()
-                                    if "METADATA_NAME:" in l: name_decouvert = l.replace("METADATA_NAME:", "").strip()
-                        
-                        st.session_state["prof_sub"] = sub_decouvert
-                        st.session_state["prof_name"] = name_decouvert
-                        
-                        # Activation immédiate de la session applicative
-                        st.session_state["session_initialisee"] = True
-                        st.success("✅ Authentification cryptographique validée. Redirection..." if FR else "✅ Cryptographic authentication validated. Redirecting...")
-                        time.sleep(1)
-                        st.rerun()
-                    else:
-                        st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
+                    # 2. PROTOCOLE AUTO-LOGIN : Injection directe des variables de session
+                    st.session_state["username"] = reg_user
+                    st.session_state["univ_selectionnee"] = "The ICT University (Yaoundé)"
+                    st.session_state["user_role_actif"] = role_defini
+                    
+                    # Configuration par défaut du dictionnaire de cours
+                    st.session_state["prof_sub"] = "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity"
+                    st.session_state["prof_name"] = "Dr. Dom Emmanuel T."
+                    
+                    # 3. Validation de session immédiate sans repasser par le Login
+                    st.session_state["session_initialisee"] = True
+                    st.success("🎯 Compte créé et connecté automatiquement ! Redirection..." if FR else "🎯 Account created and auto-logged in! Redirecting...")
+                    time.sleep(1)
+                    st.rerun()
+
+            else:
+                    st.error("🚨 Mot de passe incorrect ! Alerte Guardrail Sécurité." if FR else "🚨 Incorrect password! Security Guardrail Alert.")
             # ==============================================================================
     # 🦅 COEUR DE SÉCURITÉ : COMMUTATEUR ET REDIRECTION ÉTANCHE DES RÔLES (PARTIE C)
     # ==============================================================================
@@ -564,15 +549,13 @@ else:
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
-        # ==============================================================================
-    # 📅 TAB_PLANNING : EMPLOI DU TEMPS & GUIDAGE D'EXAMEN DYNAMIQUE (PARTIE A - BILINGUE)
-    # ==============================================================================
+      
     with tab_planning:
-        title_plan = "📅 Calendrier Universitaire & Guide d'Examen" if FR else "📅 University Schedule & Exam Guide"
+        title_plan = "📅 Planificateur d'Examens Intelligent NVIDIA" if FR else "📅 NVIDIA Intelligent Exam Scheduler"
         desc_plan = (
-            "Organise ton calendrier d'évaluation et reçois les directives d'étude chirurgicales du Dr. PomoBuddy."
+            "Saisis tes prochaines matières d'évaluation. L'Agent NVIDIA générera ta feuille de route de révision sur-mesure."
             if FR else
-            "Organize your evaluation calendar and receive surgical study guidelines from Dr. PomoBuddy."
+            "Enter your upcoming exam subjects. The NVIDIA Agent will generate your customized revision roadmap."
         )
         st.markdown(f"""
         <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
@@ -581,85 +564,105 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-        # Base de données bilingue adaptative des examens de l'étudiant
-        DATA_EXAMENS = [
-            {
-                "matiere": "Architecture Système & Cybersécurité" if FR else "System Architecture & Cybersecurity",
-                "date": "Lundi 02 Novembre 2026" if FR else "Monday, November 02, 2026",
-                "type": "Examen Final" if FR else "Final Exam",
-                "priorite": "🚨 Critique" if FR else "🚨 Critical",
-                "chapitres": "Chiffrement Symétrique, SHA-256, Buffer Overflow" if FR else "Symmetric Encryption, SHA-256, Buffer Overflow"
-            },
-            {
-                "matiere": "Réseaux Mobiles et Protocoles" if FR else "Mobile Networks & Protocols",
-                "date": "Mercredi 04 Novembre 2026" if FR else "Wednesday, November 04, 2026",
-                "type": "Contrôle Continu" if FR else "Continuous Assessment",
-                "priorite": "⚠️ Moyenne" if FR else "⚠️ Medium",
-                "chapitres": "Routage IP, Architecture Commutateurs" if FR else "IP Routing, Switch Architecture"
-            }
-        ]
+        # --- FORMULAIRE D'AJOUT DYNAMIQUE D'ÉVALUATION ---
+        st.markdown("### 📝 Ajouter une Évaluation" if FR else "### 📝 Add an Assessment")
+        with st.form("form_ajout_planning_nvidia", clear_on_submit=True):
+            col_in1, col_col2 = st.columns(2)
+            with col_in1:
+                input_matiere = st.text_input("📚 Intitulé de la matière / Subject :", placeholder="ex: Algorithme, Réseaux, Cyber...")
+                input_date = st.text_input("📅 Date de l'examen / Date :", placeholder="ex: 04 Novembre 2026")
+            with col_col2:
+                input_type = st.selectbox("🎭 Type d'examen / Exam Type :", ["Examen Final / Final Exam", "Contrôle Continu / Quiz", "Rattrapage / Resit"])
+                input_prio = st.selectbox("🚨 Priorité de révision / Priority :", ["🚨 Haute / Critical High", "⚠️ Moyenne / Medium", "🟢 Normale / Low"])
 
-        st.markdown("### 📥 Mes Évaluations Programmées" if FR else "### 📥 My Scheduled Exams")
-        
-        for exam in DATA_EXAMENS:
-            label_date_txt = "Date :" if FR else "Date:"
-            label_prio_txt = "Priorité :" if FR else "Priority:"
-            label_chap_txt = "📚 Chapitres clés :" if FR else "📚 Core Chapters:"
-            
-            st.markdown(f"""
-            <div style="background-color:rgba(255,255,255,0.02); padding:15px; border-radius:10px; margin-bottom:12px; border-left:4px solid #00f0ff;">
-                <strong style="font-size:16px; color:#ffffff;">{exam['matiere']}</strong> — <span style="color:#ff007f;">{exam['type']}</span><br>
-                <span style="font-size:13px; color:gray;">📅 {label_date_txt} {exam['date']} | {label_prio_txt} {exam['priorite']}</span><br>
-                <span style="font-size:13px; color:rgba(255,255,255,0.7);">{label_chap_txt} {exam['chapitres']}</span>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown("---")
-        st.markdown("### 🧠 Conseiller de Révision Stratégique Dr. PomoBuddy" if FR else "### 🧠 Dr. PomoBuddy Strategic Revision Advisor")
-        
-        # Sélection interactive de la matière pour déclencher le guidage de l'IA
-        options_matieres = [
-            "Architecture Système & Cybersécurité", 
-            "Réseaux Mobiles et Protocoles"
-        ] if FR else [
-            "System Architecture & Cybersecurity", 
-            "Mobile Networks & Protocols"
-        ]
-        
-        label_select = "🎯 Choisis la matière à réviser immédiatement :" if FR else "🎯 Select the subject to review right now:"
-        choix_matiere = st.selectbox(label_select, options_matieres, key="sb_planning_advisor_subject")
-        
-        # --- BLOC DE LOGIQUE DE CONFIGURATION DU GUIDAGE BILINGUE (IF-ELSE) ---
-        if "Architecture" in choix_matiere or "Cybersecurity" in choix_matiere:
-            guide_titre = "🎯 Feuille de Route : Architecture Système & Cybersécurité" if FR else "🎯 Roadmap: System Architecture & Cybersecurity"
-            guide_etapes = [
-                "**Étape 1 (Focus Pomodoro) :** Bloque 25 min sur le Chiffrement Symétrique. Comprends pourquoi une clé unique doit rester secrète." if FR else "**Step 1 (Pomodoro Focus):** Spend 25 mins on Symmetric Encryption. Understand why a single key must remain secret.",
-                "**Étape 2 (Assimilation Feynman) :** Explique le concept du Buffer Overflow comme un verre d'eau qui déborde pour ancrer ta mémoire sémantique." if FR else "**Step 2 (Feynman Assimilation):** Explain the Buffer Overflow concept like an overflowing glass of water to anchor your semantic memory.",
-                "**Étape 3 (Intégrité Réseau) :** Valide ta signature cryptographique SHA-256 dans l'onglet des Flashcards pour tester ton recall actif." if FR else "**Step 3 (Network Integrity):** Validate your SHA-256 cryptographic signature in the Flashcards tab to test your active recall."
-            ]
-            conseil_coach = "💡 *Le conseil du Dr. PomoBuddy :* Cet examen est critique. Ne te contente pas d'apprendre par cœur, comprends le 'Pourquoi' technique de chaque faille." if FR else "💡 *Dr. PomoBuddy's Advice:* This exam is critical. Do not just memorize, understand the technical 'Why' behind every vulnerability."
-        else:
-            guide_titre = "🎯 Feuille de Route : Réseaux Mobiles et Protocoles" if FR else "🎯 Roadmap: Mobile Networks & Protocols"
-            guide_etapes = [
-                "**Étape 1 (Focus Pomodoro) :** Consacre une session de 25 min à l'analyse de l'en-tête des paquets IP et du mécanisme de routage." if FR else "**Step 1 (Pomodoro Focus):** Dedicate a 25-min session to analyzing IP packet headers and the routing mechanism.",
-                "**Étape 2 (Vulgarisation) :** Dessine le cheminement des données à travers un commutateur réseau pour simplifier la topologie." if FR else "**Step 2 (Simplification):** Draw the data path through a network switch to simplify the topology structure.",
-                "**Étape 3 (Entraide Hub) :** Si tu bloques sur les masques de sous-réseau, ouvre un salon privé avec Marc-Aurèle dans l'onglet Hub Help." if FR else "**Step 3 (Hub Collaboration):** If you are stuck on subnet masks, open a private chat room with Marc-Aurèle in the Hub Help tab."
-            ]
-            conseil_coach = "💡 *Le conseil du Dr. PomoBuddy :* La topologie réseau est visuelle. Utilise la Capsule de Motivation pour stimuler ton attention avant de tracer tes schémas." if FR else "💡 *Dr. PomoBuddy's Advice:* Network topology is visual. Use the Motivation Capsule to boost your focus before drawing your diagrams."
+            if st.form_submit_button("💾 Injecter dans la Matrice NVIDIA" if FR else "💾 Inject into NVIDIA Matrix", use_container_width=True):
+                if input_matiere.strip() == "" or input_date.strip() == "":
+                    st.error("⚠️ Veuillez remplir l'intitulé et la date de l'évaluation." if FR else "⚠️ Please enter the subject title and the exam date.")
+                else:
+                    # Ajout direct dans l'état de session persistant
+                    st.session_state["planning_personnalise"].append({
+                        "matiere": input_matiere.strip(),
+                        "date": input_date.strip(),
+                        "type": input_type,
+                        "priorite": input_prio
+                    })
+                    st.success("✅ Évaluation enregistrée ! Moteur d'inférence prêt." if FR else "✅ Assessment registered! Inference engine ready.")
+                    time.sleep(0.5)
+                    st.rerun()
 
-        # Rendu graphique propre de la feuille de route générée
-        st.markdown(f"""
-        <div style="background:rgba(0, 240, 255, 0.03); border:1px solid rgba(0, 240, 255, 0.2); padding:20px; border-radius:12px; margin-top:15px;">
-            <h4 style="color:#00f0ff; margin-top:0; font-family:sans-serif;">{guide_titre}</h4>
-        </div>
-        """, unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        for etape in guide_etapes:
-            st.markdown(f"- {etape}")
-            
         st.markdown("---")
-        st.info(conseil_coach)
+        st.markdown("### 📥 Mon Emploi du Temps d'Évaluation" if FR else "### 📥 My Assessment Schedule")
 
+        # Affichage dynamique des examens saisis par l'étudiant
+        if len(st.session_state["planning_personnalise"]) == 0:
+            st.info("💡 Aucun examen enregistré pour le moment. Utilise le formulaire ci-dessus pour initialiser ton calendrier." if FR else "💡 No exams registered yet. Use the form above to initialize your schedule.")
+        else:
+            for idx, exam in enumerate(st.session_state["planning_personnalise"]):
+                label_date_txt = "Date :" if FR else "Date:"
+                label_prio_txt = "Priorité :" if FR else "Priority:"
+                
+                st.markdown(f"""
+                <div style="background-color:rgba(255,255,255,0.02); padding:15px; border-radius:10px; margin-bottom:12px; border-left:4px solid #ff007f;">
+                    <strong style="font-size:16px; color:#ffffff;">{exam['matiere']}</strong> — <span style="color:#00f0ff;">{exam['type']}</span><br>
+                    <span style="font-size:13px; color:gray;">📅 {label_date_txt} {exam['date']} | {label_prio_txt} {exam['priorite']}</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("---")
+            st.markdown("### 🧠 Conseiller de Révision Stratégique NVIDIA AI" if FR else "### 🧠 NVIDIA AI Strategic Revision Advisor")
+
+            # Récupération dynamique de la liste des matières saisies pour le sélecteur de conseils
+            liste_choix = [e["matiere"] for e in st.session_state["planning_personnalise"]]
+            
+            label_select = "🎯 Choisis la matière à analyser par NVIDIA AI :" if FR else "🎯 Select the subject for NVIDIA AI analysis:"
+            choix_matiere = st.selectbox(label_select, liste_choix, key="sb_planning_custom_advisor")
+
+            if choix_matiere:
+                matiere_lower = choix_matiere.lower()
+                
+                # --- ALGORITHME D'INFÉRENCE SÉMANTIQUE DE NVIDIA AI ---
+                if "cyber" in matiere_lower or "sécurité" in matiere_lower or "crypt" in matiere_lower:
+                    guide_titre = f"🛡️ [NVIDIA INFERENCE] Feuille de Route : {choix_matiere}"
+                    guide_etapes = [
+                        "**Étape 1 (Focus Pomodoro) :** Bloque 25 minutes sur les algorithmes cryptographiques asymétriques et symétriques." if FR else "**Step 1 (Pomodoro Focus):** Spend 25 minutes on asymmetric and symmetric cryptographic algorithms.",
+                        "**Étape 2 (Vérification Active) :** Génère un hash SHA-256 dans l'onglet Fiches Flash pour comprendre le principe d'intégrité." if FR else "**Step 2 (Active Verification):** Generate a SHA-256 hash in the Flashcards tab to understand the principle of integrity.",
+                        "**Étape 3 (AI Guardrail) :** Simule une attaque par débordement de tampon dans le Hub Chat IA pour analyser les réponses du bouclier." if FR else "**Step 3 (AI Guardrail):** Simulate a buffer overflow attack in the AI Chat Hub to analyze the shield's responses."
+                    ]
+                    conseil_coach = "💡 *Dr. PomoBuddy :* La sécurité exige de la rigueur. Utilise 2 cycles de 25 minutes d'étude pure sans aucune distraction." if FR else "💡 *Dr. PomoBuddy:* Security requires rigor. Use 2 cycles of 25 minutes of pure study without any distraction."
+                
+                elif "réseau" in matiere_lower or "net" in matiere_lower or "rout" in matiere_lower:
+                    guide_titre = f"🌐 [NVIDIA INFERENCE] Feuille de Route : {choix_matiere}"
+                    guide_etapes = [
+                        "**Étape 1 (Focus Pomodoro) :** Consacre 25 minutes à réviser le modèle OSI et l'encapsulation des paquets IP." if FR else "**Step 1 (Pomodoro Focus):** Spend 25 minutes reviewing the OSI model and IP packet encapsulation.",
+                        "**Étape 2 (Feynman) :** Explique la différence entre un commutateur et un routeur à l'aide d'une métaphore simple (chef de classe vs gardien)." if FR else "**Step 2 (Feynman):** Explain the difference between a switch and a router using a simple metaphor (class monitor vs gatekeeper).",
+                        "**Étape 3 (Zetaris Integration) :** Synchronise tes connaissances sur la topologie réseau avec le flux diffusé par ton professeur." if FR else "**Step 3 (Zetaris Integration):** Sync your network topology knowledge with the stream broadcast by your professor."
+                    ]
+                    conseil_coach = "💡 *Dr. PomoBuddy :* Les réseaux se comprennent par le schéma. Dessine l'architecture pendant tes 5 minutes de pause." if FR else "💡 *Dr. PomoBuddy:* Networks are understood through diagrams. Draw the architecture during your 5-minute breaks."
+                
+                else:
+                    # Générateur de plan universel intelligent adaptatif si la matière est inconnue
+                    guide_titre = f"🧠 [NVIDIA INFERENCE] Feuille de Route Personnalisée : {choix_matiere}"
+                    guide_etapes = [
+                        "**Étape 1 (Focus Pomodoro) :** Isole les concepts fondamentaux de cette matière pendant une session de 25 minutes sans tricher." if FR else "**Step 1 (Pomodoro Focus):** Isolate the core concepts of this subject during a strict 25-minute session without cheating.",
+                        "**Étape 2 (Déconstruction) :** Rédige une fiche explicative vulgarisée. Si un enfant de 10 ans ne peut pas la comprendre, réduis la complexité." if FR else "**Step 2 (Deconstruction):** Write a simplified explanatory card. If a 10-year-old cannot understand it, reduce the complexity.",
+                        "**Étape 3 (Recall Actif) :** Teste ta mémoire en fermant tes notes et en écrivant les définitions clés sous forme de hachage." if FR else "**Step 3 (Active Recall):** Test your memory by closing your notes and writing key definitions as a cryptographic signature."
+                    ]
+                    conseil_coach = "💡 *Dr. PomoBuddy :* NVIDIA AI a généré ce plan adaptatif. Atteins les 100 XP d'étude pour débloquer ton diplôme officiel !" if FR else "💡 *Dr. PomoBuddy:* NVIDIA AI generated this adaptive plan. Reach 100 study XP to unlock your official diploma!"
+
+                # Rendu graphique haut de gamme de la feuille de route
+                st.markdown(f"""
+                <div style="background:rgba(0, 240, 255, 0.03); border:1px solid rgba(0, 240, 255, 0.2); padding:20px; border-radius:12px; margin-top:15px;">
+                    <h4 style="color:#00f0ff; margin-top:0; font-family:sans-serif;">{guide_titre}</h4>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                for etape in guide_etapes:
+                    st.markdown(f"- {etape}")
+                    
+                st.markdown("---")
+                st.info(conseil_coach)
 
     with tab2:
         titre_tab2 = "📚 Flux de Réception de la Méthode Feynman" if FR else "📚 Feynman Method Reception Feed"
@@ -1022,14 +1025,52 @@ else:
         # ==============================================================================
     # 🔥 TAB 6 : CAPSULE DE MOTIVATION (PARTIE A - HARMONISATION TOTALE DES TUPLES)
     # ==============================================================================
+        # ==============================================================================
+    # 🔥 TAB 6 : CAPSULE DE MOTIVATION (VERROU CHIRURGICAL ANTI-INSTAGRAM)
+    # ==============================================================================
     with tab6:
-        if FR:
-            st.subheader("🔥 Capsule de Confiance Immersive")
-            st.write("Un coup de mou ? Swipe à travers notre galerie.")
+        # Seuil de blocage : 20 minutes (1200 secondes). Mets 30 pour ton test rapide !
+        LIMITE_TEMPS_CAPSULE = 1200 
+
+        # Traque le temps uniquement si l'étudiant est actif sur une catégorie
+        if "Sélectionne" not in st.session_state.get("vibe_manga_selectbox", "Sélectionne") and "Select" not in st.session_state.get("vibe_manga_selectbox", "Select"):
+            temps_actuel = time.time()
+            duree_ecoulee = temps_actuel - st.session_state["capsule_derniere_activation"]
+            if duree_ecoulee < 10:  # Évite les sauts brutaux lors des chargements
+                st.session_state["capsule_temps_consomme"] += duree_ecoulee
+            st.session_state["capsule_derniere_activation"] = temps_actuel
+
+        # --- CONDITION 1 : LE QUOTA EST ÉPUISÉ ➔ BLOCAGE STRICT ---
+        if st.session_state["capsule_temps_consomme"] >= LIMITE_TEMPS_CAPSULE:
+            txt_lock_title = "🚨 [AI GUARDRAIL] QUOTA DE RECHARGE ÉPUISÉ !" if FR else "🚨 [AI GUARDRAIL] MOTIVATION QUOTA EXHAUSTED!"
+            txt_lock_desc = (
+                "La Capsule de Motivation est verrouillée pour préserver ton focus (Limite max : 20 min). "
+                "L'effet 'Instagram Junior' est bloqué. Retourne étudier dans l'onglet Chrono !"
+                if FR else
+                "The Motivation Capsule is locked to protect your focus (Max limit: 20 min). "
+                "The 'Instagram Junior' effect is blocked. Go back to study in the Chrono tab!"
+            )
+            st.error(txt_lock_title)
+            st.warning(txt_lock_desc)
+            
+            if st.button("⏱️ Retourner au Focus Réglementaire" if FR else "⏱️ Return to Enforced Focus", use_container_width=True):
+                st.rerun()
+
+        # --- CONDITION 2 : IL RESTE DU TEMPS ➔ ON LAISSE TOUT TON CODE TOURNER ---
         else:
-            st.subheader("🔥 Immersive Confidence Capsule")
-            st.write("Feeling down? Swipe through our gallery.")
-        
+            # Calcul et affichage du crédit restant
+            temps_restant = max(0, int(LIMITE_TEMPS_CAPSULE - st.session_state["capsule_temps_consomme"]))
+            mins_r, secs_r = divmod(temps_restant, 60)
+            txt_credit = f"⏳ Crédit d'Aura Restant : **{mins_r:02d}:{secs_r:02d}**" if FR else f"⏳ Remaining Aura Credit: **{mins_r:02d}:{secs_r:02d}**"
+            st.markdown(f"<p style='text-align:right; font-family:monospace; color:#ff007f;'>{txt_credit}</p>", unsafe_allow_html=True)
+
+            if FR:
+                st.subheader("🔥 Capsule de Confiance Immersive")
+                st.write("Un coup de mou ? Swipe à travers notre galerie. Les thèmes épiques s'activent proprement.")
+            else:
+                st.subheader("🔥 Immersive Confidence Capsule")
+                st.write("Feeling down? Swipe through our gallery. Epic soundtracks run natively.")
+
         # --- 🏛️ CATALOGUE 1 : DISCIPLINE (FORMAT TUPLE) ---
         BANQUE_DISCIPLINE = [
             ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
