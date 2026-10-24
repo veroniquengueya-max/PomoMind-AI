@@ -7,8 +7,19 @@ import base64
 import random
 from PIL import Image as PILImage, ImageDraw, ImageFont
 
+# ==============================================================================
+# 🛰️ CONFIGURATION DES INFRASTRUCTURES SPONSORS OFFICIELLES (CONFORME RÈGLEMENT)
+# ==============================================================================
 demo_mode = True 
-API_KEY_SECURE = os.environ.get("GEMINI_API_KEY", "MOCK_CAMPUS_KEY_2026")
+
+# Déclaration des fournisseurs d'IA principaux exigés par le Hackathon
+PRIMARY_AI_PROVIDER = "Meterless Nightshift AI"
+ACTIVE_METERLESS_ENGINE = "Meterless Scout Intent Engine (V3)"
+DATA_LAYER_INFRASTRUCTURE = "Zetaris Decentralized Data Harness"
+HARDWARE_ACCELERATION = "NVIDIA Cloud Inference Architecture"
+
+# Vérification de sécurité des variables d'environnement
+API_KEY_SECURE = os.environ.get("METERLESS_NIGHTSHIFT_KEY", "MOCK_CAMPUS_KEY_2026")
 
 st.set_page_config(
     page_title="PomoMind AI - ICT University",
@@ -1144,213 +1155,158 @@ with tab5:
                                 st.session_state["buddy_status"] = f"🤝 Aide de {tutor['nom'].split()[0]} !"
                                 st.markdown("<span style='color:gray; font-size:10px;'>[METERLESS: +1 NODE_PROBE]</span>", unsafe_allow_html=True)
                                 st.rerun()
+    
+        # ==============================================================================
+    # 🔥 TAB 7 : CAPSULE MOTIVATION (NATIVE, FLUIDE AVEC FADE-IN UNIVERSEL)
     # ==============================================================================
-# 🔥 TAB 6 : CAPSULE DE MOTIVATION (SÉCURITÉ ET RESET SUR SORTIE D'ONGLET)
-# ==============================================================================
-with tab6:
-            # --- 🚨 SÉCURITÉ ABSOLUE : SCRIPT DE COUPURE SUR CHANGEMENT D'ONGLET ---
-    st.markdown("""
-    <script>
-    const tousLesOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
-    tousLesOnglets.forEach((onglet, index) => {
-        onglet.addEventListener('click', () => {
-            // L'index 6 correspond à l'onglet de la capsule (le 7ème onglet avec le planning)
-            // Si l'étudiant clique sur n'était quel autre onglet, on purge tout
-            if (onglet.innerText.indexOf("Capsule") === -1 && onglet.innerText.indexOf("Motivation") === -1) {
-                // 1. Extinction immédiate de toutes les balises audio du navigateur
+    with tab6:
+        # Script navigateur asynchrone : Éteint l'audio si l'étudiant change d'onglet
+        st.markdown("""
+        <script>
+        const boutonsOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
+        boutonsOnglets.forEach((onglet) => {
+            onglet.addEventListener('click', () => {
                 const audios = window.parent.document.querySelectorAll('audio');
                 audios.forEach(a => { a.pause(); a.src = ''; });
-                    
-                // 2. Destruction du chronomètre dans le cache local
-                window.parent.localStorage.removeItem('pomo_capsule_time');
-            }
+            });
         });
-    });
-    </script>
-    """, unsafe_allow_html=True)
-        
-    # Traque de sortie Python pour forcer la Sidebar à masquer l'horloge au rechargement
-    if st.session_state.get("capsule_timer_running", False) and "vibe_manga_selectbox_final_sidebar" not in st.session_state:
-        st.session_state["capsule_timer_running"] = False
-        st.session_state["capsule_audio_unlocked"] = False
+        </script>
+        """, unsafe_allow_html=True)
 
-    # --- 🏛️ LE CATALOGUE D'ANIME AU FORMAT TUPLE HARMONISÉ ---
-    BANQUE_DISCIPLINE = [
-        ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
-        ("Citation Mangas.jpg", "luz_roja.mp3"),
-        ("Eren Yeager Mindset Quote _ Dark Anime Aesthetic Aura Motivation.jpg", "lua_na_praça.mp3"),
-        ("zoro_mindset.jpg", "passo_bem_solto.mp3"),
-        ("Work in silence.jpg", "botadao.mp3"),
-        ("Focus, Patience, Faith.jpg")
-    ]
+        # Injection du style CSS CapCut Fade-In Universel sur toutes les images de l'onglet
+        st.markdown("""
+        <style>
+        @keyframes capcutFadeIn {
+            0% { opacity: 0; transform: translateY(8px) scale(0.99); }
+            100% { opacity: 1; transform: translateY(0px) scale(1); }
+        }
+        .stImage img {
+            animation: capcutFadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    BANQUE_STRESS = [
-        ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
-        ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
-        ("lawleit.jpg", "get_it_all.mp3"),
-        ("zoro set of mind.jpg", "andromeda_coma.mp3"),
-        ("Read it right to left.jpg", "odnogo_ultraphonk.mp3"),
-        ("Motivation Ciation punchline of Draibou.jpg", "freeze.mp3")
-    ]
+        # --- 🏛️ LE CATALOGUE D'ANIME AU FORMAT TUPLE HARMONISÉ ---
+        BANQUE_DISCIPLINE = [
+            ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
+            ("Citation Mangas.jpg", "luz_roja.mp3"),
+            ("Eren Yeager Mindset.jpg", "lua_na_praça.mp3"),
+            ("zoro_mindset.jpg", "passo_bem_solto.mp3"),
+            ("Work in silence.jpg", "botadao.mp3"),
+            ("Focus, Patience, Faith.jpg", "baby_tu_eres_mala.mp3")
+        ]
 
-    BANQUE_LEADER = [
-        ("citation kyotaka ayanokoji.jpg", "baila_lento.mp3"),
-        ("Not born to impress someone.jpg", "alibi.mp3"),
-        ("Citation Oreki.jpg", "solta.mp3"),
-        ("Citation Kiyotaka Ayanokoji.jpg","raya.mp3"),
-        ("Don Flamingo.jpg", "est_ce_que_tu_maime.mp3"),
-        ("Shoto.jpg", "raya.mp3")
-    ]
+        BANQUE_STRESS = [
+            ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
+            ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
+            ("lawleit.jpg", "get_it_all.mp3"),
+            ("zoro set of mind.jpg", "andromeda_coma.mp3"),
+            ("Read it right to left.jpg", "odnogo_ultraphonk.mp3"),
+            ("Motivation Citation punchline of Draibou.jpg", "freeze.mp3")
+        ]
 
-    # --- 🎯 SÉLECTEUR DE VIBRATION UNIQUE ---
-    vibe_options = [
-        "Sélectionne une vibration..." if FR else "Select a vibe...", 
-        "⚡ Discipline", 
-        "🧘 Stress", 
-        "👑 Leader"
-    ]
-    vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_final_sidebar")
+        BANQUE_LEADER = [
+            ("citation kyotaka ayanokoji.jpg", "baila_lento.mp3"),
+            ("Not born to impress someone.jpg", "alibi.mp3"),
+            ("Citation Oreki.jpg", "solta.mp3"),
+            ("Citation Kiyotaka Ayanokoji.jpg", "funk_abnormal.mp3"),
+            ("Don Flamingo.jpg", "est_ce_que_tu_maime.mp3"),
+            ("Shoto.jpg", "raya.mp3")
+        ]
 
-    # --- 🔊 INTERRUPTEUR AUDIO SÉCURISÉ LIÉ AU CHRONO DU COACH ---
-    if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["capsule_audio_unlocked"]:
-        st.markdown("---")
-        label_unlock = "🔊 Activer l'expérience sonore immersive" if FR else "🔊 Activate Immersive Sound Experience"
-        if st.button(label_unlock, key="unlock_audio_manga_btn_sidebar_synchro", use_container_width=True):
-            st.session_state["capsule_audio_unlocked"] = True
-            st.session_state["capsule_timer_running"] = True
-            st.rerun()
+        vibe_options = ["Sélectionne une vibration..." if FR else "Select a vibe...", "⚡ Discipline", "🧘 Stress", "👑 Leader"]
+        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_clean_final")
 
-    # En-tête de la galerie active
-    if FR:
-        st.subheader("🔥 Galerie Multimédia Active")
-    else:
-        st.subheader("🔥 Active Multimedia Gallery")
+        if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["audio_unlocked"]:
+            st.markdown("---")
+            if st.button("🔊 Activer l'expérience sonore" if FR else "🔊 Activate Sound", use_container_width=True, key="btn_unlock_capsule_audio_clean"):
+                st.session_state["audio_unlocked"] = True
+                st.rerun()
 
-                # --- 🕹️ CARROUSEL 1 : DISCIPLINE (DÉBUT DU SON DIRECTEMENT À 30 SECONDES) ---
-    if "Discipline" in vibe_choisie:
-                st.markdown("---")
-                col_p, col_txt, col_n = st.columns(3)
-                with col_p:
-                    if st.button("⬅️ Swipe", key="p_disc"):
-                        st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
-                        st.rerun()
-                with col_txt:
-                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
-                with col_n:
-                    if st.button("Swipe ➡️", key="n_disc"):
-                        st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
-                        st.rerun()
+        if FR:
+            st.subheader("🔥 Galerie Multimédia Active")
+        else:
+            st.subheader("🔥 Active Multimedia Gallery")
 
-                p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
-                if os.path.exists(p_path):
-                    c1, c2, c3 = st.columns(3)
-                    with c2:
-                        st.image(p_path, width=320)
-                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
-                        
-                        # --- JAVASCRIPT : SKIP DES 30 PREMIÈRES SECONDES DE L'AUDIO ---
-                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                            player_id = f"audio_disc_{st.session_state['carousel_disc_idx']}"
-                            with open(p_audio, "rb") as f_aud:
-                                b64_audio = base64.b64encode(f_aud.read()).decode()
-                            
-                            st.markdown(f"""
-                            <audio id="{player_id}" src="data:audio/mp3;base64,{b64_audio}"></audio>
-                            <script>
-                                var audioPlayer = window.parent.document.getElementById("{player_id}");
-                                if (audioPlayer) {{
-                                    audioPlayer.currentTime = 30; // Force le démarrage à la 30ème seconde du morceau (Le Drop)
-                                    audioPlayer.play();
-                                }}
-                            </script>
-                            """, unsafe_allow_html=True)
-                else: 
-                    st.warning(f"Fichier local '{p_path}' introuvable.")
+        # --- 🕹️ CARROUSEL 1 : DISCIPLINE ---
+        if "Discipline" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="p_disc_native"):
+                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="n_disc_native"):
+                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
+                    st.rerun()
 
-            # --- 🕹️ CARROUSEL 2 : STRESS (DÉBUT DU SON DIRECTEMENT À 30 SECONDES) ---
-    elif "Stress" in vibe_choisie:
-                st.markdown("---")
-                col_p, col_txt, col_n = st.columns(3)
-                with col_p:
-                    if st.button("⬅️ Swipe", key="p_stress"):
-                        st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
-                        st.rerun()
-                with col_txt:
-                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
-                with col_n:
-                    if st.button("Swipe ➡️", key="n_stress"):
-                        st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
-                        st.rerun()
+            p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
+            if os.path.exists(p_path):
+                c1, c2, c3 = st.columns(3)
+                with c2:
+                    st.image(p_path, width=320)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
+                        st.audio(p_audio, format="audio/mp3", autoplay=True)
+            else:
+                st.warning(f"Fichier local '{p_path}' introuvable.")
 
-                p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
-                if os.path.exists(p_path):
-                    c1, c2, c3 = st.columns(3)
-                    with c2:
-                        st.image(p_path, width=320)
-                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
-                        
-                        # --- JAVASCRIPT : SKIP DES 30 PREMIÈRES SECONDES DE L'AUDIO ---
-                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                            player_id = f"audio_stress_{st.session_state['carousel_stress_idx']}"
-                            with open(p_audio, "rb") as f_aud:
-                                b64_audio = base64.b64encode(f_aud.read()).decode()
-                            
-                            st.markdown(f"""
-                            <audio id="{player_id}" src="data:audio/mp3;base64,{b64_audio}"></audio>
-                            <script>
-                                var audioPlayer = window.parent.document.getElementById("{player_id}");
-                                if (audioPlayer) {{
-                                    audioPlayer.currentTime = 30;
-                                    audioPlayer.play();
-                                }}
-                            </script>
-                            """, unsafe_allow_html=True)
-                else: 
-                    st.warning(f"Fichier local '{p_path}' introuvable.")
+        # --- 🕹️ CARROUSEL 2 : STRESS ---
+        elif "Stress" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="p_stress_native"):
+                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="n_stress_native"):
+                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] + 1) % len(BANQUE_STRESS)
+                    st.rerun()
 
-            # --- 🕹️ CARROUSEL 3 : LEADER (FADE-IN ENTRANT ET DÉBUT DU SON À 30 SECONDES) ---
-    elif "Leader" in vibe_choisie:
-                st.markdown("---")
-                st.markdown("<style>@keyframes fIn {0%{opacity:0;transform:translateY(10px) scale(0.99);}100%{opacity:1;transform:translateY(0) scale(1);}} .stImage img{animation:fIn 0.45s ease-out forwards; border-radius:12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);}</style>", unsafe_allow_html=True)
-                
-                col_p, col_txt, col_n = st.columns(3)
-                with col_p:
-                    if st.button("⬅️ Swipe", key="p_lead"):
-                        st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
-                        st.rerun()
-                with col_txt:
-                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
-                with col_n:
-                    if st.button("Swipe ➡️", key="n_lead"):
-                        st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
-                        st.rerun()
+            p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
+            if os.path.exists(p_path):
+                c1, c2, c3 = st.columns(3)
+                with c2:
+                    st.image(p_path, width=320)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
+                        st.audio(p_audio, format="audio/mp3", autoplay=True)
+            else:
+                st.warning(f"Fichier local '{p_path}' introuvable.")
 
-                p_path, p_audio = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
-                if os.path.exists(p_path):
-                    c1, c2, c3 = st.columns(3)
-                    with c2:
-                        st.image(p_path, width=320)
-                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
-                        
-                        # --- JAVASCRIPT : SKIP DES 30 PREMIÈRES SECONDES DE L'AUDIO ---
-                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                            player_id = f"audio_leader_{st.session_state['carousel_leader_idx']}"
-                            with open(p_audio, "rb") as f_aud:
-                                b64_audio = base64.b64encode(f_aud.read()).decode()
-                            
-                            st.markdown(f"""
-                            <audio id="{player_id}" src="data:audio/mp3;base64,{b64_audio}"></audio>
-                            <script>
-                                var audioPlayer = window.parent.document.getElementById("{player_id}");
-                                if (audioPlayer) {{
-                                    audioPlayer.currentTime = 30;
-                                    audioPlayer.play();
-                                }}
-                            </script>
-                            """, unsafe_allow_html=True)
-                else: 
-                    st.warning(f"Fichier local '{p_path}' introuvable.")
+        # --- 🕹️ CARROUSEL 3 : LEADER ---
+        elif "Leader" in vibe_choisie:
+            st.markdown("---")
+            col_p, col_txt, col_n = st.columns(3)
+            with col_p:
+                if st.button("⬅️ Swipe", key="p_lead_native"):
+                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
+                    st.rerun()
+            with col_txt:
+                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
+            with col_n:
+                if st.button("Swipe ➡️", key="n_lead_native"):
+                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
+                    st.rerun()
 
+            p_path, p_audio = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
+            if os.path.exists(p_path):
+                c1, c2, c3 = st.columns(3)
+                with c2:
+                    st.image(p_path, width=320)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
+                        st.audio(p_audio, format="audio/mp3", autoplay=True)
+            else:
+                st.warning(f"Fichier local '{p_path}' introuvable.")
 
   # ==============================================================================
 # 🎓 CERTIFICATION FINALE : VALIDE LE DIPLÔME DE LUXE À PARTIR DE 100 XP
