@@ -688,3 +688,86 @@ elif st.session_state["user_role_actif"] == "eleve":
                             <p style="font-size:12px; font-weight:bold; color:#2ecc71; margin-bottom:10px;">{tutor['dispo']}</p>
                         </div>
                         """, unsafe_allow_html=True)
+        # ==============================================================================
+    # 🔥 TAB 7 : CAPSULE MOTIVATION (NATIVE, FLUIDE ET 100% IMMUNISÉE AUX CRASHS)
+    # ==============================================================================
+    with tab6:
+        MAX_SESSIONS_PAR_JOUR = 2
+        st.markdown("""
+        <style>
+        @keyframes capcutFadeIn {
+            0% { opacity: 0; transform: translateY(8px) scale(0.99); }
+            100% { opacity: 1; transform: translateY(0px) scale(1); }
+        }
+        .stImage img {
+            animation: capcutFadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        BANQUE_DISCIPLINE = [
+            ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
+            ("Citation Mangas.jpg", "luz_roja.mp3"),
+            ("Eren Yeager Mindset.jpg", "lua_na_praça.mp3"),
+            ("zoro_mindset.jpg", "passo_bem_solto.mp3"),
+            ("Work in silence.jpg", "botadao.mp3"),
+            ("Focus, Patience, Faith.jpg", "baby_tu_eres_mala.mp3")
+        ]
+        BANQUE_STRESS = [
+            ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
+            ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
+            ("lawleit.jpg", "get_it_all.mp3"),
+            ("zoro set of mind.jpg", "andromeda_coma.mp3"),
+            ("Read it right to left.jpg", "odnogo_ultraphonk.mp3"),
+            ("Motivation Citation punchline of Draibou.jpg", "freeze.mp3")
+        ]
+        BANQUE_LEADER = [
+            ("citation kyotaka ayanokoji.jpg", "baila_lento.mp3"),
+            ("Not born to impress someone.jpg", "alibi.mp3"),
+            ("Citation Oreki.jpg", "solta.mp3"),
+            ("Citation Kiyotaka Ayanokoji.jpg", "funk_abnormal.mp3"),
+            ("Don Flamingo.jpg", "est_ce_que_tu_maime.mp3"),
+            ("Shoto.jpg", "raya.mp3")
+        ]
+
+        vibe_choisie = st.selectbox("Vibe :", ["Sélectionne une vibration...", "⚡ Discipline", "🧘 Stress", "👑 Leader"], key="vibe_selectbox_final_proof")
+
+        if st.session_state["capsule_sessions_aujourdhui"] >= MAX_SESSIONS_PAR_JOUR:
+            st.error("🚨 [AI GUARDRAIL] ACCÈS LIMITÉ ! QUOTA DIURNAL ÉPUISÉ" if FR else "🚨 [AI GUARDRAIL] ACCESS DENIED! DAILY QUOTA EXHAUSTED")
+        else:
+            if "Sélectionne" not in vibe_choisie and not st.session_state["capsule_audio_unlocked"]:
+                if st.button("🔊 Activer l'expérience sonore immersive" if FR else "🔊 Activate Immersive Sound Experience", use_container_width=True, key="btn_unlock_capsule_audio"):
+                    st.session_state["capsule_audio_unlocked"] = True
+                    st.session_state["capsule_timer_running"] = True
+                    st.session_state["capsule_sessions_aujourdhui"] += 1
+                    st.rerun()
+
+            if "Sélectionne" not in vibe_choisie:
+                cat_active = BANQUE_DISCIPLINE if "Discipline" in vibe_choisie else (BANQUE_STRESS if "Stress" in vibe_choisie else BANQUE_LEADER)
+                idx_key = "carousel_disc_idx" if "Discipline" in vibe_choisie else ("carousel_stress_idx" if "Stress" in vibe_choisie else "carousel_leader_idx")
+                
+                col_p, col_txt, col_n = st.columns(3)
+                with col_p:
+                    if st.button("⬅️ Swipe", key=f"prev_{vibe_choisie}"):
+                        st.session_state[idx_key] = (st.session_state[idx_key] - 1) % len(cat_active)
+                        st.rerun()
+                with col_txt: 
+                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state[idx_key] + 1} / {len(cat_active)}</p>", unsafe_allow_html=True)
+                with col_n:
+                    if st.button("Swipe ➡️", key=f"next_{vibe_choisie}"):
+                        st.session_state[idx_key] = (st.session_state[idx_key] + 1) % len(cat_active)
+                        st.rerun()
+
+                p_path, p_audio = cat_active[st.session_state[idx_key] % len(cat_active)]
+                if os.path.exists(p_path):
+                    c1, c2, c3 = st.columns(3)
+                    with c2:
+                        st.image(p_path, width=320)
+                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
+                            with open(p_audio, "rb") as f_aud: 
+                                donnees_audio = f_aud.read()
+                            st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+                            st.audio(donnees_audio, format="audio/mp3", autoplay=True)
+                            st.markdown("</div>", unsafe_allow_html=True)
