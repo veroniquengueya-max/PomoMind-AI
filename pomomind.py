@@ -1095,19 +1095,18 @@ with tab5:
                         nouveau_message = st.text_input("Message :", key=f"input_msg_{tutor['nom']}_{i+1}", label_visibility="collapsed")
                         label_send_btn = "🚀 Envoyer" if FR else "🚀 Send"
                         if st.button(label_send_btn, key=f"btn_send_{tutor['nom']}_{i+1}", use_container_width=True):
+                                                        # --- FIN DU DEUXIÈME SPÉCIALISTE DE LA LIGNE ---
                             if nouveau_message.strip() != "":
                                 st.session_state["chat_histories"][tutor["nom"]].append({"sender": "Moi", "msg": nouveau_message})
                                 st.session_state["buddy_energy"] = min(100, st.session_state["buddy_energy"] + 10)
                                 st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
-                                st.session_state["buddy_status"] = f"🤝 Aide de {tutor['nom'].split()[0]} !"
-                                st.markdown("<span style='color:gray; font-size:10px;'>[METERLESS: +1 NODE_PROBE]</span>", unsafe_allow_html=True)
+                                st.session_state["buddy_status"] = f"🤝 Aide de {tutor['nom'].split()} !"
                                 st.rerun()
-    
-        # ==============================================================================
-    # 🔥 TAB 7 : CAPSULE MOTIVATION (NATIVE, FLUIDE ET 100% IMMUNISÉE AUX CRASHS)
+
+    # ==============================================================================
+    # 🔥 TAB 7 : CAPSULE MOTIVATION (RÉALIGNÉ AU MÊME NIVEAU SANS IMBRICATION)
     # ==============================================================================
     with tab6:
-        # Fin des scripts JavaScript intrusifs en haut d'onglet
         MAX_SESSIONS_PAR_JOUR = 2
 
         BANQUE_DISCIPLINE = [
@@ -1118,7 +1117,6 @@ with tab5:
             ("Work in silence.jpg", "botadao.mp3"),
             ("Focus, Patience, Faith.jpg", "baby_tu_eres_mala.mp3")
         ]
-
         BANQUE_STRESS = [
             ("Self Obsession is Your Real Grooming.jpg", "dont_tell_your_dreams.mp3"),
             ("ITACHI ❤️_🔥.jpg", "no_era_amor.mp3"),
@@ -1140,7 +1138,7 @@ with tab5:
         vibe_options = ["Sélectionne une vibration..." if FR else "Select a vibe...", "⚡ Discipline", "🧘 Stress", "👑 Leader"]
         vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_clean_final_anti_crash")
 
-        # --- VERROUILLAGE DU QUOTA DES 2 SESSIONS ---
+                # --- VERROUILLAGE DU QUOTA DES 2 SESSIONS ---
         if st.session_state["capsule_sessions_aujourdhui"] >= MAX_SESSIONS_PAR_JOUR:
             st.error("🚨 [AI GUARDRAIL] ACCÈS LIMITÉ ! QUOTA QUOTIDIEN ÉPUISÉ" if FR else "🚨 [AI GUARDRAIL] ACCESS DENIED! DAILY QUOTA EXHAUSTED")
             st.warning("Tu as atteint la limite maximale de 2 sessions de motivation par jour. L'effet 'Instagram Junior' est bloqué." if FR else "You have reached the maximum limit of 2 motivation sessions per day. The 'Instagram Junior' effect is blocked.")
@@ -1159,7 +1157,7 @@ with tab5:
             else:
                 st.subheader("🔥 Active Multimedia Gallery")
 
-                # --- CARROUSEL 1 : DISCIPLINE (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
+                    # --- CARROUSEL 1 : DISCIPLINE (ALIGNEMENT ET ETANCHÉITÉ RESTAURÉS) ---
         if "Discipline" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1181,18 +1179,16 @@ with tab5:
                     st.image(p_path, width=320)
                     st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
                         with open(p_audio, "rb") as f_aud:
                             donnees_audio_neuves = f_aud.read()
-                        # Le lecteur Streamlit natif masqué par CSS
                         st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
                         st.audio(donnees_audio_neuves, format="audio/mp3", autoplay=True)
                         st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- CARROUSEL 2 : STRESS (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
+        # --- CARROUSEL 2 : STRESS (RÉALIGNEMENT STRICT DES ELIF ET DES COLONNES) ---
         elif "Stress" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1214,7 +1210,6 @@ with tab5:
                     st.image(p_path, width=320)
                     st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
                         with open(p_audio, "rb") as f_aud:
                             donnees_audio_neuves = f_aud.read()
@@ -1223,41 +1218,6 @@ with tab5:
                         st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
-
-        # --- CARROUSEL 3 : LEADER (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
-        elif "Leader" in vibe_choisie:
-            st.markdown("---")
-            st.markdown("<style>@keyframes fIn {0%{opacity:0;transform:translateY(10px) scale(0.99);}100%{opacity:1;transform:translateY(0) scale(1);}} .stImage img{animation:fIn 0.45s ease-out forwards; border-radius:12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);}</style>", unsafe_allow_html=True)
-            
-            col_p, col_txt, col_n = st.columns(3)
-            with col_p:
-                if st.button("⬅️ Swipe", key="p_lead_native_final"):
-                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
-                    st.rerun()
-            with col_txt:
-                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
-            with col_n:
-                if st.button("Swipe ➡️", key="n_lead_native_final"):
-                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
-                    st.rerun()
-
-            p_path, p_audio = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
-            if os.path.exists(p_path):
-                c1, c2, c3 = st.columns(3)
-                with c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
-                    
-                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
-                    if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                        with open(p_audio, "rb") as f_aud:
-                            donnees_audio_neuves = f_aud.read()
-                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
-                        st.audio(donnees_audio_neuves, format="audio/mp3", autoplay=True)
-                        st.markdown("</div>", unsafe_allow_html=True)
-            else:
-                st.warning(f"Fichier local '{p_path}' introuvable.")
-
   # ==============================================================================
 # 🎓 CERTIFICATION FINALE : VALIDE LE DIPLÔME DE LUXE À PARTIR DE 100 XP
 # ==============================================================================
