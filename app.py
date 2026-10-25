@@ -402,3 +402,118 @@ elif st.session_state["user_role_actif"] == "eleve":
                     <span style="font-size:13px; color:gray;">📅 Date: {exam['date']} | Priority: {exam['priorite']}</span>
                 </div>
                 """, unsafe_allow_html=True)
+        # ==============================================================================
+    # 📚 TAB 3 : FLUX DE RÉCEPTION (DECOUPLAGE ET EXTRACTION ZETARIS DATA HARNESS)
+    # ==============================================================================
+    with tab2:
+        st.subheader("📚 Flux de Réception de la Méthode Feynman" if FR else "📚 Feynman Method Reception Feed")
+        st.write("Retrouve ici les concepts complexes du professeur vulgarisés automatiquement par notre Agent IA propulsé par NVIDIA." if FR else "Find here the complex concepts from the professor automatically simplified by our AI Agent powered by NVIDIA.")
+        st.markdown("---")
+            
+        if os.path.exists(nom_cache_public):
+            with open(nom_cache_public, "r", encoding="utf-8") as f_in:
+                lines = f_in.readlines()
+            
+            sub_title = "Software Engineering"
+            for l in lines:
+                if "METADATA_SUB:" in l:
+                    sub_title = l.replace("METADATA_SUB:", "").strip()
+            
+            txt_signal = f"📥 SIGNAL DATA HARNESS ZETARIS RÉCUPÉRÉ — COURS DE : {sub_title.upper()}" if FR else f"📥 ZETARIS DATA HARNESS SIGNAL RETRIEVED — MODULE: {sub_title.upper()}"
+            st.markdown(f"""
+            <div style="background-color: rgba(46, 204, 113, 0.1); border-left: 5px solid #2ecc71; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+                <p style="color:#2ecc71; font-weight:bold; margin:0; font-size:15px;">{txt_signal}</p>
+                <p style="color:#ffffff; margin:0; font-size:13px;">{"Pattern Autonome Activé : Extraction et structuration sémantique en tâche de fond." if FR else "Autonomous Pattern Activated: Semantic structuring running in the background."}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            content_str = "".join(lines)
+            if "---" in content_str:
+                parts = content_str.split("---")
+                cards_part = parts[-1].strip()
+                cards = cards_part.split("---")
+                
+                for card in cards:
+                    if card.strip() and "CONCEPT" in card:
+                        card_lines = [line.strip() for line in card.strip().split("\n") if line.strip()]
+                        c_title = card_lines[0] if len(card_lines) > 0 else "Concept"
+                        c_desc = "<br>".join(card_lines[1:]).replace("EXPLICATION :", "").strip() if len(card_lines) > 1 else ""
+                        
+                        st.markdown(f"""
+                        <div style="background-color:#ffffff; border-left:6px solid #00f0ff; padding:20px; border-radius:12px; margin-bottom:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                            <h4 style="color:#111116; margin:0 0 8px 0; font-size:17px; font-weight:bold;">{c_title}</h4>
+                            <p style="color:#333340; margin:0; font-size:14px; line-height:1.5;">{c_desc}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+        else:
+            st.info("📡 En attente du signal émis par l'enseignant..." if FR else "📡 Waiting for the transmitter signal from the professor...")
+
+    # ==============================================================================
+    # 🧠 TAB 4 : FICHES FLASHCARDS AUTOMATIQUES ET AUTONOMES (CORRECTION COMPLÈTE)
+    # ==============================================================================
+    with tab3:
+        st.subheader("🧠 Fiches Flashcards d'Auto-Évaluation Autonome" if FR else "🧠 Autonomous Auto-Evaluation Flashcards")
+        st.write("Teste ta mémoire active avant l'examen. Saisis ton explication, génère ton empreinte cryptographique, puis révèle la réponse certifiée." if FR else "Test your active recall before the exam. Enter your explanation, generate your cryptographic signature, then reveal the certified answer.")
+        st.markdown("---")
+            
+        if os.path.exists(nom_cache_public):
+            with open(nom_cache_public, "r", encoding="utf-8") as f_in:
+                content = f_in.read()
+                
+            flashcards_data = []
+            if "---" in content:
+                cards_part = content.split("---")[-1].strip()
+                cards = cards_part.split("---")
+                for c in cards:
+                    if "CONCEPT" in c:
+                        lines = [line.strip() for line in c.strip().split("\n") if line.strip()]
+                        if len(lines) > 0:
+                            q_txt = lines[0].replace("CONCEPT ", "Question sur le : ").strip()
+                            a_txt = "<br>".join(lines[1:]).replace("EXPLICATION :", "").strip() if len(lines) > 1 else "Détails"
+                            flashcards_data.append({"q": q_txt, "a": a_txt})
+            
+            if len(flashcards_data) > 0:
+                if "flash_idx_auton" not in st.session_state: st.session_state["flash_idx_auton"] = 0
+                if "rev_auton" not in st.session_state: st.session_state["rev_auton"] = False
+                
+                curr_card = flashcards_data[st.session_state["flash_idx_auton"] % len(flashcards_data)]
+                
+                label_fiche_num = f"FICHE {st.session_state['flash_idx_auton'] + 1} / {len(flashcards_data)}" if FR else f"CARD {st.session_state['flash_idx_auton'] + 1} / {len(flashcards_data)}"
+                st.markdown(f"""
+                <div style="background:linear-gradient(135deg, #090d16 0%, #111827 100%); border:2px solid #00f0ff; padding:35px; border-radius:20px; text-align:center; min-height:140px; box-shadow:0 15px 35px rgba(0,240,255,0.1);">
+                    <span style="font-family:monospace; font-size:11px; color:#00f0ff; letter-spacing:2px;">{label_fiche_num}</span>
+                    <h3 style="color:#ffffff; margin-top:15px; font-size:18px; font-weight:700; font-family:sans-serif;">{curr_card['q']}</h3>
+                </div>
+                """, unsafe_allow_html=True)
+                    
+                st.markdown("<br>", unsafe_allow_html=True)
+                reponse_etudiant = st.text_input("✍ Saisis ton explication avant de vérifier :" if FR else "✍ Enter your explanation before checking:", placeholder="Écris tes notes de révision ici...", key=f"auton_input_{st.session_state['flash_idx_auton']}")
+                    
+                st.markdown("<br>", unsafe_allow_html=True)
+                col_f1, col_f2 = st.columns(2)
+                with col_f1:
+                    if st.button("👁️ Révéler la Réponse Certifiée" if FR else "👁️ Reveal Certified Answer", use_container_width=True, key="btn_reveal_auton"):
+                        if reponse_etudiant.strip() == "":
+                            st.error("⚠️ Saisis d'abord une réponse pour vérifier l'intégration sémantique." if FR else "⚠️ Enter an answer first.")
+                        else:
+                            st.session_state["rev_auton"] = True
+                            st.session_state.xp += 5
+                            st.rerun()
+                            
+                with col_f2:
+                    if st.button("➡️ Carte Suivante" if FR else "➡️ Next Card", use_container_width=True, key="btn_next_auton"):
+                        st.session_state["flash_idx_auton"] = (st.session_state["flash_idx_auton"] + 1) % len(flashcards_data)
+                        st.session_state["rev_auton"] = False
+                        st.rerun()
+                    
+                if st.session_state["rev_auton"]:
+                    st.markdown(f"""
+                    <div style="background-color:rgba(46, 204, 113, 0.05); border-left:5px solid #2ecc71; padding:15px; border-radius:8px; margin-top:15px;">
+                        <p style="color:#2ecc71; font-weight:bold; margin-bottom:2px;">✔ RÉPONSE ACADÉMIQUE DE LA MÉTHODE FEYNMAN :</p>
+                        <p style="color:#ffffff; margin:0; font-size:14px;">{curr_card['a']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("💡 Traitement du document en cours par le Data Harness.")
+        else:
+            st.warning("🔒 Section verrouillée. Le signal de cours n'a pas été propagé par le professeur." if FR else "🔒 Section locked. No module signal propagated yet.")
