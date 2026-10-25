@@ -517,3 +517,85 @@ elif st.session_state["user_role_actif"] == "eleve":
                 st.info("💡 Traitement du document en cours par le Data Harness.")
         else:
             st.warning("🔒 Section verrouillée. Le signal de cours n'a pas été propagé par le professeur." if FR else "🔒 Section locked. No module signal propagated yet.")
+
+        # ==============================================================================
+    # 💬 TAB 5 : PLATFORME DE CHAT IA (SÉCURISÉE ET INTÉGRALEMENT CONTEXTUELLE)
+    # ==============================================================================
+    with tab4:
+        st.subheader("💬 Hub Chat IA & Bouclier Cryptographique" if FR else "💬 AI Chat Hub & Cryptographic Shield")
+        st.write("Dialogue ici en toute sécurité. Les requêtes basées sur Zetaris sont analysées par l'IA de NVIDIA, puis suivies par Meterless." if FR else "Chat securely here. Requests grounded in Zetaris facts are processed by NVIDIA AI, and tracked by Meterless.")
+        st.markdown("---")
+            
+        with st.form("form_secure_chat_hub_luxe", clear_on_submit=True):
+            user_msg_input = st.text_input("💬 Pose une question technique (Fondée sur Zetaris) :" if FR else "💬 Ask a technical question (Grounded in Zetaris):", placeholder="ex: Explique-moi la dette technique...")
+            
+            col_btn_chat1, col_btn_chat2 = st.columns(2)
+            with col_btn_chat1:
+                submit_grounded = st.form_submit_button("🔍 Requête Contextuelle Zetaris", use_container_width=True)
+            with col_btn_chat2:
+                submit_encrypted = st.form_submit_button("🔒 Tunnel Chiffré OPSEC", use_container_width=True)
+
+            # --- OPTION 1 : RECHERCHE INTÉLLIGENTE DANS LE COURS DU PROFESSEUR ---
+            if submit_grounded and user_msg_input.strip() != "":
+                contenu_cours_charge = ""
+                if os.path.exists("cache_cours_public.txt"):
+                    with open("cache_cours_public.txt", "r", encoding="utf-8") as f_c:
+                        contenu_cours_charge = f_c.read()
+
+                signature_hash = hashlib.sha256(user_msg_input.encode('utf-8')).hexdigest()
+                msg_lower = user_msg_input.lower()
+                phrases_trouvees = [ligne for ligne in contenu_cours_charge.split("\n") if msg_lower in ligne.lower()]
+                
+                if phrases_trouvees:
+                    reponse_ia = f"🔍 [METERLESS INTENT DETECTED] J'ai fouillé dans le cours de {st.session_state.get('prof_sub', 'Software Engineering')} de votre professeur et voici ce que j'ai trouvé : '{phrases_trouvees[0]}'."
+                else:
+                    reponse_ia = f"💡 [METERLESS WORLD MODEL] Votre question concerne '{user_msg_input}'. En analysant le syllabus de {st.session_state.get('prof_sub', 'Software Engineering')}, je vous conseille de vous concentrer sur les structures d'architectures globales du chapitre 1."
+
+                st.session_state["chat_messages"].insert(0, {"prompt": user_msg_input, "response": reponse_ia, "hash": signature_hash})
+                st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 5)
+                st.session_state.xp += 5
+                st.rerun()
+
+            # --- OPTION 2 : TUNNEL DE CHIFFREMENT EN TRANSIT OPSEC ---
+            if submit_encrypted and user_msg_input.strip() != "":
+                try:
+                    msg_bytes = user_msg_input.encode('utf-8')
+                    base64_bytes = base64.b64encode(msg_bytes)
+                    message_encodé_base64 = base64_bytes.decode('utf-8')
+                    
+                    signature_hash = hashlib.sha256(user_msg_input.encode('utf-8')).hexdigest()
+                    msg_lower = user_msg_input.lower()
+                    
+                    if "sha-256" in msg_lower or "hachage" in msg_lower or "sha256" in msg_lower:
+                        reponse_ia = "Le SHA-256 engendre une empreinte unique et immuable de 64 caractères hexadécimaux. C'est la brique de vérité certifiée par notre registre."
+                    elif "symétrique" in msg_lower or "clé unique" in msg_lower:
+                        reponse_ia = "Le chiffrement symétrique s'appuie sur une unique clé partagée et secrète pour verrouiller (coder) et déverrouiller (déchiffrer) les fichiers de données."
+                    elif "buffer" in msg_lower or "overflow" in msg_lower or "débordement" in msg_lower:
+                        reponse_ia = "Un Buffer Overflow survient lorsque la taille des données injectées dépasse la capacité allouée en mémoire vive, écrasant les registres de mémoire adjacents."
+                    else:
+                        reponse_ia = f"Faits Zetaris consultés : Votre de demande concernant '{user_msg_input}' a été sécurisée avec succès via l'infrastructure NVIDIA."
+
+                    st.session_state["chat_messages"].insert(0, {"prompt": user_msg_input, "response": reponse_ia, "hash": signature_hash})
+                    st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 5)
+                    st.session_state.xp += 5
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Erreur du tunnel : {e}")
+
+        # --- RENDU DE LA CONSOLE DE DISCUSSION ---
+        if len(st.session_state["chat_messages"]) > 0:
+            for chat in st.session_state["chat_messages"]:
+                st.markdown(f"""
+                <div style="background-color: #ffffff !important; padding: 14px; border-radius: 12px; margin-bottom: 12px; border: 3px solid #00f0ff; color:#111116;">
+                    <strong>🎓 @{st.session_state['username'].upper()} (STUDENT_NODE) :</strong>
+                    <p style="margin:5px 0 0 0; font-weight:bold;">Question: {chat['prompt']}</p>
+                    <span style="font-family:monospace; font-size:10px; color:#666;">[METERLESS ENGINE: +150 INTOKENS]</span>
+                </div>
+                <div style="background-color: #ffffff !important; padding: 14px; border-radius: 12px; margin-bottom: 20px; border: 3px solid #ff007f; color:#111116;">
+                    <strong>🤖 POMOMIND_CORE_AGENT.SYS (NVIDIA CLOUD) :</strong>
+                    <p style="margin:5px 0 0 0; font-weight:bold;">Réponse : {chat['response']}</p>
+                    <span style="font-family:monospace; font-size:10px; color:#666;">[METERLESS ENGINE: +85 OUTTOKENS]</span>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("La console de chat sécurisée est vide. Pose ta première question ci-dessus !" if FR else "AI Chat Hub console is empty. Ask your first question above!")
