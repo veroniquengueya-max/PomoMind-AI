@@ -523,13 +523,21 @@ titres_onglets = [
 tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
 
 with tab1:
-        st.markdown("""
+            # --- EN-TÊTE CORRIGÉ AVEC F-STRING COMPILÉ SANS ACCOLADES DE CODE ---
+        titre_pomo_txt = "⏱️ Chronomètre Pomodoro Officiel (Anti-Spam)" if FR else "⏱️ Official Pomodoro Timer (Anti-Spam)"
+        desc_pomo_txt = (
+            "Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude."
+            if FR else
+            "Enforced schedule: 4 sessions of 25 minutes followed by 5 minutes break to unlock your study credits."
+        )
+
+        st.markdown(f"""
         <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
-            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">⏱️ {"Chronomètre Pomodoro Officiel (Anti-Spam)" if FR else "Official Pomodoro Timer (Anti-Spam)"}</h3>
-            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{"Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude." if FR else "Enforced schedule: 4 sessions of 25 minutes followed by 5 minutes break to unlock your study credits."}</p>
+            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">{titre_pomo_txt}</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{desc_pomo_txt}</p>
         </div>
         """, unsafe_allow_html=True)
-            
+
         cycles_faits = st.session_state["pomodoro_cycles_completed"]
         phase_actuelle = st.session_state["pomodoro_current_phase"]
             
