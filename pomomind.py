@@ -500,139 +500,122 @@ titres_onglets = [
 tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
 
 with tab1:
-    st.markdown("""
-    <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
-        <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">⏱️ Chronomètre Pomodoro Officiel (Anti-Spam)</h3>
-        <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude.</p>
-    </div>
-    """, unsafe_allow_html=True)
-        
-    # Affichage graphique de l'état actuel des 4 cycles
-    cycles_faits = st.session_state["pomodoro_cycles_completed"]
-    phase_actuelle = st.session_state["pomodoro_current_phase"]
-        
-    if cycles_faits >= 4:
-        st.success("🎯 Félicitations ! Tu as complété la session maximale de 4 cycles d'étude avec succès !" if FR else "🎯 Congratulations! You have successfully completed the maximum session of 4 study cycles!")
-    else:
-        col_status1, col_status2 = st.columns(2)
-        with col_status1:
-            label_cycle_txt = f"📈 Progression : Cycle **{cycles_faits + 1} / 4**" if FR else f"📈 Progress: Cycle **{cycles_faits + 1} / 4**"
-            st.markdown(label_cycle_txt)
-        with col_status2:
-            label_phase_txt = f"🎭 Phase active : **{phase_actuelle.upper()}**"
-            st.markdown(f"<p style='text-align:right;'>{label_phase_txt}</p>", unsafe_allow_html=True)
-
-    col_p1, col_p2 = st.columns(2)
-    with col_p1: 
-        # Fixation stricte de la durée selon la phase réglementaire (Pas de slider tricheur)
-        if phase_actuelle == "focus":
-            duree_minutes = 25
-            label_duree_active = "⏱️ Temps de Focus Imposé : 25 Minutes" if FR else "⏱️ Enforced Focus Time: 25 Minutes"
-        else:
-            duree_minutes = 5
-            label_duree_active = "🧘 Temps de Pause Imposé : 5 Minutes" if FR else "🧘 Enforced Break Time: 5 Minutes"
-        st.info(label_duree_active)
-            
-    with col_p2: 
-        options_audio = ["Silence", "🎵 no_friends", "🎵 mockingbird"]
-        ambiance_sonore = st.selectbox("Atmosphère Sonore Active :" if FR else "Sound Atmosphere:", options_audio, key="select_audio_pomo")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    if ambiance_sonore != "Silence":
-        track_file = "no_friends.mp3" if "no_friends" in ambiance_sonore else "mockingbird.mp3"
-        if os.path.exists(track_file):
-            with open(track_file, "rb") as f_audio:
-                st.audio(f_audio.read(), format="audio/mp3", loop=True)
-        else:
-            st.audio("https://soundhelix.com", format="audio/mp3", loop=True)
-
-    st.markdown("---")
-            # --- ⏳ ZONE D'AFFICHAGE DU COMPTE À REBOURS NUMÉRIQUE ---
-    zone_temps_horloge = st.empty()
-    status_action_text = st.empty()
-        
-        # Formatage initial de l'horloge au repos
-    zone_temps_horloge.markdown(f"""
-    <div style="text-align:center; margin:20px 0;">
-        <h1 style="font-family:monospace; font-size:68px; color:#00f0ff; margin:0;">{duree_minutes:02d}:00</h1>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Désactivation du bouton si les 4 cycles sont terminés ou si le chrono tourne déjà
-    bouton_desactive = st.session_state["pomodoro_lock_active"] or st.session_state["pomodoro_cycles_completed"] >= 4
-        
-    # --- DÉFINITION UNIFIÉE DES LABELS ---
-    if FR:
-        label_action_btn = "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
-    else:
-        label_action_btn = "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
-        
-    # --- LA PARADE ANTI-BLOCAGE : UNE SEULE CLÉ ET UN CONTROLE D'ÉTAT SÉPARÉ ---
-    if st.button(label_action_btn, use_container_width=True, key="action_pomo_cycle_core_unified", disabled=bouton_desactive):
-        st.session_state["chrono_en_cours"] = True
-        st.session_state["pomodoro_lock_active"] = True
-        st.session_state["buddy_animation"] = "mode-sprint"
-            
-        total_secondes = duree_minutes * 60
-            
-        # --- BOUCLE TECHNIQUE DU COMPTE À REBOURS IMMUNISÉE ---
-        while total_secondes > 0:
-            mins, secs = divmod(total_secondes, 60)
-            zone_temps_horloge.markdown(f"""
-            <div style="text-align:center; margin:20px 0;">
-                <h1 style="font-family:monospace; font-size:68px; color:#ff007f; margin:0;">{mins:02d}:{secs:02d}</h1>
-            </div>
-            """, unsafe_allow_html=True)
-                
-            if FR:
-                txt_animation_status = f"⏳ Focus en cours (Cycle {cycles_faits + 1}/4)... Ne quitte pas l'onglet !" if phase_actuelle == "focus" else f"🧘 Pause active... Respire profondément."
-            else:
-                txt_animation_status = f"⏳ Focus active (Cycle {cycles_faits + 1}/4)... Stay on this tab!" if phase_actuelle == "focus" else f"🧘 Break active... Breathe deeply and relax."
-                
-            status_action_text.text(txt_animation_status)
-            time.sleep(1)
-            total_secondes -= 1
-                    
-        # --- 🏁 ACTIONS ET DISTRIBUTION DES CRÉDITS EN FIN DE CYCLE STREAK ---
-        st.session_state["chrono_en_cours"] = False
-        st.session_state["pomodoro_lock_active"] = False
-            
-        # Utilisation de la variable d'état pure et immuable pour le routage de fin de session
-        if phase_actuelle == "focus":
-            st.session_state.xp += 20
-            st.session_state["buddy_energy"] = max(0, st.session_state["buddy_energy"] - 25)
-            st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
-            st.session_state["buddy_status"] = "🧠 Session de 25 min validée ! (+20 XP)" if FR else "🧠 25 min Session validated! (+20 XP)"
-            st.session_state["pomodoro_current_phase"] = "pause"
-            st.session_state["pomodoro_termine"] = True
-            st.balloons()
-        else:
-            st.session_state["buddy_energy"] = 100
-            st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 20)
-            st.session_state["buddy_status"] = "🧘 Pause terminée ! Prêt pour le focus." if FR else "🧘 Break over! Ready for focus."
-            st.session_state["pomodoro_cycles_completed"] += 1
-            st.session_state["pomodoro_current_phase"] = "focus"
-                
-            if os.path.exists("coach_break.mp3"):
-                with open("coach_break.mp3", "rb") as f_break:
-                    st.audio(f_break.read(), format="audio/mp3", autoplay=True)
-            else:
-                st.audio("https://soundhelix.com", format="audio/mp3", autoplay=True)
-            
-        st.rerun()
-
-    # Affichage du protocole d'hygiène de vie d'origine si une session vient d'aboutir
-    if st.session_state["pomodoro_termine"] and phase_actuelle == "pause":
-        if FR:
-            st.markdown("""
-        <div style="background-color: #ffffff; border-left: 6px solid #2ecc71; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
-            <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 PROTOCOLE DE REPOS DU DR. POMOBUDDY</h4>
-            <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
-                • 🧘 <b>Déconnexion Visuelle (5 min) :</b> Éloignez vos yeux de l'écran pour détendre vos muscles oculaires.<br>
-                • 💧 <b>Hydratation Cinétique :</b> Lève-toi, marche et bois de l'eau. Ton cerveau consomme 20% de ton énergie primaire.
-            </p>
+        st.markdown("""
+        <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
+            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">⏱️ {"Chronomètre Pomodoro Officiel (Anti-Spam)" if FR else "Official Pomodoro Timer (Anti-Spam)"}</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{"Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude." if FR else "Enforced schedule: 4 sessions of 25 minutes followed by 5 minutes break to unlock your study credits."}</p>
         </div>
         """, unsafe_allow_html=True)
+            
+        cycles_faits = st.session_state["pomodoro_cycles_completed"]
+        phase_actuelle = st.session_state["pomodoro_current_phase"]
+            
+        if cycles_faits >= 4:
+            st.success("🎯 Félicitations ! Tu as complété la session maximale de 4 cycles d'étude avec succès !" if FR else "🎯 Congratulations! You have successfully completed the maximum session of 4 study cycles Rhine.")
+        else:
+            col_status1, col_status2 = st.columns(2)
+            with col_status1:
+                st.markdown(f"📈 Progression : Cycle **{cycles_faits + 1} / 4**" if FR else f"📈 Progress: Cycle **{cycles_faits + 1} / 4**")
+            with col_status2:
+                label_phase_txt = f"🎭 Phase active : **{phase_actuelle.upper()}**" if FR else f"🎭 Active Phase: **{phase_actuelle.upper()}**"
+                st.markdown(f"<p style='text-align:right;'>{label_phase_txt}</p>", unsafe_allow_html=True)
+
+        col_p1, col_p2 = st.columns(2)
+        with col_p1: 
+            if phase_actuelle == "focus":
+                duree_minutes = 25
+                label_duree_active = "⏱️ Temps de Focus Imposé : 25 Minutes" if FR else "⏱️ Enforced Focus Time: 25 Minutes"
+            else:
+                duree_minutes = 5
+                label_duree_active = "🧘 Temps de Pause Imposé : 5 Minutes" if FR else "🧘 Enforced Break Time: 5 Minutes"
+            st.info(label_duree_active)
+                
+        with col_p2: 
+            options_audio = ["Silence", "🎵 no_friends", "🎵 mockingbird"]
+            ambiance_sonore = st.selectbox("Atmosphère Sonore Active :" if FR else "Sound Atmosphere:", options_audio, key="select_audio_pomo_global_core")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        if ambiance_sonore != "Silence":
+            track_file = "no_friends.mp3" if "no_friends" in ambiance_sonore else "mockingbird.mp3"
+            if os.path.exists(track_file):
+                with open(track_file, "rb") as f_audio:
+                    st.audio(f_audio.read(), format="audio/mp3", loop=True)
+            else:
+                st.audio("https://soundhelix.com", format="audio/mp3", loop=True)
+
+        st.markdown("---")
+        zone_temps_horloge = st.empty()
+        status_action_text = st.empty()
+            
+        zone_temps_horloge.markdown(f"""
+        <div style="text-align:center; margin:20px 0;">
+            <h1 style="font-family:monospace; font-size:68px; color:#00f0ff; margin:0;">{duree_minutes:02d}:00</h1>
+        </div>
+        """, unsafe_allow_html=True)
+
+        bouton_desactive = st.session_state["pomodoro_lock_active"] or st.session_state["pomodoro_cycles_completed"] >= 4
+            
+        if FR:
+            label_action_btn = "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
+        else:
+            label_action_btn = "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
+            
+        # UTILISATION D'UNE CLE SYSTEME UNIFIÉE ABSOLUE
+        if st.button(label_action_btn, use_container_width=True, key="action_pomo_cycle_core_final_proof", disabled=bouton_desactive):
+            st.session_state["chrono_en_cours"] = True
+            st.session_state["pomodoro_lock_active"] = True
+            st.rerun()
+
+        # Système de boucle asynchrone sécurisé ré-enclenché si déclenché
+        if st.session_state["pomodoro_lock_active"] and st.session_state["chrono_en_cours"]:
+            total_secondes = duree_minutes * 60
+            while total_secondes > 0:
+                mins, secs = divmod(total_secondes, 60)
+                zone_temps_horloge.markdown(f"""
+                <div style="text-align:center; margin:20px 0;">
+                    <h1 style="font-family:monospace; font-size:68px; color:#ff007f; margin:0;">{mins:02d}:{secs:02d}</h1>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if FR:
+                    txt_animation_status = f"⏳ Focus en cours (Cycle {cycles_faits + 1}/4)... Ne quitte pas l'onglet !" if phase_actuelle == "focus" else f"🧘 Pause active... Respire profondément."
+                else:
+                    txt_animation_status = f"⏳ Focus active (Cycle {cycles_faits + 1}/4)... Stay on this tab!" if phase_actuelle == "focus" else f"🧘 Break active... Breathe deeply and relax."
+                status_action_text.text(txt_animation_status)
+                time.sleep(1)
+                total_secondes -= 1
+                
+            st.session_state["chrono_en_cours"] = False
+            st.session_state["pomodoro_lock_active"] = False
+                
+            if phase_actuelle == "focus":
+                st.session_state.xp += 20
+                st.session_state["buddy_energy"] = max(0, st.session_state["buddy_energy"] - 25)
+                st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
+                st.session_state["buddy_status"] = "🧠 Session de 25 min validée ! (+20 XP)" if FR else "🧠 25 min Session validated! (+20 XP)"
+                st.session_state["pomodoro_current_phase"] = "pause"
+                st.session_state["pomodoro_termine"] = True
+                st.balloons()
+            else:
+                st.session_state["buddy_energy"] = 100
+                st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 20)
+                st.session_state["buddy_status"] = "🧘 Pause terminée ! Prêt pour le focus." if FR else "🧘 Break over! Ready for focus."
+                st.session_state["pomodoro_cycles_completed"] += 1
+                st.session_state["pomodoro_current_phase"] = "focus"
+            st.rerun()
+
+    # Affichage du protocole d'hygiène de vie d'origine si une session vient d'aboutir
+        if st.session_state["pomodoro_termine"] and phase_actuelle == "pause":
+            if FR:
+                st.markdown("""
+                <div style="background-color: #ffffff; border-left: 6px solid #2ecc71; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
+                <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 PROTOCOLE DE REPOS DU DR. POMOBUDDY</h4>
+                 <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
+                • 🧘 <b>Déconnexion Visuelle (5 min) :</b> Éloignez vos yeux de l'écran pour détendre vos muscles oculaires.<br>
+                • 💧 <b>Hydratation Cinétique :</b> Lève-toi, marche et bois de l'eau. Ton cerveau consomme 20% de ton énergie primaire.
+                 </p>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             st.markdown("""
             <div style="background-color: #ffffff !important; border-left: 6px solid #2ecc71 !important; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
