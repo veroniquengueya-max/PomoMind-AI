@@ -244,3 +244,39 @@ with st.sidebar:
         st.session_state.clear()
         st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
         st.rerun()
+    # ==============================================================================
+# 👨‍🏫 ACCÈS CONSOLE ENSEIGNANT (AUTOMATISÉ ZETARIS DATA HARNESS)
+# ==============================================================================
+if st.session_state["user_role_actif"] == "prof":
+    st.markdown("### 👨‍🏫 Console de Diffusion Officielle de l'Enseignant" if FR else "### 👨‍🏫 Official Professor Broadcast Console")
+    with st.form("form_prof_diffusion_feynman_clean"):
+        p_name = st.text_input("Nom de l'Enseignant :" if FR else "Professor's Name:", value="Dr. Dom Emmanuel T.")
+        p_sub = st.text_input("Intitulé de la matière / UE :" if FR else "Course Title / Module:", value="Software Engineering")
+        fichier_cours_brut = st.file_uploader("📁 Sélectionner le cours (.pdf) :" if FR else "📁 Select the course (.pdf):", type=["pdf"])
+        
+        if st.form_submit_button("⚡ Analyser et Propager le cours au Campus", use_container_width=True):
+            if fichier_cours_brut is not None:
+                texte_extrait = extraire_texte_pdf(fichier_cours_brut)
+                if texte_extrait:
+                    concepts_ia = generer_concepts_feynman_dynamiques(texte_extrait, p_sub)
+                    with open(nom_cache_public, "w", encoding="utf-8") as f_vault:
+                        f_vault.write(f"METADATA_SUB: {p_sub}\nMETADATA_NAME: {p_name}\nCONTENT_RAW: {texte_extrait[:1500]}\n---\n{concepts_ia}")
+                    st.success("✅ Cours propagé de manière autonome via Zetaris !" if FR else "✅ Lecture broadcasted autonomously via Zetaris!")
+                    time.sleep(0.5)
+                    st.rerun()
+                else: 
+                    st.error("Impossible de lire le PDF." if FR else "Could not parse PDF text.")
+    st.stop()
+
+# ==============================================================================
+# 🎓 WORKSPACE CENTRAL DE L'ÉTUDIANT (7 TABS ENTIÈREMENT DÉCOUPLÉS)
+# ==============================================================================
+elif st.session_state["user_role_actif"] == "eleve":
+    titres_onglets = [
+        "⏱️ Chrono Pomodoro", "📅 Planning & Examens", "📚 Flux Réception",
+        "🧠 Fiches Flash", "💬 Plateform de chat IA", "🤝 Aide du Hub", "🔥 Capsule Motivation"
+    ] if FR else [
+        "⏱️ Pomodoro Timer", "📅 Schedule & Exams", "📚 Reception Feed",
+        "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Help Hub", "🔥 Motivation Capsule"
+    ]
+    tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
