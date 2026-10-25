@@ -168,3 +168,79 @@ with st.sidebar:
     .readable-buddy-bubble { background-color: #ffffff !important; border: 4px solid #111116 !important; border-radius: 12px; padding: 12px; text-align: center; color:#111116; font-family: monospace; font-weight: bold; }
     </style>
     """
+    st.markdown(style_robot_expressif, unsafe_allow_html=True)
+    
+    # --- BADGE SÉCURISÉ DE LA STATION UNIVERSITAIRE ---
+    user_badge = st.session_state['username'].upper() if st.session_state['username'] else "ANONYMOUS"
+    st.markdown(f"""
+    <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05); text-align:center; margin-bottom:15px;">
+        <p style="color:rgba(255,255,255,0.4); font-size:10px; font-family:monospace; margin:0;">STATION: @{user_badge}</p>
+        <h4 style="color:#00f0ff; margin:4px 0 0 0; font-size:14px;">🦅 {st.session_state["user_role_actif"].upper()} NETWORK</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Rendu structurel du châssis du robot expressif
+    st.markdown(f"""<div style="width:100%; text-align:center; height:70px;"><div class="robot-chassis"><div class="robot-visor"></div></div></div>""", unsafe_allow_html=True)
+    
+    # --- SYSTÈME DE PHRASES DE VEILLE SYNCHRONISÉES ---
+    PHRASES_VEILLE_FR = [
+        "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
+        "Méthode Feynman armée. Simplifions ces lignes complexes !",
+        "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux."
+    ]
+    PHRASES_VEILLE_EN = [
+        "Scanning network nodes... Your development speed is highly optimized today!",
+        "Feynman core armed. Let's simplify those dense structures!",
+        "Campus link stable. Your active recall session is generating great XP."
+    ]
+    
+    if st.session_state["chrono_en_cours"]:
+        st.session_state["buddy_status"] = "Propulseurs à 100% ! Moteur Feynman en cours de compilation !" if FR else "Thrusters at 100%! Feynman core compiler running!"
+    else:
+        random.seed(st.session_state.xp)
+        st.session_state["buddy_status"] = random.choice(PHRASES_VEILLE_FR) if FR else random.choice(PHRASES_VEILLE_EN)
+        
+    st.markdown(f'<div class="readable-buddy-bubble"><p>"{st.session_state["buddy_status"]}"</p></div>', unsafe_allow_html=True)
+    
+    # --- JAUGES DE STATUTS ET COMPTEURS ACCUMULÉS ---
+    col_s1, col_s2 = st.columns(2)
+    with col_s1: st.metric(label="🔋 Énergie" if FR else "🔋 Energy", value=f"{st.session_state['buddy_energy']}%")
+    with col_s2: st.metric(label="❤️ Joie" if FR else "❤️ Joy", value=f"{st.session_state['buddy_joy']}%")
+    
+    # --- 🤖 HORLOGE DYNAMIQUE ET ASYNCHRONE DE LA CAPSULE ---
+    if st.session_state.get("capsule_timer_running", False):
+        st.markdown("---")
+        temps_sauvegarde = st.session_state.get("capsule_countdown_seconds", 1200)
+        st.components.v1.html(f"""
+        <div style="text-align:center; background:rgba(255, 0, 127, 0.05); padding:8px; border-radius:10px; border:1px solid rgba(255, 0, 127, 0.3);">
+            <h1 id="live_sidebar_clock" style="font-family:monospace; font-size:32px; color:#00f0ff; margin:0; font-weight:bold;">20:00</h1>
+            <p style='color:#ff007f; font-size:10px; margin:0;'>⚡ AURA RECHARGE ACTIVE</p>
+        </div>
+        <script>
+            let totalSeconds = localStorage.getItem('pomo_capsule_time');
+            if (totalSeconds === null) {{ totalSeconds = {temps_sauvegarde}; }} else {{ totalSeconds = parseInt(totalSeconds, 10); }}
+            let clockDisplay = document.getElementById('live_sidebar_clock');
+            function runCountdown() {{
+                let mins = Math.floor(totalSeconds / 60);
+                let secs = totalSeconds % 60;
+                clockDisplay.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                if (totalSeconds <= 0) {{ clearInterval(clockInterval); clockDisplay.innerText = "00:00"; }}
+                else {{ totalSeconds--; localStorage.setItem('pomo_capsule_time', totalSeconds); }}
+            }}
+            runCountdown();
+            let clockInterval = setInterval(runCountdown, 1000);
+        </script>
+        """, height=65)
+        if st.session_state["capsule_countdown_seconds"] > 0: 
+            st.session_state["capsule_countdown_seconds"] -= 1
+
+    st.markdown("---")
+    st.markdown(f"🎟️ Ticket Aura : **{st.session_state['capsule_sessions_aujourdhui']} / 2**" if FR else f"🎟️ Aura Tickets: **{st.session_state['capsule_sessions_aujourdhui']} / 2**")
+    st.metric(label="🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:", value=f"{st.session_state.xp} XP")
+    
+    # --- INTERRUPTEUR DE PURGE ET SORTIE DE SÉCURITÉ ACCESSIBLE ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🔴 Quitter la session" if FR else "🔴 Terminate Session", use_container_width=True, key="logout_global"):
+        st.session_state.clear()
+        st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
+        st.rerun()
