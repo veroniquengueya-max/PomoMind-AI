@@ -1172,7 +1172,7 @@ with tab5:
             else:
                 st.subheader("🔥 Active Multimedia Gallery")
 
-                    # --- CARROUSEL 1 : DISCIPLINE (MUSIQUES UNIQUES ET INDEXÉES) ---
+                # --- CARROUSEL 1 : DISCIPLINE (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
         if "Discipline" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1192,18 +1192,26 @@ with tab5:
                 c1, c2, c3 = st.columns(3)
                 with c2:
                     st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- FORCE LA BALISE AUDIO UNIQUE GRACE A LA KEY ET AU BLOC MASQUÉ ---
+                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                        idx_audio_unique = f"player_discipline_streak_{st.session_state['carousel_disc_idx']}"
-                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
-                        st.audio(p_audio, format="audio/mp3", autoplay=True, key=idx_audio_unique)
-                        st.markdown("</div>", unsafe_allow_html=True)
+                        with open(p_audio, "rb") as f_aud:
+                            audio_bytes = f_aud.read()
+                        audio_b64 = base64.b64encode(audio_bytes).decode()
+                        
+                        # Utilisation d'un ID unique HTML pour forcer le navigateur à décoder la bonne piste
+                        st.markdown(f"""
+                        <div style="display:none;">
+                            <audio id="player_d_{st.session_state['carousel_disc_idx']}" autoplay controls>
+                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                            </audio>
+                        </div>
+                        """, unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- CARROUSEL 2 : STRESS (MUSIQUES UNIQUES ET INDEXÉES) ---
+        # --- CARROUSEL 2 : STRESS (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
         elif "Stress" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1223,18 +1231,25 @@ with tab5:
                 c1, c2, c3 = st.columns(3)
                 with c2:
                     st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- FORCE LA BALISE AUDIO UNIQUE GRACE A LA KEY ET AU BLOC MASQUÉ ---
+                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                        idx_audio_unique = f"player_stress_streak_{st.session_state['carousel_stress_idx']}"
-                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
-                        st.audio(p_audio, format="audio/mp3", autoplay=True, key=idx_audio_unique)
-                        st.markdown("</div>", unsafe_allow_html=True)
+                        with open(p_audio, "rb") as f_aud:
+                            audio_bytes = f_aud.read()
+                        audio_b64 = base64.b64encode(audio_bytes).decode()
+                        
+                        st.markdown(f"""
+                        <div style="display:none;">
+                            <audio id="player_s_{st.session_state['carousel_stress_idx']}" autoplay controls>
+                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                            </audio>
+                        </div>
+                        """, unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- CARROUSEL 3 : LEADER (MUSIQUES UNIQUES ET INDEXÉES) ---
+        # --- CARROUSEL 3 : LEADER (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
         elif "Leader" in vibe_choisie:
             st.markdown("---")
             st.markdown("<style>@keyframes fIn {0%{opacity:0;transform:translateY(10px) scale(0.99);}100%{opacity:1;transform:translateY(0) scale(1);}} .stImage img{animation:fIn 0.45s ease-out forwards; border-radius:12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);}</style>", unsafe_allow_html=True)
@@ -1256,14 +1271,21 @@ with tab5:
                 c1, c2, c3 = st.columns(3)
                 with c2:
                     st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- FORCE LA BALISE AUDIO UNIQUE GRACE A LA KEY ET AU BLOC MASQUÉ ---
+                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
-                        idx_audio_unique = f"player_leader_streak_{st.session_state['carousel_leader_idx']}"
-                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
-                        st.audio(p_audio, format="audio/mp3", autoplay=True, key=idx_audio_unique)
-                        st.markdown("</div>", unsafe_allow_html=True)
+                        with open(p_audio, "rb") as f_aud:
+                            audio_bytes = f_aud.read()
+                        audio_b64 = base64.b64encode(audio_bytes).decode()
+                        
+                        st.markdown(f"""
+                        <div style="display:none;">
+                            <audio id="player_l_{st.session_state['carousel_leader_idx']}" autoplay controls>
+                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                            </audio>
+                        </div>
+                        """, unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
