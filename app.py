@@ -280,3 +280,125 @@ elif st.session_state["user_role_actif"] == "eleve":
         "🧠 Flashcards", "💬 AI Chat Hub", "🤝 Help Hub", "🔥 Motivation Capsule"
     ]
     tab1, tab_planning, tab2, tab3, tab4, tab5, tab6 = st.tabs(titres_onglets)
+
+        # ==============================================================================
+    # ⏱️ TAB 1 : CHRONO POMODORO (IMMUNISÉ CONTRE LES BLOCAGES DE LANGUE)
+    # ==============================================================================
+    with tab1:
+        titre_pomo_txt = "⏱️ Chronomètre Pomodoro Officiel (Anti-Spam)" if FR else "⏱️ Official Pomodoro Timer (Anti-Spam)"
+        desc_pomo_txt = (
+            "Cycle réglementaire : 4 sessions de 25 minutes suivies de 5 minutes de pause pour débloquer tes crédits d'étude."
+            if FR else
+            "Enforced schedule: 4 sessions of 25 minutes followed by 5 minutes break to unlock your study credits."
+        )
+
+        st.markdown(f"""
+        <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;">
+            <h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">{titre_pomo_txt}</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{desc_pomo_txt}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        cycles_faits = st.session_state["pomodoro_cycles_completed"]
+        phase_actuelle = st.session_state["pomodoro_current_phase"]
+        
+        if cycles_faits >= 4:
+            st.success("🎯 Félicitations ! Session de 4 cycles achevée !" if FR else "🎯 Congratulations! Focus session completed!")
+        else:
+            col_status1, col_status2 = st.columns(2)
+            with col_status1: 
+                st.markdown(f"📈 Progression : Cycle **{cycles_faits + 1} / 4**" if FR else f"📈 Progress: Cycle **{cycles_faits + 1} / 4**")
+            with col_status2: 
+                st.markdown(f"<p style='text-align:right;'>🎭 Phase : **{phase_actuelle.upper()}**</p>", unsafe_allow_html=True)
+
+            duree_minutes = 25 if phase_actuelle == "focus" else 5
+            st.info(f"⏱️ Phase active : {duree_minutes} Minutes" if FR else f"⏱️ Active Phase: {duree_minutes} Minutes")
+            
+            zone_temps_horloge = st.empty()
+            zone_temps_horloge.markdown(f"<h1 style='text-align:center; font-size:58px; font-family:monospace;'>{duree_minutes:02d}:00</h1>", unsafe_allow_html=True)
+            
+            if FR:
+                label_action_btn = "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
+            else:
+                label_action_btn = "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
+
+            if st.button(label_action_btn, use_container_width=True, key="start_pomo_eleve_final_proof"):
+                st.session_state["chrono_en_cours"] = True
+                total_sec = duree_minutes * 60
+                while total_sec > 0:
+                    m, s = divmod(total_sec, 60)
+                    zone_temps_horloge.markdown(f"<h1 style='text-align:center; font-size:58px; color:#ff007f; font-family:monospace;'>{m:02d}:{s:02d}</h1>", unsafe_allow_html=True)
+                    time.sleep(1)
+                    total_sec -= 1
+                st.session_state["chrono_en_cours"] = False
+                
+                if phase_actuelle == "focus":
+                    st.session_state.xp += 20
+                    st.session_state["pomodoro_current_phase"] = "pause"
+                    st.session_state["pomodoro_termine"] = True
+                    st.balloons()
+                else:
+                    st.session_state["pomodoro_cycles_completed"] += 1
+                    st.session_state["pomodoro_current_phase"] = "focus"
+                st.rerun()
+
+        if st.session_state["pomodoro_termine"] and phase_actuelle == "pause":
+            st.markdown(f"""
+            <div style="background-color: #ffffff; border-left: 6px solid #2ecc71; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top:20px;">
+                <h4 style="color:#111116; margin:0 0 10px 0; font-weight:bold; font-family:sans-serif;">🟢 {"PROTOCOLE DE REPOS DU DR. POMOBUDDY" if FR else "DR. POMOBUDDY'S REST PROTOCOL"}</h4>
+                <p style="color:#2b2b36; font-size:14px; line-height:1.5; font-family:monospace; margin:0;">
+                    • 🧘 <b>{"Déconnexion Visuelle (5 min) :" if FR else "Visual Disconnection (5 min):"}</b> {"Éloignez vos yeux de l'écran pour détendre vos muscles oculaires." if FR else "Move your eyes away from the screen to relax your ocular muscles."}<br>
+                    • 💧 <b>{"Hydratation Cinétique :" if FR else "Kinetic Hydration:"}</b> {"Lève-toi, marche et bois de l'eau. Ton cerveau consomme 20% de ton énergie primaire." if FR else "Stand up, walk around, and drink water. Your brain consumes 20% of your primary energy."}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # ==============================================================================
+    # 📅 TAB 2 : PLANNING & EXAMENS (PLANIFICATEUR INTELLIGENT NVIDIA)
+    # ==============================================================================
+    with tab_planning:
+        title_plan = "📅 Planificateur d'Examens Intelligent NVIDIA" if FR else "📅 NVIDIA Intelligent Exam Scheduler"
+        desc_plan = (
+            "Saisis tes prochaines matières d'évaluation. L'Agent NVIDIA générera ta feuille de route de révision sur-mesure."
+            if FR else
+            "Enter your upcoming exam subjects. The NVIDIA Agent will generate your customized revision roadmap."
+        )
+        st.markdown(f"""<div style="background:rgba(255,255,255,0.01); border:1px solid rgba(0,240,255,0.1); padding:20px; border-radius:16px; margin-bottom:20px;"><h3 style="color:#00f0ff; margin:0 0 5px 0; font-weight:700;">{title_plan}</h3><p style="color:rgba(255,255,255,0.6); font-size:13px; margin:0;">{desc_plan}</p></div>""", unsafe_allow_html=True)
+
+        st.markdown("### 📝 Ajouter une Évaluation" if FR else "### 📝 Add an Assessment")
+        with st.form("form_planning_nvidia_clean", clear_on_submit=True):
+            col_in1, col_col2 = st.columns(2)
+            with col_in1:
+                input_matiere = st.text_input("📚 Matière / Subject :", placeholder="ex: Software Engineering, Réseaux, Cyber...")
+                input_date = st.text_input("📅 Date de l'Examen / Date :", placeholder="ex: 05 Novembre 2026")
+            with col_col2:
+                input_type = st.selectbox("🎭 Type d'examen / Exam Type :", ["Examen Final / Final Exam", "Contrôle Continu / Quiz", "Rattrapage / Resit"])
+                input_prio = st.selectbox("🚨 Priorité de révision / Priority :", ["🚨 Haute / Critical High", "⚠️ Moyenne / Medium", "🟢 Normale / Low"])
+
+            if st.form_submit_button("💾 Injecter dans le calendrier" if FR else "💾 Inject into Schedule", use_container_width=True):
+                if input_matiere.strip() == "" or input_date.strip() == "":
+                    st.error("⚠️ Veuillez remplir l'intitulé et la date de l'évaluation.")
+                else:
+                    st.session_state["planning_personnalise"].append({
+                        "matiere": input_matiere.strip(),
+                        "date": input_date.strip(),
+                        "type": input_type,
+                        "priorite": input_prio
+                    })
+                    st.success("✅ Évaluation enregistrée ! Moteur d'inférence prêt.")
+                    time.sleep(0.5)
+                    st.rerun()
+
+        st.markdown("---")
+        st.markdown("### 📥 Mon Emploi du Temps d'Évaluation" if FR else "### 📥 My Assessment Schedule")
+
+        if len(st.session_state["planning_personnalise"]) == 0:
+            st.info("💡 Aucun examen enregistré pour le moment. Utilise le formulaire ci-dessus pour initialiser ton calendrier.")
+        else:
+            for idx, exam in enumerate(st.session_state["planning_personnalise"]):
+                st.markdown(f"""
+                <div style="background-color:rgba(255,255,255,0.02); padding:15px; border-radius:10px; margin-bottom:12px; border-left:4px solid #ff007f;">
+                    <strong style="font-size:16px; color:#ffffff;">{exam['matiere']}</strong> — <span style="color:#00f0ff;">{exam['type']}</span><br>
+                    <span style="font-size:13px; color:gray;">📅 Date: {exam['date']} | Priority: {exam['priorite']}</span>
+                </div>
+                """, unsafe_allow_html=True)
