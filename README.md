@@ -1,6 +1,5 @@
 # 🦅 POMOMIND AI — CHALLENGE SUBMISSION [TRACK 2]
 > **Symbiotic Multi-Agent University Study Ecosystem**  
-> *Developed for The ICT University, Yaoundé — Powered by NVIDIA, Zetaris & Meterless Nightshift AI Core*
 
 ---
 
