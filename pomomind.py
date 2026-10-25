@@ -456,6 +456,29 @@ with st.sidebar:
         with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
         with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
 
+        st.markdown("---")
+        # --- 🎟️ AFFICHAGE DU TICKET DE SESSIONS DE LA CAPSULE ---
+        st.markdown(f"🎟️ Ticket Aura : **{st.session_state.get('capsule_sessions_aujourdhui', 0)} / 2**")
+        
+        # --- 🏆 AFFICHAGE DU SCORE GLOBAL DE L'ÉTUDIANT ---
+        label_score = "🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:"
+        st.metric(label=label_score, value=f"{st.session_state.xp} XP")
+        
+        # --- 🔴 LE BOUTON SÉCURISÉ POUR QUITTER ET PURGER LA SESSION ---
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        label_exit = "🔴 Quitter la session" if FR else "🔴 Terminate Session"
+        if st.button(label_exit, use_container_width=True, key="logout_btn_sidebar_restored_global_final"):
+            st.session_state["session_initialisee"] = False
+            st.session_state["pomodoro_termine"] = False
+            st.session_state["chrono_en_cours"] = False
+            st.session_state["capsule_timer_running"] = False
+            st.session_state["capsule_audio_unlocked"] = False
+            st.session_state["capsule_sessions_aujourdhui"] = 0
+            st.session_state["username"] = ""
+            st.session_state["user_role_actif"] = None
+            st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
+            st.rerun()
+
                 # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH DYNAMIQUE ET FLUIDE ---
         if st.session_state.get("capsule_timer_running", False):
             st.markdown("---")
