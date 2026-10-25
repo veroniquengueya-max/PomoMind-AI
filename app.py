@@ -599,3 +599,92 @@ elif st.session_state["user_role_actif"] == "eleve":
                 """, unsafe_allow_html=True)
         else:
             st.info("La console de chat sécurisée est vide. Pose ta première question ci-dessus !" if FR else "AI Chat Hub console is empty. Ask your first question above!")
+
+        # ==============================================================================
+    # 🤝 TAB 6 : HELP HUB (RÉSEAU UNIVERSITAIRE DES EXPERTS D'ÉLITE)
+    # ==============================================================================
+    with tab5:
+        st.subheader("🤝 Hub Help // Réseau des Experts d'Élite" if FR else "🤝 Hub Help // Elite Specialists Network")
+        st.write(
+            "Un blocage majeur sur un projet ? Ne reste pas isolé. Recherche un spécialiste de ton campus "
+            "pour débloquer tes algorithmes via NVIDIA Cloud AI, synchroniser tes flux avec le Data Harness de Zetaris, "
+            "ouvrir un salon de discussion privé audité par Meterless et recharger l'énergie de ton PomoBuddy !"
+            if FR else 
+            "Stuck on a major project? Don't stay isolated. Search for a campus specialist "
+            "to unblock your algorithms via NVIDIA Cloud AI, sync your streams with the Zetaris Data Harness, "
+            "open a private chat room audited by Meterless and recharge your PomoBuddy's energy!"
+        )
+        
+        st.markdown("---")
+        
+        style_hub_specialists = """
+        <style>
+        .tutor-card {
+            background: linear-gradient(135deg, #110c24 0%, #191235 100%) !important;
+            border: 1px solid rgba(0, 240, 255, 0.15) !important;
+            padding: 20px; border-radius: 16px; margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: all 0.3s ease;
+        }
+        .tutor-card:hover { border-color: #00f0ff !important; box-shadow: 0 12px 30px rgba(0,240,255,0.15); }
+        .tutor-name { color: #ffffff !important; font-size: 18px !important; font-weight: 700 !important; margin-bottom: 2px; }
+        .tutor-title { color: #ff007f !important; font-size: 12px !important; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+        .tutor-tag {
+            background: rgba(255, 255, 255, 0.06); color: #00f0ff; border: 1px solid rgba(0,240,255,0.2);
+            padding: 3px 8px; border-radius: 6px; font-size: 11px; margin-right: 5px; display: inline-block;
+        }
+        </style>
+        """
+        st.markdown(style_hub_specialists, unsafe_allow_html=True)
+        
+        BASE_SPECIALISTES = [
+            {"nom": "Dom Emmanuel T.", "role": "Lead System & Cyber-Architecture", "tags": ["Python", "SHA-256", "Security"], "dispo": "🟢 En Ligne" if FR else "🟢 Online"},
+            {"nom": "Emilienne K.", "role": "UI/UX & Creative Designer", "tags": ["CapCut Style", "Figma", "CSS Blend"], "dispo": "🟢 En Ligne" if FR else "🟢 Online"}
+        ]
+
+        critere_recherche = st.text_input("🔍 Rechercher un tuteur par compétence :" if FR else "🔍 Search tutor by skill:", placeholder="Entre une compétence (ex: Python, Security, Figma...)", key="hub_search_input")
+        
+        resultats_filtres = []
+        for spec in BASE_SPECIALISTES:
+            if critere_recherche.strip() == "":
+                resultats_filtres.append(spec)
+            else:
+                match_nom = critere_recherche.lower() in spec["nom"].lower()
+                match_tags = any(critere_recherche.lower() in t.lower() for t in spec["tags"])
+                if match_nom or match_tags:
+                    resultats_filtres.append(spec)
+
+        st.markdown("### 📥 Profils Correspondants" if FR else "### 📥 Matching Profiles")
+        
+        if len(resultats_filtres) == 0:
+            st.info("Aucun spécialiste trouvé pour cette recherche." if FR else "No specialist found for this search.")
+        else:
+            for i in range(0, len(resultats_filtres), 2):
+                col_card1, col_card2 = st.columns(2)
+                
+                with col_card1:
+                    if i < len(resultats_filtres):
+                        tutor = resultats_filtres[i]
+                        st.markdown(f"""
+                        <div class="tutor-card">
+                            <p class="tutor-name">{tutor['nom']}</p>
+                            <p class="tutor-title">{tutor['role']}</p>
+                            <div style="margin-bottom:15px;">
+                                {"".join(f'<span class="tutor-tag">#{t}</span>' for t in tutor['tags'])}
+                            </div>
+                            <p style="font-size:12px; font-weight:bold; color:#2ecc71; margin-bottom:10px;">{tutor['dispo']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                with col_card2:
+                    if (i + 1) < len(resultats_filtres):
+                        tutor = resultats_filtres[i + 1]
+                        st.markdown(f"""
+                        <div class="tutor-card">
+                            <p class="tutor-name">{tutor['nom']}</p>
+                            <p class="tutor-title">{tutor['role']}</p>
+                            <div style="margin-bottom:15px;">
+                                {"".join(f'<span class="tutor-tag">#{t}</span>' for t in tutor['tags'])}
+                            </div>
+                            <p style="font-size:12px; font-weight:bold; color:#2ecc71; margin-bottom:10px;">{tutor['dispo']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
