@@ -1172,7 +1172,7 @@ with tab5:
             else:
                 st.subheader("🔥 Active Multimedia Gallery")
 
-                # --- CARROUSEL 1 : DISCIPLINE (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
+                # --- CARROUSEL 1 : DISCIPLINE (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
         if "Discipline" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1194,24 +1194,18 @@ with tab5:
                     st.image(p_path, width=320)
                     st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
+                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
                         with open(p_audio, "rb") as f_aud:
-                            audio_bytes = f_aud.read()
-                        audio_b64 = base64.b64encode(audio_bytes).decode()
-                        
-                        # Utilisation d'un ID unique HTML pour forcer le navigateur à décoder la bonne piste
-                        st.markdown(f"""
-                        <div style="display:none;">
-                            <audio id="player_d_{st.session_state['carousel_disc_idx']}" autoplay controls>
-                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-                            </audio>
-                        </div>
-                        """, unsafe_allow_html=True)
+                            donnees_audio_neuves = f_aud.read()
+                        # Le lecteur Streamlit natif masqué par CSS
+                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+                        st.audio(donnees_audio_neuves, format="audio/mp3", autoplay=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- CARROUSEL 2 : STRESS (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
+        # --- CARROUSEL 2 : STRESS (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
         elif "Stress" in vibe_choisie:
             st.markdown("---")
             col_p, col_txt, col_n = st.columns(3)
@@ -1233,23 +1227,17 @@ with tab5:
                     st.image(p_path, width=320)
                     st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
+                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
                         with open(p_audio, "rb") as f_aud:
-                            audio_bytes = f_aud.read()
-                        audio_b64 = base64.b64encode(audio_bytes).decode()
-                        
-                        st.markdown(f"""
-                        <div style="display:none;">
-                            <audio id="player_s_{st.session_state['carousel_stress_idx']}" autoplay controls>
-                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-                            </audio>
-                        </div>
-                        """, unsafe_allow_html=True)
+                            donnees_audio_neuves = f_aud.read()
+                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+                        st.audio(donnees_audio_neuves, format="audio/mp3", autoplay=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- CARROUSEL 3 : LEADER (MUSIQUES SÉPARÉES ET INFAILLIBLES) ---
+        # --- CARROUSEL 3 : LEADER (FLUX BINAIRE NATIF DIRECT SANS CACHE) ---
         elif "Leader" in vibe_choisie:
             st.markdown("---")
             st.markdown("<style>@keyframes fIn {0%{opacity:0;transform:translateY(10px) scale(0.99);}100%{opacity:1;transform:translateY(0) scale(1);}} .stImage img{animation:fIn 0.45s ease-out forwards; border-radius:12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);}</style>", unsafe_allow_html=True)
@@ -1273,19 +1261,13 @@ with tab5:
                     st.image(p_path, width=320)
                     st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
                     
-                    # --- BLOC AUDIO NETTOYÉ SANS CONFLIT DE VERSION ---
+                    # --- FLUX BINAIRE DIRECT : FORCE LE CHANGEMENT DE MORCEAU SANS LE PARAMÈTRE KEY ---
                     if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
                         with open(p_audio, "rb") as f_aud:
-                            audio_bytes = f_aud.read()
-                        audio_b64 = base64.b64encode(audio_bytes).decode()
-                        
-                        st.markdown(f"""
-                        <div style="display:none;">
-                            <audio id="player_l_{st.session_state['carousel_leader_idx']}" autoplay controls>
-                                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-                            </audio>
-                        </div>
-                        """, unsafe_allow_html=True)
+                            donnees_audio_neuves = f_aud.read()
+                        st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+                        st.audio(donnees_audio_neuves, format="audio/mp3", autoplay=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning(f"Fichier local '{p_path}' introuvable.")
 
