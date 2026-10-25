@@ -360,162 +360,135 @@ if st.session_state["user_role_actif"] == "prof":
     st.stop()
 
 with st.sidebar:
-    style_robot_expressif = """
-    <style>
-    @keyframes robotHover {
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px #00f0ff); }
-        50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px #00f0ff); }
-        100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px #00f0ff); }
-    }
-    @keyframes robotSprint {
-        0% { transform: translateY(0px) scale(1) skewX(-2deg); filter: drop-shadow(0 0 10px #ff007f); }
-        25% { transform: translateY(-10px) scaleX(1.1); }
-        50% { transform: translateY(0px) scaleX(0.95) skewX(2deg); }
-        75% { transform: translateY(-6px) scaleY(1.05); }
-        100% { transform: translateY(0px) scale(1); }
-    }
-    @keyframes visorScan {
-        0%, 100% { background-color: #ff007f; box-shadow: 0 0 4px #ff007f; }
-        50% { background-color: #00f0ff; box-shadow: 0 0 12px #00f0ff; }
-    }
-    @keyframes jetFlame {
-        0%, 100% { height: 6px; opacity: 0.7; }
-        50% { height: 14px; opacity: 1; background-color: #ff007f; }
-    }
-    .robot-chassis {
-        width: 50px; height: 44px; background-color: #1e1b4b; border: 3px solid #00f0ff;
-        border-radius: 10px; position: relative; display: inline-block; margin: 15px auto;
-    }
-    .robot-visor {
-        position: absolute; width: 34px; height: 6px; top: 12px; left: 5px;
-        border-radius: 2px; animation: visorScan 1s infinite ease-in-out;
-    }
-    .robot-thruster {
-        position: absolute; width: 14px; bottom: -11px; left: 15px;
-        background: linear-gradient(#00f0ff, transparent);
-        border-radius: 0 0 4px 4px; animation: jetFlame 0.3s infinite ease-in-out;
-    }
-    .mode-hover { animation: robotHover 2.5s infinite ease-in-out; }
-    .mode-sprint { animation: robotSprint 0.4s infinite linear; }
-        
-    .readable-buddy-bubble {
-        background-color: #ffffff !important; border: 4px solid #111116 !important;
-        border-radius: 12px; padding: 12px; margin-bottom: 20px;
-        box-shadow: 4px 4px 0px #000000; text-align: center;
-    }
-    .readable-buddy-bubble p {
-        color: #111116 !important; font-weight: 900 !important;
-        font-size: 13px !important; line-height: 1.4; margin: 0 !important;
-        font-family: 'Courier New', monospace;
-    }
-    </style>
-    """
-    st.markdown(style_robot_expressif, unsafe_allow_html=True)
+        style_robot_expressif = """
+        <style>
+        @keyframes robotHover {
+            0% { transform: translateY(0px); filter: drop-shadow(0 0 5px #00f0ff); }
+            50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px #00f0ff); }
+            100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px #00f0ff); }
+        }
+        @keyframes robotSprint {
+            0% { transform: translateY(0px) scale(1) skewX(-2deg); filter: drop-shadow(0 0 10px #ff007f); }
+            25% { transform: translateY(-10px) scaleX(1.1); }
+            50% { transform: translateY(0px) scaleX(0.95) skewX(2deg); }
+            75% { transform: translateY(-6px) scaleY(1.05); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+        @keyframes visorScan {
+            0%, 100% { background-color: #ff007f; box-shadow: 0 0 4px #ff007f; }
+            50% { background-color: #00f0ff; box-shadow: 0 0 12px #00f0ff; }
+        }
+        @keyframes jetFlame {
+            0%, 100% { height: 6px; opacity: 0.7; }
+            50% { height: 14px; opacity: 1; background-color: #ff007f; }
+        }
+        .robot-chassis {
+            width: 50px; height: 44px; background-color: #1e1b4b; border: 3px solid #00f0ff;
+            border-radius: 10px; position: relative; display: inline-block; margin: 15px auto;
+        }
+        .robot-visor {
+            position: absolute; width: 34px; height: 6px; top: 12px; left: 5px;
+            border-radius: 2px; animation: visorScan 1s infinite ease-in-out;
+        }
+        .robot-thruster {
+            position: absolute; width: 14px; bottom: -11px; left: 15px;
+            background: linear-gradient(#00f0ff, transparent);
+            border-radius: 0 0 4px 4px; animation: jetFlame 0.3s infinite ease-in-out;
+        }
+        .mode-hover { animation: robotHover 2.5s infinite ease-in-out; }
+        .mode-sprint { animation: robotSprint 0.4s infinite linear; }
+        .readable-buddy-bubble {
+            background-color: #ffffff !important; border: 4px solid #111116 !important;
+            border-radius: 12px; padding: 12px; margin-bottom: 20px;
+            box-shadow: 4px 4px 0px #000000; text-align: center;
+        }
+        .readable-buddy-bubble p {
+            color: #111116 !important; font-weight: 900 !important;
+            font-size: 13px !important; line-height: 1.4; margin: 0 !important;
+            font-family: 'Courier New', monospace;
+        }
+        </style>
+        """
+        st.markdown(style_robot_expressif, unsafe_allow_html=True)
 
-    # Rendu sécurisé du badge de la station (Évite le crash si non connecté)
-    user_badge = (st.session_state.get("username") or "INCONNU / ANONYMOUS").upper()
-    label_station = f"STATION : @{user_badge}"
+        user_badge = st.session_state['username'].upper() if st.session_state['username'] else "ANONYMOUS"
+        st.markdown(f"""
+        <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05); text-align:center; margin-bottom:15px;">
+            <p style="color:rgba(255,255,255,0.4); font-size:10px; font-family:monospace; margin:0;">STATION: @{user_badge}</p>
+            <h4 style="color:#00f0ff; margin:4px 0 0 0; font-size:14px;">🦅 ICT UNIVERSITY</h4>
+        </div>
+        """, unsafe_allow_html=True)
 
+        PHRASES_VEILLE_FR = [
+            "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
+            "Méthode Feynman armée. Simplifions ces lignes complexes !",
+            "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux."
+        ]
+        PHRASES_VEILLE_EN = [
+            "Scanning network nodes... Your development speed is highly optimized today!",
+            "Feynman core armed. Let's simplify those dense structures!",
+            "Campus link stable. Your active recall session is generating great XP."
+        ]
 
-    PHRASES_VEILLE_FR = [
-        "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
-        "Méthode Feynman armée. Simplifions ces lignes complexes de cybersécurité !",
-        "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux.",
-        "Besoin d'un boost ? Va swiper un Edit de motivation dans l'onglet Capsule !"
-    ]
-    PHRASES_VEILLE_EN = [
-        "Scanning network nodes... Your development speed is highly optimized today!",
-        "Feynman core armed. Let's simplify those dense cybersecurity data structures!",
-        "Campus link stable. Your active recall session is generating great XP credits.",
-        "Need a mental reboot? Go swipe a Manga Edit inside the Capsule tab!"
-    ]
+        if st.session_state["chrono_en_cours"]:
+            bulle_texte = "Propulseurs à 100% ! Moteur Feynman en cours de compilation !" if FR else "Thrusters at 100%! Feynman core compiler running!"
+            st.session_state["buddy_animation"] = "mode-sprint"
+        else:
+            random.seed(st.session_state.xp)
+            bulle_texte = random.choice(PHRASES_VEILLE_FR) if FR else random.choice(PHRASES_VEILLE_EN)
+            st.session_state["buddy_animation"] = "mode-hover"
 
-    if st.session_state["chrono_en_cours"]:
-        bulle_texte = "Propulseurs à 100% ! Moteur Feynman en cours de compilation !" if FR else "Thrusters at 100%! Feynman core compiler running!"
-        st.session_state["buddy_animation"] = "mode-sprint"
-    else:
-        random.seed(st.session_state.xp)
-        bulle_texte = random.choice(PHRASES_VEILLE_FR) if FR else random.choice(PHRASES_VEILLE_EN)
-        st.session_state["buddy_animation"] = "mode-hover"
-
-    st.markdown(f"""
-    <div style="width:100%; text-align:center; height:90px; margin-bottom:10px;">
-        <div class="{st.session_state['buddy_animation']}">
-            <div class="robot-chassis">
-                <div class="robot-visor"></div>
-                <div class="robot-thruster"></div>
+        st.markdown(f"""
+        <div style="width:100%; text-align:center; height:90px; margin-bottom:10px;">
+            <div class="{st.session_state['buddy_animation']}">
+                <div class="robot-chassis">
+                    <div class="robot-visor"></div>
+                    <div class="robot-thruster"></div>
+                </div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-            # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH AVEC DOUBLE SÉCURITÉ ---
-    if st.session_state.get("capsule_timer_running", False):
+        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="readable-buddy-bubble"><p>"{bulle_texte}"</p></div>', unsafe_allow_html=True)
+
+        label_eng = "🔋 Énergie" if FR else "🔋 Energy"
+        label_joy = "❤️ Joie" if FR else "❤️ Joy"
+        col_s1, col_s2 = st.columns(2)
+        with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
+        with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
+
+                # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH DYNAMIQUE ET FLUIDE ---
+        if st.session_state.get("capsule_timer_running", False):
             st.markdown("---")
             st.markdown("<p style='text-align:center; font-weight:bold; color:#00f0ff; margin-bottom:2px;'>⚡ RECHARGE D'AURA ACTIVE</p>", unsafe_allow_html=True)
             
-            # Récupération de la sauvegarde Python en cas de tentative d'effacement du cache
-            temps_sauvegarde = st.session_state.get("capsule_countdown_seconds", 1200)
-            
-            st.components.v1.html(f"""
-            <div style="text-align:center; background:transparent;">
-                <h1 id="sidebar_clock_display" style="font-family:monospace; font-size:36px; color:#ff007f; margin:0; font-weight:bold;">20:00</h1>
+            # Utilisation d'un composant asynchrone web isolé pour animer les secondes sans bloquer React
+            st.components.v1.html("""
+            <div style="text-align:center; background:rgba(255, 0, 127, 0.05); padding:8px; border-radius:10px; border:1px solid rgba(255, 0, 127, 0.3);">
+                <h1 id="live_sidebar_clock" style="font-family:monospace; font-size:32px; color:#00f0ff; margin:0; font-weight:bold;">20:00</h1>
             </div>
             <script>
-                let timeRemaining = localStorage.getItem('pomo_capsule_time');
-                
-                // ANTI-TRICHE : Si le cache est vide, on force la restauration depuis la sauvegarde Python
-                if (timeRemaining === null) {{
-                    timeRemaining = {temps_sauvegarde};
-                }} else {{
-                    timeRemaining = parseInt(timeRemaining, 10);
-                }}
-                let display = document.getElementById('sidebar_clock_display');
-                function updateClock() {{
-                    let mins = Math.floor(timeRemaining / 60);
-                    let secs = timeRemaining % 60;
-                    display.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
-                    if (timeRemaining <= 0) {{
-                        clearInterval(countdownInterval);
-                        display.innerText = "00:00";
-                        localStorage.removeItem('pomo_capsule_time');
-                    }} else {{
-                        timeRemaining--;
-                        localStorage.setItem('pomo_capsule_time', timeRemaining);
+                // Durée réglementaire de la session (20 minutes = 1200 secondes)
+                let totalSeconds = 1200;
+                let clockDisplay = document.getElementById('live_sidebar_clock');
+
+                function runCountdown() {
+                    let mins = Math.floor(totalSeconds / 60);
+                    let secs = totalSeconds % 60;
+                    
+                    // Formatage de l'affichage avec le zéro initial
+                    clockDisplay.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                    
+                    if (totalSeconds <= 0) {
+                        clearInterval(clockInterval);
+                        clockDisplay.innerText = "00:00";
+                    } else {
+                        totalSeconds--;
                     }}
-                }}
-                updateClock();
-                let countdownInterval = setInterval(updateClock, 1000);
+
+                runCountdown();
+                let clockInterval = setInterval(runCountdown, 1000);
             </script>
-            """, height=60)
-            
-            # Mise à jour silencieuse de l'état Python pour suivre le décompte
-            if st.session_state["capsule_countdown_seconds"] > 0:
-                st.session_state["capsule_countdown_seconds"] -= 1
-
-    st.markdown(f'<div class="readable-buddy-bubble"><p>"{bulle_texte}"</p></div>', unsafe_allow_html=True)
-
-    label_eng = "🔋 Énergie" if FR else "🔋 Energy"
-    label_joy = "❤️ Joie" if FR else "❤️ Joy"
-    col_s1, col_s2 = st.columns(2)
-    with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
-    with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
-
-    st.markdown("---")
-    label_score = "🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:"
-    st.metric(label=label_score, value=f"{st.session_state.xp} XP")
-        
-    # --- RESTAURATION DE TON BOUTON SÉCURISÉ D'ORIGINE POUR QUITTER ---
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    label_exit = "🔴 Quitter la session" if FR else "🔴 Terminate Session"
-    if st.button(label_exit, use_container_width=True, key="logout_btn_sidebar_restored"):
-        st.session_state["session_initialisee"] = False
-        st.session_state["pomodoro_termine"] = False
-        st.session_state["chrono_en_cours"] = False
-        st.session_state["capsule_timer_running"] = False
-        st.session_state["capsule_audio_unlocked"] = False
-        st.session_state["user_role_actif"] = None
-        st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
-        st.rerun()
+            """, height=65)
 
 titres_onglets = [
     "⏱️ Chrono Pomodoro", "📅 Planning & Examens", "📚 Flux Réception",
@@ -578,7 +551,7 @@ with tab1:
     zone_temps_horloge = st.empty()
     status_action_text = st.empty()
         
-    # Formatage initial de l'horloge au repos
+        # Formatage initial de l'horloge au repos
     zone_temps_horloge.markdown(f"""
     <div style="text-align:center; margin:20px 0;">
         <h1 style="font-family:monospace; font-size:68px; color:#00f0ff; margin:0;">{duree_minutes:02d}:00</h1>
@@ -588,22 +561,21 @@ with tab1:
     # Désactivation du bouton si les 4 cycles sont terminés ou si le chrono tourne déjà
     bouton_desactive = st.session_state["pomodoro_lock_active"] or st.session_state["pomodoro_cycles_completed"] >= 4
         
-    label_action_btn = (
-        "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
-    ) if FR else (
-        "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
-    )
+    # --- DÉFINITION UNIFIÉE DES LABELS ---
+    if FR:
+        label_action_btn = "🚀 Démarrer la session" if phase_actuelle == "focus" else "🧘 Démarrer la pause"
+    else:
+        label_action_btn = "🚀 Start Session" if phase_actuelle == "focus" else "🧘 Start Break"
         
-    if st.button(label_action_btn, use_container_width=True, key="action_pomo_cycle_core", disabled=bouton_desactive):
+    # --- LA PARADE ANTI-BLOCAGE : UNE SEULE CLÉ ET UN CONTROLE D'ÉTAT SÉPARÉ ---
+    if st.button(label_action_btn, use_container_width=True, key="action_pomo_cycle_core_unified", disabled=bouton_desactive):
         st.session_state["chrono_en_cours"] = True
         st.session_state["pomodoro_lock_active"] = True
         st.session_state["buddy_animation"] = "mode-sprint"
             
-        # Conversion stricte de la durée réelle en secondes pour le décrément
-        # (Pour ta démo de soutenance rapide, tu peux diviser par 60 si tu veux accélérer le test)
         total_secondes = duree_minutes * 60
             
-        # --- BOUCLE TECHNIQUE DU COMPTE À REBOURS STRICT ---
+        # --- BOUCLE TECHNIQUE DU COMPTE À REBOURS IMMUNISÉE ---
         while total_secondes > 0:
             mins, secs = divmod(total_secondes, 60)
             zone_temps_horloge.markdown(f"""
@@ -612,47 +584,35 @@ with tab1:
             </div>
             """, unsafe_allow_html=True)
                 
-            txt_animation_status = (
-                f"⏳ Focus en cours (Cycle {cycles_faits + 1}/4)... Ne quitte pas l'onglet !" 
-                if phase_actuelle == "focus" else 
-                f"🧘 Pause active... Respire profondément et relâche la tension."
-            ) if FR else (
-                f"⏳ Focus active (Cycle {cycles_faits + 1}/4)... Stay on this tab!" 
-                if phase_actuelle == "focus" else 
-                f"🧘 Break active... Breathe deeply and relax."
-            )
-            status_action_text.text(txt_animation_status)
+            if FR:
+                txt_animation_status = f"⏳ Focus en cours (Cycle {cycles_faits + 1}/4)... Ne quitte pas l'onglet !" if phase_actuelle == "focus" else f"🧘 Pause active... Respire profondément."
+            else:
+                txt_animation_status = f"⏳ Focus active (Cycle {cycles_faits + 1}/4)... Stay on this tab!" if phase_actuelle == "focus" else f"🧘 Break active... Breathe deeply and relax."
                 
+            status_action_text.text(txt_animation_status)
             time.sleep(1)
             total_secondes -= 1
-                    # --- 🏁 ACTIONS ET DISTRIBUTION DES CRÉDITS EN FIN DE CYCLE STREAK ---
+                    
+        # --- 🏁 ACTIONS ET DISTRIBUTION DES CRÉDITS EN FIN DE CYCLE STREAK ---
         st.session_state["chrono_en_cours"] = False
         st.session_state["pomodoro_lock_active"] = False
             
+        # Utilisation de la variable d'état pure et immuable pour le routage de fin de session
         if phase_actuelle == "focus":
-            # Fin des 25 minutes de travail : attribution des points
             st.session_state.xp += 20
             st.session_state["buddy_energy"] = max(0, st.session_state["buddy_energy"] - 25)
             st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 15)
             st.session_state["buddy_status"] = "🧠 Session de 25 min validée ! (+20 XP)" if FR else "🧠 25 min Session validated! (+20 XP)"
-                
-            # Bascule automatique vers la phase de repos réglementaire
             st.session_state["pomodoro_current_phase"] = "pause"
             st.session_state["pomodoro_termine"] = True
-                
             st.balloons()
         else:
-            # Fin des 5 minutes de pause : régénération du Tamagotchi
             st.session_state["buddy_energy"] = 100
             st.session_state["buddy_joy"] = min(100, st.session_state["buddy_joy"] + 20)
             st.session_state["buddy_status"] = "🧘 Pause terminée ! Prêt pour le focus." if FR else "🧘 Break over! Ready for focus."
-                
-            # Validation officielle du cycle complet et retour au focus
             st.session_state["pomodoro_cycles_completed"] += 1
             st.session_state["pomodoro_current_phase"] = "focus"
                 
-            # Message vocal ou sonore de fin de pause
-            st.markdown("#### 🔊 Message Vocal de ton Coach (Fin de session) :")
             if os.path.exists("coach_break.mp3"):
                 with open("coach_break.mp3", "rb") as f_break:
                     st.audio(f_break.read(), format="audio/mp3", autoplay=True)
@@ -1157,38 +1117,12 @@ with tab5:
                                 st.rerun()
     
         # ==============================================================================
-    # 🔥 TAB 7 : CAPSULE MOTIVATION (NATIVE, FLUIDE AVEC FADE-IN UNIVERSEL)
+    # 🔥 TAB 7 : CAPSULE MOTIVATION (NATIVE, FLUIDE ET 100% IMMUNISÉE AUX CRASHS)
     # ==============================================================================
     with tab6:
-        # Script navigateur asynchrone : Éteint l'audio si l'étudiant change d'onglet
-        st.markdown("""
-        <script>
-        const boutonsOnglets = window.parent.document.querySelectorAll('.stTabs [role="tab"]');
-        boutonsOnglets.forEach((onglet) => {
-            onglet.addEventListener('click', () => {
-                const audios = window.parent.document.querySelectorAll('audio');
-                audios.forEach(a => { a.pause(); a.src = ''; });
-            });
-        });
-        </script>
-        """, unsafe_allow_html=True)
+        # Fin des scripts JavaScript intrusifs en haut d'onglet
+        MAX_SESSIONS_PAR_JOUR = 2
 
-        # Injection du style CSS CapCut Fade-In Universel sur toutes les images de l'onglet
-        st.markdown("""
-        <style>
-        @keyframes capcutFadeIn {
-            0% { opacity: 0; transform: translateY(8px) scale(0.99); }
-            100% { opacity: 1; transform: translateY(0px) scale(1); }
-        }
-        .stImage img {
-            animation: capcutFadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-        # --- 🏛️ LE CATALOGUE D'ANIME AU FORMAT TUPLE HARMONISÉ ---
         BANQUE_DISCIPLINE = [
             ("Moody Dark Car Wallpaper 4K _ Dodge Challenger Drift Aesthetic.jpg", "choose_your_fighter.mp3"),
             ("Citation Mangas.jpg", "luz_roja.mp3"),
@@ -1217,97 +1151,109 @@ with tab5:
         ]
 
         vibe_options = ["Sélectionne une vibration..." if FR else "Select a vibe...", "⚡ Discipline", "🧘 Stress", "👑 Leader"]
-        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_clean_final")
+        vibe_choisie = st.selectbox("Vibe :", vibe_options, key="vibe_manga_selectbox_clean_final_anti_crash")
 
-        if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["audio_unlocked"]:
-            st.markdown("---")
-            if st.button("🔊 Activer l'expérience sonore" if FR else "🔊 Activate Sound", use_container_width=True, key="btn_unlock_capsule_audio_clean"):
-                st.session_state["audio_unlocked"] = True
-                st.rerun()
-
-        if FR:
-            st.subheader("🔥 Galerie Multimédia Active")
+        # --- VERROUILLAGE DU QUOTA DES 2 SESSIONS ---
+        if st.session_state["capsule_sessions_aujourdhui"] >= MAX_SESSIONS_PAR_JOUR:
+            st.error("🚨 [AI GUARDRAIL] ACCÈS LIMITÉ ! QUOTA QUOTIDIEN ÉPUISÉ" if FR else "🚨 [AI GUARDRAIL] ACCESS DENIED! DAILY QUOTA EXHAUSTED")
+            st.warning("Tu as atteint la limite maximale de 2 sessions de motivation par jour. L'effet 'Instagram Junior' est bloqué." if FR else "You have reached the maximum limit of 2 motivation sessions per day. The 'Instagram Junior' effect is blocked.")
+        
         else:
-            st.subheader("🔥 Active Multimedia Gallery")
-
-        # --- 🕹️ CARROUSEL 1 : DISCIPLINE ---
-        if "Discipline" in vibe_choisie:
-            st.markdown("---")
-            col_p, col_txt, col_n = st.columns(3)
-            with col_p:
-                if st.button("⬅️ Swipe", key="p_disc_native"):
-                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
-                    st.rerun()
-            with col_txt:
-                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
-            with col_n:
-                if st.button("Swipe ➡️", key="n_disc_native"):
-                    st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
+            if "Sélectionne" not in vibe_choisie and "Select" not in vibe_choisie and not st.session_state["capsule_audio_unlocked"]:
+                st.markdown("---")
+                if st.button("🔊 Activer l'expérience sonore immersive" if FR else "🔊 Activate Immersive Sound Experience", use_container_width=True, key="btn_unlock_capsule_audio_fixed_final"):
+                    st.session_state["capsule_audio_unlocked"] = True
+                    st.session_state["capsule_timer_running"] = True
+                    st.session_state["capsule_sessions_aujourdhui"] += 1
                     st.rerun()
 
-            p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
-            if os.path.exists(p_path):
-                c1, c2, c3 = st.columns(3)
-                with c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
-                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
-                        st.audio(p_audio, format="audio/mp3", autoplay=True)
+            if FR:
+                st.subheader("🔥 Galerie Multimédia Active")
             else:
-                st.warning(f"Fichier local '{p_path}' introuvable.")
+                st.subheader("🔥 Active Multimedia Gallery")
 
-        # --- 🕹️ CARROUSEL 2 : STRESS ---
-        elif "Stress" in vibe_choisie:
-            st.markdown("---")
-            col_p, col_txt, col_n = st.columns(3)
-            with col_p:
-                if st.button("⬅️ Swipe", key="p_stress_native"):
-                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
-                    st.rerun()
-            with col_txt:
-                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
-            with col_n:
-                if st.button("Swipe ➡️", key="n_stress_native"):
-                    st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] + 1) % len(BANQUE_STRESS)
-                    st.rerun()
+            # --- 🕹️ CARROUSEL 1 : DISCIPLINE ---
+            if "Discipline" in vibe_choisie:
+                st.markdown("---")
+                col_p, col_txt, col_n = st.columns(3)
+                with col_p:
+                    if st.button("⬅️ Swipe", key="p_disc_native"):
+                        st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] - 1) % len(BANQUE_DISCIPLINE)
+                        st.rerun()
+                with col_txt:
+                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_disc_idx'] + 1} / {len(BANQUE_DISCIPLINE)}</p>", unsafe_allow_html=True)
+                with col_n:
+                    if st.button("Swipe ➡️", key="n_disc_native"):
+                        st.session_state["carousel_disc_idx"] = (st.session_state["carousel_disc_idx"] + 1) % len(BANQUE_DISCIPLINE)
+                        st.rerun()
 
-            p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
-            if os.path.exists(p_path):
-                c1, c2, c3 = st.columns(3)
-                with c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
-                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
-                        st.audio(p_audio, format="audio/mp3", autoplay=True)
-            else:
-                st.warning(f"Fichier local '{p_path}' introuvable.")
+                p_path, p_audio = BANQUE_DISCIPLINE[st.session_state["carousel_disc_idx"]]
+                if os.path.exists(p_path):
+                    c1, c2, c3 = st.columns(3)
+                    with c2:
+                        st.image(p_path, width=320)
+                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
+                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
+                            with open(p_audio, "rb") as f_aud: audio_bytes = f_aud.read()
+                            audio_b64 = base64.b64encode(audio_bytes).decode()
+                            st.markdown(f'<div style="display:none;"><audio autoplay onloadeddata="this.currentTime = 30;"><source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3"></audio></div>', unsafe_allow_html=True)
+                else: st.warning(f"Fichier local '{p_path}' introuvable.")
 
-        # --- 🕹️ CARROUSEL 3 : LEADER ---
-        elif "Leader" in vibe_choisie:
-            st.markdown("---")
-            col_p, col_txt, col_n = st.columns(3)
-            with col_p:
-                if st.button("⬅️ Swipe", key="p_lead_native"):
-                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
-                    st.rerun()
-            with col_txt:
-                st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
-            with col_n:
-                if st.button("Swipe ➡️", key="n_lead_native"):
-                    st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
-                    st.rerun()
+            # --- 🕹️ CARROUSEL 2 : STRESS ---
+            elif "Stress" in vibe_choisie:
+                st.markdown("---")
+                col_p, col_txt, col_n = st.columns(3)
+                with col_p:
+                    if st.button("⬅️ Swipe", key="p_stress_native"):
+                        st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] - 1) % len(BANQUE_STRESS)
+                        st.rerun()
+                with col_txt:
+                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_stress_idx'] + 1} / {len(BANQUE_STRESS)}</p>", unsafe_allow_html=True)
+                with col_n:
+                    if st.button("Swipe ➡️", key="n_stress_native"):
+                        st.session_state["carousel_stress_idx"] = (st.session_state["carousel_stress_idx"] + 1) % len(BANQUE_STRESS)
+                        st.rerun()
 
-            p_path, p_audio = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
-            if os.path.exists(p_path):
-                c1, c2, c3 = st.columns(3)
-                with c2:
-                    st.image(p_path, width=320)
-                    st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')[0]}</p>", unsafe_allow_html=True)
-                    if st.session_state["audio_unlocked"] and os.path.exists(p_audio):
-                        st.audio(p_audio, format="audio/mp3", autoplay=True)
-            else:
-                st.warning(f"Fichier local '{p_path}' introuvable.")
+                p_path, p_audio = BANQUE_STRESS[st.session_state["carousel_stress_idx"]]
+                if os.path.exists(p_path):
+                    c1, c2, c3 = st.columns(3)
+                    with c2:
+                        st.image(p_path, width=320)
+                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
+                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
+                            with open(p_audio, "rb") as f_aud: audio_bytes = f_aud.read()
+                            audio_b64 = base64.b64encode(audio_bytes).decode()
+                            st.markdown(f'<div style="display:none;"><audio autoplay onloadeddata="this.currentTime = 30;"><source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3"></audio></div>', unsafe_allow_html=True)
+                else: st.warning(f"Fichier local '{p_path}' introuvable.")
 
+            # --- 🕹️ CARROUSEL 3 : LEADER ---
+            elif "Leader" in vibe_choisie:
+                st.markdown("---")
+                col_p, col_txt, col_n = st.columns(3)
+                with col_p:
+                    if st.button("⬅️ Swipe", key="p_lead_native"):
+                        st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] - 1) % len(BANQUE_LEADER)
+                        st.rerun()
+                with col_txt:
+                    st.markdown(f"<p style='text-align:center;'>REEL {st.session_state['carousel_leader_idx'] + 1} / {len(BANQUE_LEADER)}</p>", unsafe_allow_html=True)
+                with col_n:
+                    if st.button("Swipe ➡️", key="n_lead_native"):
+                        st.session_state["carousel_leader_idx"] = (st.session_state["carousel_leader_idx"] + 1) % len(BANQUE_LEADER)
+                        st.rerun()
+
+                p_path, p_audio = BANQUE_LEADER[st.session_state["carousel_leader_idx"]]
+                if os.path.exists(p_path):
+                    c1, c2, c3 = st.columns(3)
+                    with c2:
+                        st.image(p_path, width=320)
+                        st.markdown(f"<p style='text-align:center; color:gray; font-size:12px;'>Aura : {p_path.split('.')}</p>", unsafe_allow_html=True)
+                        if st.session_state["capsule_audio_unlocked"] and os.path.exists(p_audio):
+                            with open(p_audio, "rb") as f_aud: audio_bytes = f_aud.read()
+                            audio_b64 = base64.b64encode(audio_bytes).decode()
+                            st.markdown(f'', unsafe_allow_html=True)
+                        else: 
+                            st.warning(f"Fichier local '{p_path}' introuvable.")
+   
   # ==============================================================================
 # 🎓 CERTIFICATION FINALE : VALIDE LE DIPLÔME DE LUXE À PARTIR DE 100 XP
 # ==============================================================================
