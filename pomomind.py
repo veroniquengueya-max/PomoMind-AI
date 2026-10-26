@@ -557,28 +557,62 @@ def generer_concepts_feynman_dynamiques(texte_cours, titre_matiere):
     texte_source = texte_cours[:18000]
 
     # Choisir des rubriques dans une seule langue
+    
+    # Définir une structure claire pour chaque fiche
     if FR:
         format_fiche = """
-FICHE 1 : [Titre précis]
-EXPLICATION SIMPLE : [Explication accessible]
-ANALOGIE : [Comparaison concrète et son lien avec le concept]
-EXEMPLE : [Exemple pertinent]
-ERREUR FRÉQUENTE : [Confusion à éviter]
-QUESTION DE RÉVISION : [Question précise]
-RÉPONSE ATTENDUE : [Réponse courte et correcte]
+## FICHE {numero} — [Titre précis]
+
+**1. EXPLICATION SIMPLE**
+[Explication claire et accessible du concept.]
+
+**2. ANALOGIE**
+[Comparaison concrète et explication du lien avec le concept.]
+
+**3. EXEMPLE**
+[Exemple pertinent, fidèle au cours.]
+
+**4. ERREUR FRÉQUENTE**
+[Confusion à éviter et explication.]
+
+**5. QUESTION DE RÉVISION**
+[Question précise permettant de vérifier la compréhension.]
+
+**6. RÉPONSE ATTENDUE**
+[Réponse courte, exacte et complète.]
+
+---
 """
-        labels_langue = "Utilise exclusivement les rubriques françaises."
+        labels_langue = (
+            "Utilise exclusivement les rubriques françaises."
+        )
     else:
         format_fiche = """
-CARD 1: [Precise title]
-SIMPLE EXPLANATION: [Accessible explanation]
-ANALOGY: [Concrete comparison and its connection to the concept]
-EXAMPLE: [Relevant example]
-COMMON MISTAKE: [Misconception to avoid]
-REVIEW QUESTION: [Precise question]
-EXPECTED ANSWER: [Short, correct answer]
+## CARD {numero} — [Precise title]
+
+**1. SIMPLE EXPLANATION**
+[A clear, accessible explanation of the concept.]
+
+**2. ANALOGY**
+[A concrete comparison and how it relates to the concept.]
+
+**3. EXAMPLE**
+[A relevant example grounded in the course.]
+
+**4. COMMON MISTAKE**
+[A misconception to avoid and why.]
+
+**5. REVIEW QUESTION**
+[A precise question that checks understanding.]
+
+**6. EXPECTED ANSWER**
+[A short, accurate, complete answer.]
+
+---
 """
-        labels_langue = "Use exclusively the English headings."
+        labels_langue = (
+            "Use exclusively the English headings."
+        )
 
     messages = [
         {
