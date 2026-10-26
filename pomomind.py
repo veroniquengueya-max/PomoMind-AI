@@ -661,328 +661,75 @@ if not st.session_state["session_initialisee"]:
         if FR else
         "🔐 Sign in to access the campus workspace."
     )
-    st.stop()
-
 if st.session_state["user_role_actif"] == "prof":
+
     with st.sidebar:
-        st.markdown(f"**STATION : @{st.session_state.get('username', '').upper() or 'PROF'}**")
+        st.markdown(
+            f"**STATION : @{st.session_state.get('username', '').upper() or 'PROF'}**"
+        )
+
         st.metric("🏆 XP", f"{st.session_state.xp} XP")
-        if st.button("🔴 Quitter la session" if FR else "🔴 Terminate Session", use_container_width=True, key="logout_btn_prof"):
+
+        if st.button(
+            "🔴 Quitter la session" if FR else "🔴 Terminate Session",
+            use_container_width=True,
+            key="logout_btn_prof",
+        ):
             st.session_state["session_initialisee"] = False
             st.session_state["user_role_actif"] = None
-            st.error(f"⚠️ Impossible de générer les fiches Feynman : {exc}")
-with st.sidebar:
-        style_robot_expressif = """
-    <style>
-    @keyframes robotHover {
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px #00f0ff); }
-        50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px #00f0ff); }
-        100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px #00f0ff); }
-    }
-    @keyframes robotSprint {
-        0% { transform: translateY(0px) scale(1) skewX(-2deg); filter: drop-shadow(0 0 10px #ff007f); }
-        25% { transform: translateY(-10px) scaleX(1.1); }
-        50% { transform: translateY(0px) scaleX(0.95) skewX(2deg); }
-        75% { transform: translateY(-6px) scaleY(1.05); }
-        100% { transform: translateY(0px) scale(1); }
-    }
-    @keyframes visorScan {
-        0%, 100% { background-color: #ff007f; box-shadow: 0 0 4px #ff007f; }
-        50% { background-color: #00f0ff; box-shadow: 0 0 12px #00f0ff; }
-    }
-    @keyframes jetFlame {
-        0%, 100% { height: 6px; opacity: 0.7; }
-        50% { height: 14px; opacity: 1; background-color: #ff007f; }
-    }
-    .robot-chassis {
-        width: 50px; height: 44px; background-color: #1e1b4b; border: 3px solid #00f0ff;
-        border-radius: 10px; position: relative; display: inline-block; margin: 15px auto;
-    }
-    .robot-visor {
-        position: absolute; width: 34px; height: 6px; top: 12px; left: 5px;
-        border-radius: 2px; animation: visorScan 1s infinite ease-in-out;
-    }
-    .robot-thruster {
-        position: absolute; width: 14px; bottom: -11px; left: 15px;
-        background: linear-gradient(#00f0ff, transparent);
-        border-radius: 0 0 4px 4px; animation: jetFlame 0.3s infinite ease-in-out;
-    }
-    .mode-hover { animation: robotHover 2.5s infinite ease-in-out; }
-    .mode-sprint { animation: robotSprint 0.4s infinite linear; }
-        
-    .readable-buddy-bubble {
-        background-color: #ffffff !important; border: 4px solid #111116 !important;
-        border-radius: 12px; padding: 12px; margin-bottom: 20px;
-        box-shadow: 4px 4px 0px #000000; text-align: center;
-    }
-    .readable-buddy-bubble p {
-        color: #111116 !important; font-weight: 900 !important;
-        font-size: 13px !important; line-height: 1.4; margin: 0 !important;
-        font-family: 'Courier New', monospace;
-    }
-    </style>
-    """
-        st.markdown(style_robot_expressif, unsafe_allow_html=True)
-
-            # Rendu sécurisé du badge de la station (Évite le crash si non connecté)
-        user_badge = st.session_state['username'].upper() if st.session_state['username'] else "INCONNU / ANONYMOUS"
-        label_station = f"STATION : @{user_badge}"
-
-
-        PHRASES_VEILLE_FR = [
-        "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
-        "Méthode Feynman armée. Simplifions ces lignes complexes de cybersécurité !",
-        "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux.",
-        "Besoin d'un boost ? Va swiper un Edit de motivation dans l'onglet Capsule !"
-    ]
-        PHRASES_VEILLE_EN = [
-        "Scanning network nodes... Your development speed is highly optimized today!",
-        "Feynman core armed. Let's simplify those dense cybersecurity data structures!",
-        "Campus link stable. Your active recall session is generating great XP credits.",
-        "Need a mental reboot? Go swipe a Manga Edit inside the Capsule tab!"
-    ]
-
-        if st.session_state["chrono_en_cours"]:
-            bulle_texte = "Propulseurs à 100% ! Moteur Feynman en cours de compilation !" if FR else "Thrusters at 100%! Feynman core compiler running!"
-            st.session_state["buddy_animation"] = "mode-sprint"
-        else:
-            random.seed(st.session_state.xp)
-            bulle_texte = random.choice(PHRASES_VEILLE_FR) if FR else random.choice(PHRASES_VEILLE_EN)
-            st.session_state["buddy_animation"] = "mode-hover"
-
-        st.markdown(f"""
-    <div style="width:100%; text-align:center; height:90px; margin-bottom:10px;">
-        <div class="{st.session_state['buddy_animation']}">
-            <div class="robot-chassis">
-                <div class="robot-visor"></div>
-                <div class="robot-thruster"></div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-            # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH AVEC DOUBLE SÉCURITÉ ---
-        if st.session_state.get("capsule_timer_running", False):
-            st.markdown("---")
-            st.markdown("<p style='text-align:center; font-weight:bold; color:#00f0ff; margin-bottom:2px;'>⚡ RECHARGE D'AURA ACTIVE</p>", unsafe_allow_html=True)
-            
-            # Récupération de la sauvegarde Python en cas de tentative d'effacement du cache
-            temps_sauvegarde = st.session_state.get("capsule_countdown_seconds", 1200)
-            
-            st.components.v1.html(f"""
-            <div style="text-align:center; background:transparent;">
-                <h1 id="sidebar_clock_display" style="font-family:monospace; font-size:36px; color:#ff007f; margin:0; font-weight:bold;">20:00</h1>
-            </div>
-            <script>
-                let timeRemaining = localStorage.getItem('pomo_capsule_time');
-                
-                // ANTI-TRICHE : Si le cache est vide, on force la restauration depuis la sauvegarde Python
-                if (timeRemaining === null) {{
-                    timeRemaining = {temps_sauvegarde};
-                }} else {{
-                    timeRemaining = parseInt(timeRemaining, 10);
-                }}
-                let display = document.getElementById('sidebar_clock_display');
-                function updateClock() {{
-                    let mins = Math.floor(timeRemaining / 60);
-                    let secs = timeRemaining % 60;
-                    display.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
-                    if (timeRemaining <= 0) {{
-                        clearInterval(countdownInterval);
-                        display.innerText = "00:00";
-                        localStorage.removeItem('pomo_capsule_time');
-                    }} else {{
-                        timeRemaining--;
-                        localStorage.setItem('pomo_capsule_time', timeRemaining);
-                    }}
-                }}
-                updateClock();
-                let countdownInterval = setInterval(updateClock, 1000);
-            </script>
-            """, height=60)
-            
-            # Mise à jour silencieuse de l'état Python pour suivre le décompte
-            if st.session_state["capsule_countdown_seconds"] > 0:
-                st.session_state["capsule_countdown_seconds"] -= 1
-
-        st.markdown(f'<div class="readable-buddy-bubble"><p>"{bulle_texte}"</p></div>', unsafe_allow_html=True)
-
-        label_eng = "🔋 Énergie" if FR else "🔋 Energy"
-        label_joy = "❤️ Joie" if FR else "❤️ Joy"
-        col_s1, col_s2 = st.columns(2)
-        with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
-        with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
-
-        st.markdown("---")
-        label_score = "🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:"
-        st.metric(label=label_score, value=f"{st.session_state.xp} XP")
-        
-    # --- RESTAURATION DE TON BOUTON SÉCURISÉ D'ORIGINE POUR QUITTER ---
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        label_exit = "🔴 Quitter la session" if FR else "🔴 Terminate Session"
-        if st.button(label_exit, use_container_width=True, key="logout_btn_sidebar_restored"):
-            st.session_state["session_initialisee"] = False
-            st.session_state["pomodoro_termine"] = False
-            st.session_state["chrono_en_cours"] = False
-            st.session_state["capsule_timer_running"] = False
-            st.session_state["capsule_audio_unlocked"] = False
-            st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
             st.rerun()
-with st.sidebar:
-        style_robot_expressif = """
-    <style>
-    @keyframes robotHover {
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px #00f0ff); }
-        50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px #00f0ff); }
-        100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px #00f0ff); }
-    }
-    @keyframes robotSprint {
-        0% { transform: translateY(0px) scale(1) skewX(-2deg); filter: drop-shadow(0 0 10px #ff007f); }
-        25% { transform: translateY(-10px) scaleX(1.1); }
-        50% { transform: translateY(0px) scaleX(0.95) skewX(2deg); }
-        75% { transform: translateY(-6px) scaleY(1.05); }
-        100% { transform: translateY(0px) scale(1); }
-    }
-    @keyframes visorScan {
-        0%, 100% { background-color: #ff007f; box-shadow: 0 0 4px #ff007f; }
-        50% { background-color: #00f0ff; box-shadow: 0 0 12px #00f0ff; }
-    }
-    @keyframes jetFlame {
-        0%, 100% { height: 6px; opacity: 0.7; }
-        50% { height: 14px; opacity: 1; background-color: #ff007f; }
-    }
-    .robot-chassis {
-        width: 50px; height: 44px; background-color: #1e1b4b; border: 3px solid #00f0ff;
-        border-radius: 10px; position: relative; display: inline-block; margin: 15px auto;
-    }
-    .robot-visor {
-        position: absolute; width: 34px; height: 6px; top: 12px; left: 5px;
-        border-radius: 2px; animation: visorScan 1s infinite ease-in-out;
-    }
-    .robot-thruster {
-        position: absolute; width: 14px; bottom: -11px; left: 15px;
-        background: linear-gradient(#00f0ff, transparent);
-        border-radius: 0 0 4px 4px; animation: jetFlame 0.3s infinite ease-in-out;
-    }
-    .mode-hover { animation: robotHover 2.5s infinite ease-in-out; }
-    .mode-sprint { animation: robotSprint 0.4s infinite linear; }
+
+    st.markdown("### 👨‍🏫 Console de Diffusion Officielle de l'Enseignant" if FR else "### 👨‍🏫 Official Professor Broadcast Console")
+    st.write(
+        "Téléversez ici le fichier brut de vos notes de cours ou votre syllabus. L'écosystème Zetaris et NVIDIA analysera son intégrité avant de le propager au campus."
+        if FR else
+        "Upload the raw file of your lecture notes or syllabus here. The Zetaris and NVIDIA ecosystem will analyze its integrity before broadcasting it to the campus."
+    )
         
-    .readable-buddy-bubble {
-        background-color: #ffffff !important; border: 4px solid #111116 !important;
-        border-radius: 12px; padding: 12px; margin-bottom: 20px;
-        box-shadow: 4px 4px 0px #000000; text-align: center;
-    }
-    .readable-buddy-bubble p {
-        color: #111116 !important; font-weight: 900 !important;
-        font-size: 13px !important; line-height: 1.4; margin: 0 !important;
-        font-family: 'Courier New', monospace;
-    }
-    </style>
-    """
-        st.markdown(style_robot_expressif, unsafe_allow_html=True)
-
-            # Rendu sécurisé du badge de la station (Évite le crash si non connecté)
-        user_badge = st.session_state['username'].upper() if st.session_state['username'] else "INCONNU / ANONYMOUS"
-        label_station = f"STATION : @{user_badge}"
+    nom_cache_public = "cache_cours_public.txt"
 
 
-        PHRASES_VEILLE_FR = [
-        "Analyse des nœuds en cours... Tu es d'une efficacité redoutable aujourd'hui !",
-        "Méthode Feynman armée. Simplifions ces lignes complexes de cybersécurité !",
-        "Réseau stable sur le campus. Ton focus génère des crédits d'XP précieux.",
-        "Besoin d'un boost ? Va swiper un Edit de motivation dans l'onglet Capsule !"
-    ]
-        PHRASES_VEILLE_EN = [
-        "Scanning network nodes... Your development speed is highly optimized today!",
-        "Feynman core armed. Let's simplify those dense cybersecurity data structures!",
-        "Campus link stable. Your active recall session is generating great XP credits.",
-        "Need a mental reboot? Go swipe a Manga Edit inside the Capsule tab!"
-    ]
-
-        if st.session_state["chrono_en_cours"]:
-            bulle_texte = "Propulseurs à 100% ! Moteur Feynman en cours de compilation !" if FR else "Thrusters at 100%! Feynman core compiler running!"
-            st.session_state["buddy_animation"] = "mode-sprint"
-        else:
-            random.seed(st.session_state.xp)
-            bulle_texte = random.choice(PHRASES_VEILLE_FR) if FR else random.choice(PHRASES_VEILLE_EN)
-            st.session_state["buddy_animation"] = "mode-hover"
-
-        st.markdown(f"""
-    <div style="width:100%; text-align:center; height:90px; margin-bottom:10px;">
-        <div class="{st.session_state['buddy_animation']}">
-            <div class="robot-chassis">
-                <div class="robot-visor"></div>
-                <div class="robot-thruster"></div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-            # --- 🤖 MONITEUR TEMPOREL D'AURA DU COACH AVEC DOUBLE SÉCURITÉ ---
-        if st.session_state.get("capsule_timer_running", False):
-            st.markdown("---")
-            st.markdown("<p style='text-align:center; font-weight:bold; color:#00f0ff; margin-bottom:2px;'>⚡ RECHARGE D'AURA ACTIVE</p>", unsafe_allow_html=True)
+if st.session_state.get("user_role_actif") == "prof":
+    with st.form("form_prof_diffusion_feynman"):
+        label_pname = "Nom de l'Enseignant :" if FR else "Professor's Name:"
+        label_psub = "Intitulé de la matière / UE :" if FR else "Course Title / Module:"
+        p_name = st.text_input(label_pname, value="Dr. Dom Emmanuel T.")
+        p_sub = st.text_input(label_psub, value="Software Engineering")
             
-            # Récupération de la sauvegarde Python en cas de tentative d'effacement du cache
-            temps_sauvegarde = st.session_state.get("capsule_countdown_seconds", 1200)
+        label_uploader = "📁 Sélectionner le fichier officiel du cours (.pdf) :" if FR else "📁 Select the official course file (.pdf):"
+        fichier_cours_brut = st.file_uploader(label_uploader, type=["pdf"], key="prof_file_feynman_uploader")
             
-            st.components.v1.html(f"""
-            <div style="text-align:center; background:transparent;">
-                <h1 id="sidebar_clock_display" style="font-family:monospace; font-size:36px; color:#ff007f; margin:0; font-weight:bold;">20:00</h1>
-            </div>
-            <script>
-                let timeRemaining = localStorage.getItem('pomo_capsule_time');
-                
-                // ANTI-TRICHE : Si le cache est vide, on force la restauration depuis la sauvegarde Python
-                if (timeRemaining === null) {{
-                    timeRemaining = {temps_sauvegarde};
-                }} else {{
-                    timeRemaining = parseInt(timeRemaining, 10);
-                }}
-                let display = document.getElementById('sidebar_clock_display');
-                function updateClock() {{
-                    let mins = Math.floor(timeRemaining / 60);
-                    let secs = timeRemaining % 60;
-                    display.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
-                    if (timeRemaining <= 0) {{
-                        clearInterval(countdownInterval);
-                        display.innerText = "00:00";
-                        localStorage.removeItem('pomo_capsule_time');
-                    }} else {{
-                        timeRemaining--;
-                        localStorage.setItem('pomo_capsule_time', timeRemaining);
-                    }}
-                }}
-                updateClock();
-                let countdownInterval = setInterval(updateClock, 1000);
-            </script>
-            """, height=60)
-            
-            # Mise à jour silencieuse de l'état Python pour suivre le décompte
-            if st.session_state["capsule_countdown_seconds"] > 0:
-                st.session_state["capsule_countdown_seconds"] -= 1
-
-        st.markdown(f'<div class="readable-buddy-bubble"><p>"{bulle_texte}"</p></div>', unsafe_allow_html=True)
-
-        label_eng = "🔋 Énergie" if FR else "🔋 Energy"
-        label_joy = "❤️ Joie" if FR else "❤️ Joy"
-        col_s1, col_s2 = st.columns(2)
-        with col_s1: st.metric(label=label_eng, value=f"{st.session_state['buddy_energy']}%")
-        with col_s2: st.metric(label=label_joy, value=f"{st.session_state['buddy_joy']}%")
-
-        st.markdown("---")
-        label_score = "🏆 Mon Score d'Étude :" if FR else "🏆 My Study Score:"
-        st.metric(label=label_score, value=f"{st.session_state.xp} XP")
-        
-    # --- RESTAURATION DE TON BOUTON SÉCURISÉ D'ORIGINE POUR QUITTER ---
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        label_exit = "🔴 Quitter la session" if FR else "🔴 Terminate Session"
-        if st.button(label_exit, use_container_width=True, key="logout_btn_sidebar_restored"):
-            st.session_state["session_initialisee"] = False
-            st.session_state["pomodoro_termine"] = False
-            st.session_state["chrono_en_cours"] = False
-            st.session_state["capsule_timer_running"] = False
-            st.session_state["capsule_audio_unlocked"] = False
-            st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
-            st.rerun()
+        if st.form_submit_button("⚡ Analyser et Propager le cours au Campus", use_container_width=True):
+            if fichier_cours_brut is not None:
+                with st.spinner("L'Agent Feynman (Meterless Nightshift AI) extrait et analyse le PDF de manière autonome..."):
+                    # 1. Lecture physique réelle du contenu du PDF
+                    texte_extrait = extraire_texte_pdf(fichier_cours_brut)
+                    
+                    if texte_extrait == "":
+                        st.error("⚠️ Impossible de lire le texte de ce PDF. Vérifiez qu'il n'est pas scanné sous forme d'image.")
+                    else:
+                        # 2. Génération dynamique autonome des fiches d'étude
+                        concepts_ia = generer_concepts_feynman_dynamiques(texte_extrait, p_sub)
+                        
+                        feynman_cards_compiled = f"""
+                        METADATA_SUB: {p_sub}
+                        METADATA_NAME: {p_name}
+                        CONTENT_RAW: {texte_extrait[:2000]}
+                        ---
+                        {concepts_ia}
+                        """
+                        # 3. Écriture physique dans le registre décentralisé Zetaris
+                        with open(nom_cache_public, "w", encoding="utf-8") as f_vault:
+                            f_vault.write(feynman_cards_compiled.strip())
+                            
+                        st.session_state.xp += 15
+                        st.session_state["prof_sub"] = p_sub
+                        st.session_state["prof_name"] = p_name
+                        st.success("✅ MVP Autonome : Le PDF a été lu et converti en fiches d'études avec succès !")
+                        time.sleep(1)
+                        st.session_state["session_initialisee"] = False
+                        st.session_state["user_role_actif"] = None
+                        st.rerun()
 
 if st.session_state.get("user_role_actif") == "eleve":
     with st.sidebar:
@@ -1142,7 +889,11 @@ if st.session_state.get("user_role_actif") == "eleve":
             st.markdown("<script>localStorage.removeItem('pomo_capsule_time');</script>", unsafe_allow_html=True)
             st.rerun()
 
-titres_onglets = [
+if (
+    st.session_state.get("session_initialisee", False)
+    and st.session_state.get("user_role_actif") == "eleve"
+):
+    titres_onglets = [
 "⏱️ Chrono Pomodoro", "📅 Planning & Examens", "📚 Flux Réception",
 "🧠 Fiches Flash", "💬 Plateform de chat IA", "🤝 Aide du Hub", "🔥 Capsule Motivation"
 ] if FR else [
