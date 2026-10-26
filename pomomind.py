@@ -491,7 +491,23 @@ def generer_concepts_feynman_dynamiques(texte_cours, titre_matiere):
             ),
         },
     ]
-    return appeler_ia_nvidia(messages, max_tokens=1800, temperature=0.25)
+    
+    try:
+        return appeler_ia_nvidia(
+            messages,
+            max_tokens=1800,
+            temperature=0.25,
+        )
+    except RuntimeError as exc:
+        st.warning(
+            "NVIDIA est indisponible. "
+            "PomoMind utilise le générateur local de secours. "
+            f"Détail : {exc}"
+        )
+        return generer_fiches_locales(
+            texte_cours,
+            titre_matiere,
+        )
 
 
 # --- INITIALISATION OBLIGATOIRE DES INDEX MULTIMÉDIAS DE LA CAPSULE ---
