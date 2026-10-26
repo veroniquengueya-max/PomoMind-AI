@@ -640,12 +640,19 @@ def generer_concepts_feynman_dynamiques(texte_cours, titre_matiere):
                 "instead of inventing one.\n\n"
                 "Follow this structure for every card:\n"
                 f"{format_fiche}\n"
+                
                 "Number cards sequentially starting at 1. "
-                "Finish every card, including its review question and answer. "
-                "Never end in the middle of a sentence, question, or answer. "
-                "Prioritize completing a card over starting another one. "
-                "Preserve the course's terminology and important details. "
-                "If the source does not provide enough information, say so."
+                "Replace {numero} with the actual card number. "
+                "Follow the order of concepts in the original course. "
+                "Use the exact six headings defined in the selected language. "
+                "Put every heading on a separate line. "
+                "Never place two sections on the same line. "
+                "Separate consecutive cards with a line containing only ---. "
+                "Complete every card, including its review question and answer. "
+                "Never start a new card unless the previous card is complete. "
+                "Never end in the middle of a sentence, example, question, or answer. "
+                "Prioritize complete cards over a larger number of cards. "
+
             ),
         },
         {
