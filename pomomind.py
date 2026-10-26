@@ -201,8 +201,22 @@ def appeler_ia_nvidia(messages, max_tokens=1200, temperature=0.3):
 
         with urllib.request.urlopen(req, timeout=180) as response:
             result = json.loads(response.read().decode("utf-8"))
+        
+        # Vérifier que l'API a renvoyé une réponse exploitable
+        choices = result.get("choices", [])
 
-        return result["choices"][0]["message"]["content"]
+        if not choices:
+            st.error("OpenRouter n'a renvoyé aucun résultat.")
+            return None
+
+        message = choices[0].get("message", {})
+        contenu = message.get("content")
+
+        if not contenu or not isinstance(contenu, str):
+            st.error("OpenRouter a répondu, mais le contenu est vide ou invalide.")
+            return None
+
+        return contenu
 
     except urllib.error.HTTPError as exc:
         details = exc.read().decode("utf-8", errors="replace")
